@@ -23,6 +23,7 @@ import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
+import static java.util.concurrent.ForkJoinTask.adapt;
 
 public class ParallelStreamSupport<T> implements Stream<T> {
 
@@ -172,28 +173,52 @@ public class ParallelStreamSupport<T> implements Stream<T> {
 
   @Override
   public void forEach(Consumer<? super T> action) {
-    ForkJoinTask<?> task = ForkJoinTask.adapt(() -> this.delegate.forEach(action));
-    this.workerPool.invoke(task);
+    if (isParallel()) {
+      ForkJoinTask<?> task = adapt(() -> this.delegate.forEach(action));
+      this.workerPool.invoke(task);
+    } else {
+      this.delegate.forEach(action);
+    }
   }
 
   @Override
   public void forEachOrdered(Consumer<? super T> action) {
-    throw new UnsupportedOperationException("Not yet implemented");
+    if (isParallel()) {
+      ForkJoinTask<?> task = adapt(() -> this.delegate.forEachOrdered(action));
+      this.workerPool.invoke(task);
+    } else {
+      this.delegate.forEach(action);
+    }
   }
 
   @Override
   public Object[] toArray() {
-    throw new UnsupportedOperationException("Not yet implemented");
+    if (isParallel()) {
+      ForkJoinTask<Object[]> task = adapt(() -> this.delegate.toArray());
+      return this.workerPool.invoke(task);
+    }
+
+    return this.delegate.toArray();
   }
 
   @Override
   public <A> A[] toArray(IntFunction<A[]> generator) {
-    throw new UnsupportedOperationException("Not yet implemented");
+    if (isParallel()) {
+      ForkJoinTask<A[]> task = adapt(() -> this.delegate.toArray(generator));
+      return this.workerPool.invoke(task);
+    }
+
+    return this.delegate.toArray(generator);
   }
 
   @Override
   public T reduce(T identity, BinaryOperator<T> accumulator) {
-    throw new UnsupportedOperationException("Not yet implemented");
+    if (isParallel()) {
+      ForkJoinTask<T> task = adapt(() -> this.delegate.reduce(identity, accumulator));
+      return this.workerPool.invoke(task);
+    }
+
+    return this.delegate.reduce(identity, accumulator);
   }
 
   @Override

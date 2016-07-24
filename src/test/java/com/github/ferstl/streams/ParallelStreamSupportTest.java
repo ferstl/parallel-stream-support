@@ -1,4 +1,4 @@
-package com.github.ferstl;
+package com.github.ferstl.streams;
 
 import java.util.List;
 import java.util.concurrent.ForkJoinPool;
@@ -8,6 +8,7 @@ import java.util.regex.Pattern;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import com.github.ferstl.streams.ParallelStreamSupport;
 import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toList;
 import static org.hamcrest.Matchers.contains;

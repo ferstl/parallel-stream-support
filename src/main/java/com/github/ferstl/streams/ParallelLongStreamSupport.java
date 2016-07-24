@@ -1,4 +1,4 @@
-package com.github.ferstl;
+package com.github.ferstl.streams;
 
 import java.util.LongSummaryStatistics;
 import java.util.OptionalDouble;

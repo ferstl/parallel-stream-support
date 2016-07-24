@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.Optional;
 import java.util.Spliterator;
 import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.ForkJoinTask;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.BinaryOperator;
@@ -171,7 +172,8 @@ public class ParallelStreamSupport<T> implements Stream<T> {
 
   @Override
   public void forEach(Consumer<? super T> action) {
-    throw new UnsupportedOperationException("Not yet implemented");
+    ForkJoinTask<?> task = ForkJoinTask.adapt(() -> this.delegate.forEach(action));
+    this.workerPool.invoke(task);
   }
 
   @Override

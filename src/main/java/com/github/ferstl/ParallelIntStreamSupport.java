@@ -5,6 +5,7 @@ import java.util.OptionalDouble;
 import java.util.OptionalInt;
 import java.util.PrimitiveIterator.OfInt;
 import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.ForkJoinTask;
 import java.util.function.BiConsumer;
 import java.util.function.IntBinaryOperator;
 import java.util.function.IntConsumer;
@@ -19,6 +20,7 @@ import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
+import static java.util.concurrent.ForkJoinTask.adapt;
 
 
 public class ParallelIntStreamSupport implements IntStream {
@@ -118,147 +120,192 @@ public class ParallelIntStreamSupport implements IntStream {
 
   @Override
   public void forEach(IntConsumer action) {
-    throw new UnsupportedOperationException("Not yet implemented");
-    // this.delegate.forEach(action);
+    if (isParallel()) {
+      ForkJoinTask<?> task = adapt(() -> this.delegate.forEach(action));
+      this.workerPool.invoke(task);
+    } else {
+      this.delegate.forEach(action);
+    }
   }
 
   @Override
   public void forEachOrdered(IntConsumer action) {
-    throw new UnsupportedOperationException("Not yet implemented");
-    // this.delegate.forEachOrdered(action);
+    if (isParallel()) {
+      ForkJoinTask<?> task = adapt(() -> this.delegate.forEachOrdered(action));
+      this.workerPool.invoke(task);
+    } else {
+      this.delegate.forEachOrdered(action);
+    }
   }
 
   @Override
   public int[] toArray() {
-    throw new UnsupportedOperationException("Not yet implemented");
-    // return this.delegate.toArray();
+    if (isParallel()) {
+      ForkJoinTask<int[]> task = adapt(() -> this.delegate.toArray());
+      return this.workerPool.invoke(task);
+    }
+    return this.delegate.toArray();
   }
 
   @Override
   public int reduce(int identity, IntBinaryOperator op) {
-    throw new UnsupportedOperationException("Not yet implemented");
-    // return this.delegate.reduce(identity, op);
+    if (isParallel()) {
+      ForkJoinTask<Integer> task = adapt(() -> this.delegate.reduce(identity, op));
+      return this.workerPool.invoke(task);
+    }
+    return this.delegate.reduce(identity, op);
   }
 
   @Override
   public OptionalInt reduce(IntBinaryOperator op) {
-    throw new UnsupportedOperationException("Not yet implemented");
-    // return this.delegate.reduce(op);
+    if (isParallel()) {
+      ForkJoinTask<OptionalInt> task = adapt(() -> this.delegate.reduce(op));
+      return this.workerPool.invoke(task);
+    }
+    return this.delegate.reduce(op);
   }
 
   @Override
   public <R> R collect(Supplier<R> supplier, ObjIntConsumer<R> accumulator, BiConsumer<R, R> combiner) {
-    throw new UnsupportedOperationException("Not yet implemented");
-    // return this.delegate.collect(supplier, accumulator, combiner);
+    if (isParallel()) {
+      ForkJoinTask<R> task = adapt(() -> this.delegate.collect(supplier, accumulator, combiner));
+      return this.workerPool.invoke(task);
+    }
+    return this.delegate.collect(supplier, accumulator, combiner);
   }
 
   @Override
   public int sum() {
-    throw new UnsupportedOperationException("Not yet implemented");
-    // return this.delegate.sum();
+    if (isParallel()) {
+      ForkJoinTask<Integer> task = adapt(() -> this.delegate.sum());
+      return this.workerPool.invoke(task);
+    }
+    return this.delegate.sum();
   }
 
   @Override
   public OptionalInt min() {
-    throw new UnsupportedOperationException("Not yet implemented");
-    // return this.delegate.min();
+    if (isParallel()) {
+      ForkJoinTask<OptionalInt> task = adapt(() -> this.delegate.min());
+      return this.workerPool.invoke(task);
+    }
+    return this.delegate.min();
   }
 
   @Override
   public OptionalInt max() {
-    throw new UnsupportedOperationException("Not yet implemented");
-    // return this.delegate.max();
+    if (isParallel()) {
+      ForkJoinTask<OptionalInt> task = adapt(() -> this.delegate.max());
+      return this.workerPool.invoke(task);
+    }
+    return this.delegate.max();
   }
 
   @Override
   public long count() {
-    throw new UnsupportedOperationException("Not yet implemented");
-    // return this.delegate.count();
+    if (isParallel()) {
+      ForkJoinTask<Long> task = adapt(() -> this.delegate.count());
+      return this.workerPool.invoke(task);
+    }
+    return this.delegate.count();
   }
 
   @Override
   public OptionalDouble average() {
-    throw new UnsupportedOperationException("Not yet implemented");
-    // return this.delegate.average();
+    if (isParallel()) {
+      ForkJoinTask<OptionalDouble> task = adapt(() -> this.delegate.average());
+      return this.workerPool.invoke(task);
+    }
+    return this.delegate.average();
   }
 
   @Override
   public IntSummaryStatistics summaryStatistics() {
-    throw new UnsupportedOperationException("Not yet implemented");
-    // return this.delegate.summaryStatistics();
+    if (isParallel()) {
+      ForkJoinTask<IntSummaryStatistics> task = adapt(() -> this.delegate.summaryStatistics());
+      return this.workerPool.invoke(task);
+    }
+    return this.delegate.summaryStatistics();
   }
 
   @Override
   public boolean anyMatch(IntPredicate predicate) {
-    throw new UnsupportedOperationException("Not yet implemented");
-    // return this.delegate.anyMatch(predicate);
+    if (isParallel()) {
+      ForkJoinTask<Boolean> task = adapt(() -> this.delegate.anyMatch(predicate));
+      return this.workerPool.invoke(task);
+    }
+    return this.delegate.anyMatch(predicate);
   }
 
   @Override
   public boolean allMatch(IntPredicate predicate) {
-    throw new UnsupportedOperationException("Not yet implemented");
-    // return this.delegate.allMatch(predicate);
+    if (isParallel()) {
+      ForkJoinTask<Boolean> task = adapt(() -> this.delegate.allMatch(predicate));
+      return this.workerPool.invoke(task);
+    }
+    return this.delegate.allMatch(predicate);
   }
 
   @Override
   public boolean noneMatch(IntPredicate predicate) {
-    throw new UnsupportedOperationException("Not yet implemented");
-    // return this.delegate.noneMatch(predicate);
+    if (isParallel()) {
+      ForkJoinTask<Boolean> task = adapt(() -> this.delegate.noneMatch(predicate));
+      return this.workerPool.invoke(task);
+    }
+    return this.delegate.noneMatch(predicate);
   }
 
   @Override
   public OptionalInt findFirst() {
-    throw new UnsupportedOperationException("Not yet implemented");
-    // return this.delegate.findFirst();
+    if (isParallel()) {
+      ForkJoinTask<OptionalInt> task = adapt(() -> this.delegate.findFirst());
+      return this.workerPool.invoke(task);
+    }
+    return this.delegate.findFirst();
   }
 
   @Override
   public OptionalInt findAny() {
-    throw new UnsupportedOperationException("Not yet implemented");
-    // return this.delegate.findAny();
+    if (isParallel()) {
+      ForkJoinTask<OptionalInt> task = adapt(() -> this.delegate.findAny());
+      return this.workerPool.invoke(task);
+    }
+    return this.delegate.findAny();
   }
 
   @Override
   public LongStream asLongStream() {
     throw new UnsupportedOperationException("Not yet implemented");
-    // return this.delegate.asLongStream();
   }
 
   @Override
   public DoubleStream asDoubleStream() {
     throw new UnsupportedOperationException("Not yet implemented");
-    // return this.delegate.asDoubleStream();
   }
 
   @Override
   public Stream<Integer> boxed() {
     throw new UnsupportedOperationException("Not yet implemented");
-    // return this.delegate.boxed();
   }
 
   @Override
   public IntStream sequential() {
     throw new UnsupportedOperationException("Not yet implemented");
-    // return this.delegate.sequential();
   }
 
   @Override
   public IntStream parallel() {
     throw new UnsupportedOperationException("Not yet implemented");
-    // return this.delegate.parallel();
   }
 
   @Override
   public OfInt iterator() {
     throw new UnsupportedOperationException("Not yet implemented");
-    // return this.delegate.iterator();
   }
 
   @Override
   public java.util.Spliterator.OfInt spliterator() {
     throw new UnsupportedOperationException("Not yet implemented");
-    // return this.delegate.spliterator();
   }
-
 
 }

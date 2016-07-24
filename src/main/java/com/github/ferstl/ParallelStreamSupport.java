@@ -25,7 +25,7 @@ import java.util.stream.Stream;
 
 public class ParallelStreamSupport<T> implements Stream<T> {
 
-  private final Stream<T> delegate;
+  private Stream<T> delegate;
   private final ForkJoinPool workerPool;
 
   private ParallelStreamSupport(Stream<T> delegate, ForkJoinPool pool) {
@@ -37,45 +37,53 @@ public class ParallelStreamSupport<T> implements Stream<T> {
     return new ParallelStreamSupport<T>(collection.parallelStream(), workerPool);
   }
 
+  // BaseStream methods
+
   @Override
   public Iterator<T> iterator() {
-    throw new UnsupportedOperationException("Not yet implemented");
+    return this.delegate.iterator();
   }
 
   @Override
   public Spliterator<T> spliterator() {
-    throw new UnsupportedOperationException("Not yet implemented");
+    return this.delegate.spliterator();
   }
 
   @Override
   public boolean isParallel() {
-    throw new UnsupportedOperationException("Not yet implemented");
+    return this.delegate.isParallel();
   }
 
   @Override
   public Stream<T> sequential() {
-    throw new UnsupportedOperationException("Not yet implemented");
+    this.delegate = this.delegate.sequential();
+    return this;
   }
 
   @Override
   public Stream<T> parallel() {
-    throw new UnsupportedOperationException("Not yet implemented");
+    this.delegate = this.delegate.parallel();
+    return this;
   }
 
   @Override
   public Stream<T> unordered() {
-    throw new UnsupportedOperationException("Not yet implemented");
+    this.delegate = this.delegate.unordered();
+    return this;
   }
 
   @Override
   public Stream<T> onClose(Runnable closeHandler) {
-    throw new UnsupportedOperationException("Not yet implemented");
+    this.delegate = this.delegate.onClose(closeHandler);
+    return this;
   }
 
   @Override
   public void close() {
-    throw new UnsupportedOperationException("Not yet implemented");
+    this.delegate.close();
   }
+
+  // Stream methods
 
   @Override
   public Stream<T> filter(Predicate<? super T> predicate) {

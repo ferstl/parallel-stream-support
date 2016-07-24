@@ -57,7 +57,7 @@ class ParallelIntStreamSupport extends AbstractParallelStreamSupport<IntStream> 
 
   @Override
   public LongStream mapToLong(IntToLongFunction mapper) {
-    throw new UnsupportedOperationException("Not yet implemented");
+    return new ParallelLongStreamSupport(this.delegate.mapToLong(mapper), this.workerPool);
   }
 
   @Override
@@ -199,7 +199,7 @@ class ParallelIntStreamSupport extends AbstractParallelStreamSupport<IntStream> 
 
   @Override
   public LongStream asLongStream() {
-    throw new UnsupportedOperationException("Not yet implemented");
+    return new ParallelLongStreamSupport(this.delegate.asLongStream(), this.workerPool);
   }
 
   @Override

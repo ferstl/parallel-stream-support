@@ -87,12 +87,13 @@ public class ParallelStreamSupport<T> implements Stream<T> {
 
   @Override
   public Stream<T> filter(Predicate<? super T> predicate) {
-    throw new UnsupportedOperationException("Not yet implemented");
+    this.delegate = this.delegate.filter(predicate);
+    return this;
   }
 
   @Override
   public <R> Stream<R> map(Function<? super T, ? extends R> mapper) {
-    throw new UnsupportedOperationException("Not yet implemented");
+    return new ParallelStreamSupport<>(this.delegate.map(mapper), this.workerPool);
   }
 
   @Override
@@ -112,7 +113,7 @@ public class ParallelStreamSupport<T> implements Stream<T> {
 
   @Override
   public <R> Stream<R> flatMap(Function<? super T, ? extends Stream<? extends R>> mapper) {
-    throw new UnsupportedOperationException("Not yet implemented");
+    return new ParallelStreamSupport<>(this.delegate.flatMap(mapper), this.workerPool);
   }
 
   @Override
@@ -132,33 +133,41 @@ public class ParallelStreamSupport<T> implements Stream<T> {
 
   @Override
   public Stream<T> distinct() {
-    throw new UnsupportedOperationException("Not yet implemented");
+    this.delegate = this.delegate.distinct();
+    return this;
   }
 
   @Override
   public Stream<T> sorted() {
-    throw new UnsupportedOperationException("Not yet implemented");
+    this.delegate = this.delegate.sorted();
+    return this;
   }
 
   @Override
   public Stream<T> sorted(Comparator<? super T> comparator) {
-    throw new UnsupportedOperationException("Not yet implemented");
+    this.delegate = this.delegate.sorted(comparator);
+    return this;
   }
 
   @Override
   public Stream<T> peek(Consumer<? super T> action) {
-    throw new UnsupportedOperationException("Not yet implemented");
+    this.delegate = this.delegate.peek(action);
+    return this;
   }
 
   @Override
   public Stream<T> limit(long maxSize) {
-    throw new UnsupportedOperationException("Not yet implemented");
+    this.delegate = this.delegate.limit(maxSize);
+    return this;
   }
 
   @Override
   public Stream<T> skip(long n) {
-    throw new UnsupportedOperationException("Not yet implemented");
+    this.delegate = this.delegate.skip(n);
+    return this;
   }
+
+  // Terminal operations
 
   @Override
   public void forEach(Consumer<? super T> action) {

@@ -7,7 +7,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toList;
@@ -45,8 +44,7 @@ public class ParallelStreamSupportTest {
   }
 
   @Test
-  @Ignore("Not yet implemented")
-  public void collect() {
+  public void collectParallel() {
     List<String> result = ParallelStreamSupport.parallelStream(singletonList("a"), this.workerPool)
         .map(e -> Thread.currentThread().getName())
         .collect(toList());

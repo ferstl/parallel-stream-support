@@ -68,7 +68,7 @@ class ParallelIntStreamSupport extends AbstractParallelStreamSupport<IntStream> 
 
   @Override
   public DoubleStream mapToDouble(IntToDoubleFunction mapper) {
-    throw new UnsupportedOperationException("Not yet implemented");
+    return new ParallelDoubleStreamSupport(this.delegate.mapToDouble(mapper), this.workerPool);
   }
 
   @Override
@@ -204,7 +204,7 @@ class ParallelIntStreamSupport extends AbstractParallelStreamSupport<IntStream> 
 
   @Override
   public DoubleStream asDoubleStream() {
-    throw new UnsupportedOperationException("Not yet implemented");
+    return new ParallelDoubleStreamSupport(this.delegate.asDoubleStream(), this.workerPool);
   }
 
   @Override

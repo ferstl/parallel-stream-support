@@ -68,7 +68,7 @@ class ParallelLongStreamSupport extends AbstractParallelStreamSupport<LongStream
 
   @Override
   public DoubleStream mapToDouble(LongToDoubleFunction mapper) {
-    throw new UnsupportedOperationException("Not yet implemented");
+    return new ParallelDoubleStreamSupport(this.delegate.mapToDouble(mapper), this.workerPool);
   }
 
   @Override
@@ -199,7 +199,7 @@ class ParallelLongStreamSupport extends AbstractParallelStreamSupport<LongStream
 
   @Override
   public DoubleStream asDoubleStream() {
-    throw new UnsupportedOperationException("Not yet implemented");
+    return new ParallelDoubleStreamSupport(this.delegate.asDoubleStream(), this.workerPool);
   }
 
   @Override

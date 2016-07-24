@@ -104,7 +104,7 @@ public class ParallelStreamSupport<T> extends AbstractParallelStreamSupport<Stre
 
   @Override
   public DoubleStream mapToDouble(ToDoubleFunction<? super T> mapper) {
-    throw new UnsupportedOperationException("Not yet implemented");
+    return new ParallelDoubleStreamSupport(this.delegate.mapToDouble(mapper), this.workerPool);
   }
 
   @Override
@@ -124,7 +124,7 @@ public class ParallelStreamSupport<T> extends AbstractParallelStreamSupport<Stre
 
   @Override
   public DoubleStream flatMapToDouble(Function<? super T, ? extends DoubleStream> mapper) {
-    throw new UnsupportedOperationException("Not yet implemented");
+    return new ParallelDoubleStreamSupport(this.delegate.flatMapToDouble(mapper), this.workerPool);
   }
 
   @Override

@@ -223,63 +223,122 @@ public class ParallelStreamSupport<T> implements Stream<T> {
 
   @Override
   public Optional<T> reduce(BinaryOperator<T> accumulator) {
-    throw new UnsupportedOperationException("Not yet implemented");
+    if (isParallel()) {
+      ForkJoinTask<Optional<T>> task = adapt(() -> this.delegate.reduce(accumulator));
+      return this.workerPool.invoke(task);
+    }
+
+    return this.delegate.reduce(accumulator);
   }
 
   @Override
   public <U> U reduce(U identity, BiFunction<U, ? super T, U> accumulator, BinaryOperator<U> combiner) {
-    throw new UnsupportedOperationException("Not yet implemented");
+    if (isParallel()) {
+      ForkJoinTask<U> task = adapt(() -> this.delegate.reduce(identity, accumulator, combiner));
+      return this.workerPool.invoke(task);
+    }
+
+    return this.delegate.reduce(identity, accumulator, combiner);
   }
 
   @Override
   public <R> R collect(Supplier<R> supplier, BiConsumer<R, ? super T> accumulator, BiConsumer<R, R> combiner) {
-    throw new UnsupportedOperationException("Not yet implemented");
+    if (isParallel()) {
+      ForkJoinTask<R> task = adapt(() -> this.delegate.collect(supplier, accumulator, combiner));
+      return this.workerPool.invoke(task);
+    }
+
+    return this.delegate.collect(supplier, accumulator, combiner);
   }
 
   @Override
   public <R, A> R collect(Collector<? super T, A, R> collector) {
-    throw new UnsupportedOperationException("Not yet implemented");
+    if (isParallel()) {
+      ForkJoinTask<R> task = adapt(() -> this.delegate.collect(collector));
+      return this.workerPool.invoke(task);
+    }
+
+    return this.delegate.collect(collector);
   }
 
   @Override
   public Optional<T> min(Comparator<? super T> comparator) {
-    throw new UnsupportedOperationException("Not yet implemented");
+    if (isParallel()) {
+      ForkJoinTask<Optional<T>> task = adapt(() -> this.delegate.min(comparator));
+      return this.workerPool.invoke(task);
+    }
+
+    return this.delegate.min(comparator);
   }
 
   @Override
   public Optional<T> max(Comparator<? super T> comparator) {
-    throw new UnsupportedOperationException("Not yet implemented");
+    if (isParallel()) {
+      ForkJoinTask<Optional<T>> task = adapt(() -> this.delegate.max(comparator));
+      return this.workerPool.invoke(task);
+    }
+
+    return this.delegate.max(comparator);
   }
 
   @Override
   public long count() {
-    throw new UnsupportedOperationException("Not yet implemented");
+    if (isParallel()) {
+      ForkJoinTask<Long> task = adapt(() -> this.delegate.count());
+      return this.workerPool.invoke(task);
+    }
+
+    return this.delegate.count();
   }
 
   @Override
   public boolean anyMatch(Predicate<? super T> predicate) {
-    throw new UnsupportedOperationException("Not yet implemented");
+    if (isParallel()) {
+      ForkJoinTask<Boolean> task = adapt(() -> this.delegate.anyMatch(predicate));
+      return this.workerPool.invoke(task);
+    }
+
+    return this.delegate.anyMatch(predicate);
   }
 
   @Override
   public boolean allMatch(Predicate<? super T> predicate) {
-    throw new UnsupportedOperationException("Not yet implemented");
+    if (isParallel()) {
+      ForkJoinTask<Boolean> task = adapt(() -> this.delegate.allMatch(predicate));
+      return this.workerPool.invoke(task);
+    }
+
+    return this.delegate.allMatch(predicate);
   }
 
   @Override
   public boolean noneMatch(Predicate<? super T> predicate) {
-    throw new UnsupportedOperationException("Not yet implemented");
+    if (isParallel()) {
+      ForkJoinTask<Boolean> task = adapt(() -> this.delegate.noneMatch(predicate));
+      return this.workerPool.invoke(task);
+    }
+
+    return this.delegate.noneMatch(predicate);
   }
 
   @Override
   public Optional<T> findFirst() {
-    throw new UnsupportedOperationException("Not yet implemented");
+    if (isParallel()) {
+      ForkJoinTask<Optional<T>> task = adapt(() -> this.delegate.findFirst());
+      return this.workerPool.invoke(task);
+    }
+
+    return this.delegate.findFirst();
   }
 
   @Override
   public Optional<T> findAny() {
-    throw new UnsupportedOperationException("Not yet implemented");
-  }
+    if (isParallel()) {
+      ForkJoinTask<Optional<T>> task = adapt(() -> this.delegate.findAny());
+      return this.workerPool.invoke(task);
+    }
 
+    return this.delegate.findAny();
+  }
 }
 

@@ -285,27 +285,29 @@ public class ParallelIntStreamSupport implements IntStream {
 
   @Override
   public Stream<Integer> boxed() {
-    throw new UnsupportedOperationException("Not yet implemented");
+    return new ParallelStreamSupport<Integer>(this.delegate.boxed(), this.workerPool);
   }
 
   @Override
   public IntStream sequential() {
-    throw new UnsupportedOperationException("Not yet implemented");
+    this.delegate = this.delegate.sequential();
+    return this;
   }
 
   @Override
   public IntStream parallel() {
-    throw new UnsupportedOperationException("Not yet implemented");
+    this.delegate = this.delegate.parallel();
+    return this;
   }
 
   @Override
   public OfInt iterator() {
-    throw new UnsupportedOperationException("Not yet implemented");
+    return this.delegate.iterator();
   }
 
   @Override
   public java.util.Spliterator.OfInt spliterator() {
-    throw new UnsupportedOperationException("Not yet implemented");
+    return this.delegate.spliterator();
   }
 
 }

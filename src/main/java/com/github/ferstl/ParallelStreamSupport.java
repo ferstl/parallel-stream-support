@@ -5,9 +5,7 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.Optional;
 import java.util.Spliterator;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.ForkJoinTask;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.BinaryOperator;
@@ -24,16 +22,11 @@ import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
-import static java.util.concurrent.ForkJoinTask.adapt;
 
-public class ParallelStreamSupport<T> implements Stream<T> {
+public class ParallelStreamSupport<T> extends AbstractParallelStreamSupport<Stream<T>> implements Stream<T> {
 
-  private Stream<T> delegate;
-  private final ForkJoinPool workerPool;
-
-  ParallelStreamSupport(Stream<T> delegate, ForkJoinPool pool) {
-    this.delegate = delegate;
-    this.workerPool = pool;
+  ParallelStreamSupport(Stream<T> delegate, ForkJoinPool workerPool) {
+    super(delegate, workerPool);
   }
 
   public static <T> Stream<T> parallelStream(Collection<T> collection, ForkJoinPool workerPool) {
@@ -257,27 +250,4 @@ public class ParallelStreamSupport<T> implements Stream<T> {
     return execute(() -> this.delegate.findAny());
   }
 
-  private void execute(Runnable terminalOperation) {
-    if (isParallel()) {
-      ForkJoinTask<?> task = adapt(terminalOperation);
-      this.workerPool.invoke(task);
-    } else {
-      terminalOperation.run();
-    }
-  }
-
-  private <R> R execute(Callable<R> terminalOperation) {
-    if (isParallel()) {
-      ForkJoinTask<R> task = adapt(terminalOperation);
-      return this.workerPool.invoke(task);
-    }
-
-    try {
-      return terminalOperation.call();
-    } catch (RuntimeException | Error e) {
-      throw e;
-    } catch (Exception e) {
-      throw new RuntimeException(e);
-    }
-  }
 }

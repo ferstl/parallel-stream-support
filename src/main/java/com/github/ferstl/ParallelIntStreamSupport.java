@@ -4,9 +4,7 @@ import java.util.IntSummaryStatistics;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
 import java.util.PrimitiveIterator.OfInt;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.ForkJoinTask;
 import java.util.function.BiConsumer;
 import java.util.function.IntBinaryOperator;
 import java.util.function.IntConsumer;
@@ -21,17 +19,12 @@ import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
-import static java.util.concurrent.ForkJoinTask.adapt;
 
 
-public class ParallelIntStreamSupport implements IntStream {
-
-  private IntStream delegate;
-  private final ForkJoinPool workerPool;
+public class ParallelIntStreamSupport extends AbstractParallelStreamSupport<IntStream> implements IntStream {
 
   ParallelIntStreamSupport(IntStream delegate, ForkJoinPool workerPool) {
-    this.delegate = delegate;
-    this.workerPool = workerPool;
+    super(delegate, workerPool);
   }
 
   @Override
@@ -240,29 +233,4 @@ public class ParallelIntStreamSupport implements IntStream {
   public java.util.Spliterator.OfInt spliterator() {
     return this.delegate.spliterator();
   }
-
-  private void execute(Runnable terminalOperation) {
-    if (isParallel()) {
-      ForkJoinTask<?> task = adapt(terminalOperation);
-      this.workerPool.invoke(task);
-    } else {
-      terminalOperation.run();
-    }
-  }
-
-  private <R> R execute(Callable<R> terminalOperation) {
-    if (isParallel()) {
-      ForkJoinTask<R> task = adapt(terminalOperation);
-      return this.workerPool.invoke(task);
-    }
-
-    try {
-      return terminalOperation.call();
-    } catch (RuntimeException | Error e) {
-      throw e;
-    } catch (Exception e) {
-      throw new RuntimeException(e);
-    }
-  }
-
 }

@@ -26,7 +26,7 @@ public class ParallelIntStreamSupport implements IntStream {
   private IntStream delegate;
   private final ForkJoinPool workerPool;
 
-  private ParallelIntStreamSupport(IntStream delegate, ForkJoinPool workerPool) {
+  ParallelIntStreamSupport(IntStream delegate, ForkJoinPool workerPool) {
     this.delegate = delegate;
     this.workerPool = workerPool;
   }

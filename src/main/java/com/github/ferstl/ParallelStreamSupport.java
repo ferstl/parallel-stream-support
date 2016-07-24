@@ -100,7 +100,7 @@ public class ParallelStreamSupport<T> implements Stream<T> {
 
   @Override
   public IntStream mapToInt(ToIntFunction<? super T> mapper) {
-    throw new UnsupportedOperationException("Not yet implemented");
+    return new ParallelIntStreamSupport(this.delegate.mapToInt(mapper), this.workerPool);
   }
 
   @Override
@@ -120,7 +120,7 @@ public class ParallelStreamSupport<T> implements Stream<T> {
 
   @Override
   public IntStream flatMapToInt(Function<? super T, ? extends IntStream> mapper) {
-    throw new UnsupportedOperationException("Not yet implemented");
+    return new ParallelIntStreamSupport(this.delegate.flatMapToInt(mapper), this.workerPool);
   }
 
   @Override

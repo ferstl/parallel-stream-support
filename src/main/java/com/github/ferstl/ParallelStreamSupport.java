@@ -30,7 +30,7 @@ public class ParallelStreamSupport<T> implements Stream<T> {
   private Stream<T> delegate;
   private final ForkJoinPool workerPool;
 
-  private ParallelStreamSupport(Stream<T> delegate, ForkJoinPool pool) {
+  ParallelStreamSupport(Stream<T> delegate, ForkJoinPool pool) {
     this.delegate = delegate;
     this.workerPool = pool;
   }

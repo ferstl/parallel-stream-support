@@ -5,6 +5,7 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.Optional;
 import java.util.Spliterator;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.ForkJoinTask;
 import java.util.function.BiConsumer;
@@ -173,172 +174,110 @@ public class ParallelStreamSupport<T> implements Stream<T> {
 
   @Override
   public void forEach(Consumer<? super T> action) {
-    if (isParallel()) {
-      ForkJoinTask<?> task = adapt(() -> this.delegate.forEach(action));
-      this.workerPool.invoke(task);
-    } else {
-      this.delegate.forEach(action);
-    }
+    execute(() -> this.delegate.forEach(action));
   }
 
   @Override
   public void forEachOrdered(Consumer<? super T> action) {
-    if (isParallel()) {
-      ForkJoinTask<?> task = adapt(() -> this.delegate.forEachOrdered(action));
-      this.workerPool.invoke(task);
-    } else {
-      this.delegate.forEach(action);
-    }
+    execute(() -> this.delegate.forEachOrdered(action));
   }
 
   @Override
   public Object[] toArray() {
-    if (isParallel()) {
-      ForkJoinTask<Object[]> task = adapt(() -> this.delegate.toArray());
-      return this.workerPool.invoke(task);
-    }
-
-    return this.delegate.toArray();
+    return execute(() -> this.delegate.toArray());
   }
 
   @Override
   public <A> A[] toArray(IntFunction<A[]> generator) {
-    if (isParallel()) {
-      ForkJoinTask<A[]> task = adapt(() -> this.delegate.toArray(generator));
-      return this.workerPool.invoke(task);
-    }
-
-    return this.delegate.toArray(generator);
+    return execute(() -> this.delegate.toArray(generator));
   }
 
   @Override
   public T reduce(T identity, BinaryOperator<T> accumulator) {
-    if (isParallel()) {
-      ForkJoinTask<T> task = adapt(() -> this.delegate.reduce(identity, accumulator));
-      return this.workerPool.invoke(task);
-    }
-
-    return this.delegate.reduce(identity, accumulator);
+    return execute(() -> this.delegate.reduce(identity, accumulator));
   }
 
   @Override
   public Optional<T> reduce(BinaryOperator<T> accumulator) {
-    if (isParallel()) {
-      ForkJoinTask<Optional<T>> task = adapt(() -> this.delegate.reduce(accumulator));
-      return this.workerPool.invoke(task);
-    }
-
-    return this.delegate.reduce(accumulator);
+    return execute(() -> this.delegate.reduce(accumulator));
   }
 
   @Override
   public <U> U reduce(U identity, BiFunction<U, ? super T, U> accumulator, BinaryOperator<U> combiner) {
-    if (isParallel()) {
-      ForkJoinTask<U> task = adapt(() -> this.delegate.reduce(identity, accumulator, combiner));
-      return this.workerPool.invoke(task);
-    }
-
-    return this.delegate.reduce(identity, accumulator, combiner);
+    return execute(() -> this.delegate.reduce(identity, accumulator, combiner));
   }
 
   @Override
   public <R> R collect(Supplier<R> supplier, BiConsumer<R, ? super T> accumulator, BiConsumer<R, R> combiner) {
-    if (isParallel()) {
-      ForkJoinTask<R> task = adapt(() -> this.delegate.collect(supplier, accumulator, combiner));
-      return this.workerPool.invoke(task);
-    }
-
-    return this.delegate.collect(supplier, accumulator, combiner);
+    return execute(() -> this.delegate.collect(supplier, accumulator, combiner));
   }
 
   @Override
   public <R, A> R collect(Collector<? super T, A, R> collector) {
-    if (isParallel()) {
-      ForkJoinTask<R> task = adapt(() -> this.delegate.collect(collector));
-      return this.workerPool.invoke(task);
-    }
-
-    return this.delegate.collect(collector);
+    return execute(() -> this.delegate.collect(collector));
   }
 
   @Override
   public Optional<T> min(Comparator<? super T> comparator) {
-    if (isParallel()) {
-      ForkJoinTask<Optional<T>> task = adapt(() -> this.delegate.min(comparator));
-      return this.workerPool.invoke(task);
-    }
-
-    return this.delegate.min(comparator);
+    return execute(() -> this.delegate.min(comparator));
   }
 
   @Override
   public Optional<T> max(Comparator<? super T> comparator) {
-    if (isParallel()) {
-      ForkJoinTask<Optional<T>> task = adapt(() -> this.delegate.max(comparator));
-      return this.workerPool.invoke(task);
-    }
-
-    return this.delegate.max(comparator);
+    return execute(() -> this.delegate.max(comparator));
   }
 
   @Override
   public long count() {
-    if (isParallel()) {
-      ForkJoinTask<Long> task = adapt(() -> this.delegate.count());
-      return this.workerPool.invoke(task);
-    }
-
-    return this.delegate.count();
+    return execute(() -> this.delegate.count());
   }
 
   @Override
   public boolean anyMatch(Predicate<? super T> predicate) {
-    if (isParallel()) {
-      ForkJoinTask<Boolean> task = adapt(() -> this.delegate.anyMatch(predicate));
-      return this.workerPool.invoke(task);
-    }
-
-    return this.delegate.anyMatch(predicate);
+    return execute(() -> this.delegate.anyMatch(predicate));
   }
 
   @Override
   public boolean allMatch(Predicate<? super T> predicate) {
-    if (isParallel()) {
-      ForkJoinTask<Boolean> task = adapt(() -> this.delegate.allMatch(predicate));
-      return this.workerPool.invoke(task);
-    }
-
-    return this.delegate.allMatch(predicate);
+    return execute(() -> this.delegate.allMatch(predicate));
   }
 
   @Override
   public boolean noneMatch(Predicate<? super T> predicate) {
-    if (isParallel()) {
-      ForkJoinTask<Boolean> task = adapt(() -> this.delegate.noneMatch(predicate));
-      return this.workerPool.invoke(task);
-    }
-
-    return this.delegate.noneMatch(predicate);
+    return execute(() -> this.delegate.noneMatch(predicate));
   }
 
   @Override
   public Optional<T> findFirst() {
-    if (isParallel()) {
-      ForkJoinTask<Optional<T>> task = adapt(() -> this.delegate.findFirst());
-      return this.workerPool.invoke(task);
-    }
-
-    return this.delegate.findFirst();
+    return execute(() -> this.delegate.findFirst());
   }
 
   @Override
   public Optional<T> findAny() {
+    return execute(() -> this.delegate.findAny());
+  }
+
+  private void execute(Runnable terminalOperation) {
     if (isParallel()) {
-      ForkJoinTask<Optional<T>> task = adapt(() -> this.delegate.findAny());
+      ForkJoinTask<?> task = adapt(terminalOperation);
+      this.workerPool.invoke(task);
+    } else {
+      terminalOperation.run();
+    }
+  }
+
+  private <R> R execute(Callable<R> terminalOperation) {
+    if (isParallel()) {
+      ForkJoinTask<R> task = adapt(terminalOperation);
       return this.workerPool.invoke(task);
     }
 
-    return this.delegate.findAny();
+    try {
+      return terminalOperation.call();
+    } catch (RuntimeException | Error e) {
+      throw e;
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
   }
 }
-

@@ -2,17 +2,18 @@ package com.github.ferstl.streams;
 
 import java.util.List;
 import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.ForkJoinTask;
+import java.util.concurrent.ForkJoinWorkerThread;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import com.github.ferstl.streams.ParallelStreamSupport;
+import static java.lang.Thread.currentThread;
 import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toList;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.matchesPattern;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 
 
@@ -24,6 +25,9 @@ public class ParallelStreamSupportTest {
 
   @Before
   public void before() {
+    // Precondition for all tests
+    assertFalse("This test must not run in a ForkJoinPool", currentThread() instanceof ForkJoinWorkerThread);
+
     this.workerPool = new ForkJoinPool(1);
   }
 
@@ -33,16 +37,6 @@ public class ParallelStreamSupportTest {
     this.workerPool.awaitTermination(1, TimeUnit.SECONDS);
   }
 
-  /**
-   * Verify that we use the correct thread name pattern.
-   */
-  @Test
-  public void testForkJoinPoolThreadNamePattern() {
-    ForkJoinTask<String> task = ForkJoinTask.adapt(() -> Thread.currentThread().getName());
-    String threadName = this.workerPool.invoke(task);
-
-    assertThat(threadName, matchesPattern(FORK_JOIN_THREAD_NAME_PATTERN));
-  }
 
   @Test
   public void collectParallel() {
@@ -52,5 +46,4 @@ public class ParallelStreamSupportTest {
 
     assertThat(result, contains(matchesPattern(FORK_JOIN_THREAD_NAME_PATTERN)));
   }
-
 }

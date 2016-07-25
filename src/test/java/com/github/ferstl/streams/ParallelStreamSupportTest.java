@@ -1,34 +1,35 @@
 package com.github.ferstl.streams;
 
-import java.util.List;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.ForkJoinWorkerThread;
 import java.util.concurrent.TimeUnit;
-import java.util.regex.Pattern;
+import java.util.stream.Stream;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import static java.lang.Thread.currentThread;
-import static java.util.Collections.singletonList;
-import static java.util.stream.Collectors.toList;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.matchesPattern;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertSame;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 
 public class ParallelStreamSupportTest {
 
-  private static final Pattern FORK_JOIN_THREAD_NAME_PATTERN = Pattern.compile("ForkJoinPool-\\d+-worker-\\d+");
-
   private ForkJoinPool workerPool;
 
+  private Stream<String> delegate;
+  private ParallelStreamSupport<String> parallelStreamSupport;
+
   @Before
+  @SuppressWarnings("unchecked")
   public void before() {
     // Precondition for all tests
     assertFalse("This test must not run in a ForkJoinPool", currentThread() instanceof ForkJoinWorkerThread);
 
     this.workerPool = new ForkJoinPool(1);
+    this.delegate = mock(Stream.class);
+    this.parallelStreamSupport = new ParallelStreamSupport<>(this.delegate, this.workerPool);
   }
 
   @After
@@ -39,11 +40,10 @@ public class ParallelStreamSupportTest {
 
 
   @Test
-  public void collectParallel() {
-    List<String> result = ParallelStreamSupport.parallelStream(singletonList("a"), this.workerPool)
-        .map(e -> Thread.currentThread().getName())
-        .collect(toList());
+  public void sequential() {
+    Stream<String> stream = this.parallelStreamSupport.sequential();
 
-    assertThat(result, contains(matchesPattern(FORK_JOIN_THREAD_NAME_PATTERN)));
+    verify(this.delegate).sequential();
+    assertSame(this.parallelStreamSupport, stream);
   }
 }

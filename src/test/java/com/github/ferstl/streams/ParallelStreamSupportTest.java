@@ -1,20 +1,26 @@
 package com.github.ferstl.streams;
 
+import java.math.BigDecimal;
 import java.util.Comparator;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.ForkJoinWorkerThread;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import static java.lang.Thread.currentThread;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 
 public class ParallelStreamSupportTest {
@@ -22,16 +28,22 @@ public class ParallelStreamSupportTest {
   private ForkJoinPool workerPool;
 
   private Stream<String> delegate;
+  private Stream<BigDecimal> mappedDelegate;
   private ParallelStreamSupport<String> parallelStreamSupport;
 
+
   @Before
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({"unchecked", "rawtypes"})
   public void before() {
     // Precondition for all tests
     assertFalse("This test must not run in a ForkJoinPool", currentThread() instanceof ForkJoinWorkerThread);
 
     this.workerPool = new ForkJoinPool(1);
     this.delegate = mock(Stream.class);
+    this.mappedDelegate = mock(Stream.class);
+    when(this.delegate.map(anyObject())).thenReturn((Stream) this.mappedDelegate);
+    when(this.delegate.flatMap(anyObject())).thenReturn((Stream) this.mappedDelegate);
+
     this.parallelStreamSupport = new ParallelStreamSupport<>(this.delegate, this.workerPool);
   }
 
@@ -82,6 +94,26 @@ public class ParallelStreamSupportTest {
 
     verify(this.delegate).filter(p);
     assertSame(this.parallelStreamSupport, stream);
+  }
+
+  @Test
+  public void map() {
+    Function<String, BigDecimal> f = s -> BigDecimal.ONE;
+    Stream<BigDecimal> stream = this.parallelStreamSupport.map(f);
+
+    verify(this.delegate).map(f);
+    assertThat(stream, instanceOf(ParallelStreamSupport.class));
+    assertSame(ParallelStreamSupport.class.cast(stream).delegate, this.mappedDelegate);
+  }
+
+  @Test
+  public void flatMap() {
+    Function<String, Stream<BigDecimal>> f = s -> Stream.of(BigDecimal.ONE);
+    Stream<BigDecimal> stream = this.parallelStreamSupport.flatMap(f);
+
+    verify(this.delegate).flatMap(f);
+    assertThat(stream, instanceOf(ParallelStreamSupport.class));
+    assertSame(ParallelStreamSupport.class.cast(stream).delegate, this.mappedDelegate);
   }
 
   @Test

@@ -2,6 +2,8 @@ package com.github.ferstl.streams;
 
 import java.math.BigDecimal;
 import java.util.Comparator;
+import java.util.Iterator;
+import java.util.Spliterator;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.ForkJoinWorkerThread;
 import java.util.concurrent.TimeUnit;
@@ -23,6 +25,7 @@ import static org.hamcrest.Matchers.instanceOf;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -38,6 +41,8 @@ public class ParallelStreamSupportTest {
   private IntStream mappedIntDelegate;
   private LongStream mappedLongDelegate;
   private DoubleStream mappedDoubleDelegate;
+  private Iterator<?> iterator;
+  private Spliterator<?> spliterator;
   private ParallelStreamSupport<String> parallelStreamSupport;
 
 
@@ -53,6 +58,8 @@ public class ParallelStreamSupportTest {
     this.mappedIntDelegate = mock(IntStream.class);
     this.mappedLongDelegate = mock(LongStream.class);
     this.mappedDoubleDelegate = mock(DoubleStream.class);
+    this.iterator = mock(Iterator.class);
+    this.spliterator = mock(Spliterator.class);
 
     when(this.delegate.map(anyObject())).thenReturn((Stream) this.mappedDelegate);
     when(this.delegate.mapToInt(anyObject())).thenReturn(this.mappedIntDelegate);
@@ -62,6 +69,9 @@ public class ParallelStreamSupportTest {
     when(this.delegate.flatMapToInt(anyObject())).thenReturn(this.mappedIntDelegate);
     when(this.delegate.flatMapToLong(anyObject())).thenReturn(this.mappedLongDelegate);
     when(this.delegate.flatMapToDouble(anyObject())).thenReturn(this.mappedDoubleDelegate);
+    when(this.delegate.iterator()).thenReturn((Iterator) this.iterator);
+    when(this.delegate.spliterator()).thenReturn((Spliterator) this.spliterator);
+    when(this.delegate.isParallel()).thenReturn(true);
 
     this.parallelStreamSupport = new ParallelStreamSupport<>(this.delegate, this.workerPool);
   }
@@ -72,6 +82,29 @@ public class ParallelStreamSupportTest {
     this.workerPool.awaitTermination(1, TimeUnit.SECONDS);
   }
 
+  @Test
+  public void iterator() {
+    Iterator<String> iterator = this.parallelStreamSupport.iterator();
+
+    verify(this.delegate).iterator();
+    assertSame(this.iterator, iterator);
+  }
+
+  @Test
+  public void spliterator() {
+    Spliterator<String> spliterator = this.parallelStreamSupport.spliterator();
+
+    verify(this.delegate).spliterator();
+    assertSame(this.spliterator, spliterator);
+  }
+
+  @Test
+  public void isParallel() {
+    boolean parallel = this.parallelStreamSupport.isParallel();
+
+    verify(this.delegate).isParallel();
+    assertTrue(parallel);
+  }
 
   @Test
   public void sequential() {
@@ -104,6 +137,13 @@ public class ParallelStreamSupportTest {
 
     verify(this.delegate).onClose(r);
     assertSame(this.parallelStreamSupport, stream);
+  }
+
+  @Test
+  public void close() {
+    this.parallelStreamSupport.close();
+
+    verify(this.delegate).close();
   }
 
   @Test

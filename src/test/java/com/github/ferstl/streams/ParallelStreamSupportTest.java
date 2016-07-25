@@ -28,7 +28,7 @@ public class ParallelStreamSupportTest {
   private ForkJoinPool workerPool;
 
   private Stream<String> delegate;
-  private Stream<BigDecimal> mappedDelegate;
+  private Stream<?> mappedDelegate;
   private ParallelStreamSupport<String> parallelStreamSupport;
 
 

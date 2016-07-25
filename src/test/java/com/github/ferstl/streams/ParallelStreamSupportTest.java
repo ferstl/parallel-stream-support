@@ -8,6 +8,12 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.function.ToDoubleFunction;
+import java.util.function.ToIntFunction;
+import java.util.function.ToLongFunction;
+import java.util.stream.DoubleStream;
+import java.util.stream.IntStream;
+import java.util.stream.LongStream;
 import java.util.stream.Stream;
 import org.junit.After;
 import org.junit.Before;
@@ -29,6 +35,9 @@ public class ParallelStreamSupportTest {
 
   private Stream<String> delegate;
   private Stream<?> mappedDelegate;
+  private IntStream mappedIntDelegate;
+  private LongStream mappedLongDelegate;
+  private DoubleStream mappedDoubleDelegate;
   private ParallelStreamSupport<String> parallelStreamSupport;
 
 
@@ -41,8 +50,18 @@ public class ParallelStreamSupportTest {
     this.workerPool = new ForkJoinPool(1);
     this.delegate = mock(Stream.class);
     this.mappedDelegate = mock(Stream.class);
+    this.mappedIntDelegate = mock(IntStream.class);
+    this.mappedLongDelegate = mock(LongStream.class);
+    this.mappedDoubleDelegate = mock(DoubleStream.class);
+
     when(this.delegate.map(anyObject())).thenReturn((Stream) this.mappedDelegate);
+    when(this.delegate.mapToInt(anyObject())).thenReturn(this.mappedIntDelegate);
+    when(this.delegate.mapToLong(anyObject())).thenReturn(this.mappedLongDelegate);
+    when(this.delegate.mapToDouble(anyObject())).thenReturn(this.mappedDoubleDelegate);
     when(this.delegate.flatMap(anyObject())).thenReturn((Stream) this.mappedDelegate);
+    when(this.delegate.flatMapToInt(anyObject())).thenReturn(this.mappedIntDelegate);
+    when(this.delegate.flatMapToLong(anyObject())).thenReturn(this.mappedLongDelegate);
+    when(this.delegate.flatMapToDouble(anyObject())).thenReturn(this.mappedDoubleDelegate);
 
     this.parallelStreamSupport = new ParallelStreamSupport<>(this.delegate, this.workerPool);
   }
@@ -107,6 +126,36 @@ public class ParallelStreamSupportTest {
   }
 
   @Test
+  public void mapToInt() {
+    ToIntFunction<String> f = s -> 1;
+    IntStream stream = this.parallelStreamSupport.mapToInt(f);
+
+    verify(this.delegate).mapToInt(f);
+    assertThat(stream, instanceOf(ParallelIntStreamSupport.class));
+    assertSame(ParallelIntStreamSupport.class.cast(stream).delegate, this.mappedIntDelegate);
+  }
+
+  @Test
+  public void mapToLong() {
+    ToLongFunction<String> f = s -> 1L;
+    LongStream stream = this.parallelStreamSupport.mapToLong(f);
+
+    verify(this.delegate).mapToLong(f);
+    assertThat(stream, instanceOf(ParallelLongStreamSupport.class));
+    assertSame(ParallelLongStreamSupport.class.cast(stream).delegate, this.mappedLongDelegate);
+  }
+
+  @Test
+  public void mapToDouble() {
+    ToDoubleFunction<String> f = s -> 1D;
+    DoubleStream stream = this.parallelStreamSupport.mapToDouble(f);
+
+    verify(this.delegate).mapToDouble(f);
+    assertThat(stream, instanceOf(ParallelDoubleStreamSupport.class));
+    assertSame(ParallelDoubleStreamSupport.class.cast(stream).delegate, this.mappedDoubleDelegate);
+  }
+
+  @Test
   public void flatMap() {
     Function<String, Stream<BigDecimal>> f = s -> Stream.of(BigDecimal.ONE);
     Stream<BigDecimal> stream = this.parallelStreamSupport.flatMap(f);
@@ -114,6 +163,37 @@ public class ParallelStreamSupportTest {
     verify(this.delegate).flatMap(f);
     assertThat(stream, instanceOf(ParallelStreamSupport.class));
     assertSame(ParallelStreamSupport.class.cast(stream).delegate, this.mappedDelegate);
+  }
+
+
+  @Test
+  public void flatMapToInt() {
+    Function<String, IntStream> f = s -> IntStream.of(1);
+    IntStream stream = this.parallelStreamSupport.flatMapToInt(f);
+
+    verify(this.delegate).flatMapToInt(f);
+    assertThat(stream, instanceOf(ParallelIntStreamSupport.class));
+    assertSame(ParallelIntStreamSupport.class.cast(stream).delegate, this.mappedIntDelegate);
+  }
+
+  @Test
+  public void flatMapToLong() {
+    Function<String, LongStream> f = s -> LongStream.of(1L);
+    LongStream stream = this.parallelStreamSupport.flatMapToLong(f);
+
+    verify(this.delegate).flatMapToLong(f);
+    assertThat(stream, instanceOf(ParallelLongStreamSupport.class));
+    assertSame(ParallelLongStreamSupport.class.cast(stream).delegate, this.mappedLongDelegate);
+  }
+
+  @Test
+  public void flatMapToDouble() {
+    Function<String, DoubleStream> f = s -> DoubleStream.of(1L);
+    DoubleStream stream = this.parallelStreamSupport.flatMapToDouble(f);
+
+    verify(this.delegate).flatMapToDouble(f);
+    assertThat(stream, instanceOf(ParallelDoubleStreamSupport.class));
+    assertSame(ParallelDoubleStreamSupport.class.cast(stream).delegate, this.mappedDoubleDelegate);
   }
 
   @Test

@@ -163,6 +163,7 @@ public class ParallelStreamSupportTest {
     verify(this.delegate).map(f);
     assertThat(stream, instanceOf(ParallelStreamSupport.class));
     assertSame(ParallelStreamSupport.class.cast(stream).delegate, this.mappedDelegate);
+    assertSame(ParallelStreamSupport.class.cast(stream).workerPool, this.workerPool);
   }
 
   @Test
@@ -173,6 +174,7 @@ public class ParallelStreamSupportTest {
     verify(this.delegate).mapToInt(f);
     assertThat(stream, instanceOf(ParallelIntStreamSupport.class));
     assertSame(ParallelIntStreamSupport.class.cast(stream).delegate, this.mappedIntDelegate);
+    assertSame(ParallelIntStreamSupport.class.cast(stream).workerPool, this.workerPool);
   }
 
   @Test
@@ -183,6 +185,7 @@ public class ParallelStreamSupportTest {
     verify(this.delegate).mapToLong(f);
     assertThat(stream, instanceOf(ParallelLongStreamSupport.class));
     assertSame(ParallelLongStreamSupport.class.cast(stream).delegate, this.mappedLongDelegate);
+    assertSame(ParallelLongStreamSupport.class.cast(stream).workerPool, this.workerPool);
   }
 
   @Test
@@ -193,6 +196,7 @@ public class ParallelStreamSupportTest {
     verify(this.delegate).mapToDouble(f);
     assertThat(stream, instanceOf(ParallelDoubleStreamSupport.class));
     assertSame(ParallelDoubleStreamSupport.class.cast(stream).delegate, this.mappedDoubleDelegate);
+    assertSame(ParallelDoubleStreamSupport.class.cast(stream).workerPool, this.workerPool);
   }
 
   @Test

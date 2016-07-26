@@ -7,6 +7,7 @@ import java.util.Spliterator;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.ForkJoinWorkerThread;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -21,7 +22,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import static java.lang.Thread.currentThread;
+import static java.util.Collections.singletonList;
 import static org.hamcrest.Matchers.instanceOf;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThat;
@@ -44,6 +47,9 @@ public class ParallelStreamSupportTest {
   private Iterator<?> iteratorMock;
   private Spliterator<?> spliteratorMock;
   private ParallelStreamSupport<String> parallelStreamSupportMock;
+
+  private Stream<String> delegate;
+  private ParallelStreamSupport<String> parallelStreamSupport;
 
 
   @Before
@@ -74,6 +80,8 @@ public class ParallelStreamSupportTest {
     when(this.delegateMock.isParallel()).thenReturn(false);
 
     this.parallelStreamSupportMock = new ParallelStreamSupport<>(this.delegateMock, this.workerPool);
+    this.delegate = singletonList("x").parallelStream();
+    this.parallelStreamSupport = new ParallelStreamSupport<>(this.delegate, this.workerPool);
   }
 
   @After
@@ -297,5 +305,28 @@ public class ParallelStreamSupportTest {
     this.parallelStreamSupportMock.forEach(c);
 
     verify(this.delegateMock).forEach(c);
+  }
+
+  @Test
+  public void forEachSequencial() {
+    this.parallelStreamSupport.sequential();
+    Thread thisThread = Thread.currentThread();
+    // Used to write from the Lambda
+    AtomicReference<Thread> threadRef = new AtomicReference<>();
+
+    this.parallelStreamSupport.forEach(s -> threadRef.set(currentThread()));
+
+    assertEquals(thisThread, threadRef.get());
+  }
+
+  @Test
+  public void forEachParallel() {
+    this.parallelStreamSupport.parallel();
+    // Used to write from the Lambda
+    AtomicReference<Thread> threadRef = new AtomicReference<>();
+
+    this.parallelStreamSupport.forEach(s -> threadRef.set(currentThread()));
+
+    assertThat(threadRef.get(), instanceOf(ForkJoinWorkerThread.class));
   }
 }

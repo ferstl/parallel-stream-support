@@ -22,6 +22,7 @@ import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
+import static java.util.Objects.requireNonNull;
 
 public class ParallelStreamSupport<T> extends AbstractParallelStreamSupport<Stream<T>> implements Stream<T> {
 
@@ -30,6 +31,9 @@ public class ParallelStreamSupport<T> extends AbstractParallelStreamSupport<Stre
   }
 
   public static <T> Stream<T> parallelStream(Collection<T> collection, ForkJoinPool workerPool) {
+    requireNonNull(collection, "Collection must not be null");
+    requireNonNull(workerPool, "Worker pool must not be null");
+
     return new ParallelStreamSupport<T>(collection.parallelStream(), workerPool);
   }
 

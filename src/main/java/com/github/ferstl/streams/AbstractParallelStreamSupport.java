@@ -3,6 +3,7 @@ package com.github.ferstl.streams;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.ForkJoinTask;
+import static java.util.Objects.requireNonNull;
 import static java.util.concurrent.ForkJoinTask.adapt;
 
 abstract class AbstractParallelStreamSupport<T> {
@@ -11,6 +12,9 @@ abstract class AbstractParallelStreamSupport<T> {
   final ForkJoinPool workerPool;
 
   AbstractParallelStreamSupport(T delegate, ForkJoinPool workerPool) {
+    requireNonNull(delegate, "Stream must not be null");
+    requireNonNull(workerPool, "Stream must not be null");
+
     this.delegate = delegate;
     this.workerPool = workerPool;
   }

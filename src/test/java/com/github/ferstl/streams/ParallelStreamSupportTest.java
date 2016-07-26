@@ -36,14 +36,14 @@ public class ParallelStreamSupportTest {
 
   private ForkJoinPool workerPool;
 
-  private Stream<String> delegate;
-  private Stream<?> mappedDelegate;
-  private IntStream mappedIntDelegate;
-  private LongStream mappedLongDelegate;
-  private DoubleStream mappedDoubleDelegate;
-  private Iterator<?> iterator;
-  private Spliterator<?> spliterator;
-  private ParallelStreamSupport<String> parallelStreamSupport;
+  private Stream<String> delegateMock;
+  private Stream<?> mappedDelegateMock;
+  private IntStream mappedIntDelegateMock;
+  private LongStream mappedLongDelegateMock;
+  private DoubleStream mappedDoubleDelegateMock;
+  private Iterator<?> iteratorMock;
+  private Spliterator<?> spliteratorMock;
+  private ParallelStreamSupport<String> parallelStreamSupportMock;
 
 
   @Before
@@ -53,27 +53,27 @@ public class ParallelStreamSupportTest {
     assertFalse("This test must not run in a ForkJoinPool", currentThread() instanceof ForkJoinWorkerThread);
 
     this.workerPool = new ForkJoinPool(1);
-    this.delegate = mock(Stream.class);
-    this.mappedDelegate = mock(Stream.class);
-    this.mappedIntDelegate = mock(IntStream.class);
-    this.mappedLongDelegate = mock(LongStream.class);
-    this.mappedDoubleDelegate = mock(DoubleStream.class);
-    this.iterator = mock(Iterator.class);
-    this.spliterator = mock(Spliterator.class);
+    this.delegateMock = mock(Stream.class);
+    this.mappedDelegateMock = mock(Stream.class);
+    this.mappedIntDelegateMock = mock(IntStream.class);
+    this.mappedLongDelegateMock = mock(LongStream.class);
+    this.mappedDoubleDelegateMock = mock(DoubleStream.class);
+    this.iteratorMock = mock(Iterator.class);
+    this.spliteratorMock = mock(Spliterator.class);
 
-    when(this.delegate.map(anyObject())).thenReturn((Stream) this.mappedDelegate);
-    when(this.delegate.mapToInt(anyObject())).thenReturn(this.mappedIntDelegate);
-    when(this.delegate.mapToLong(anyObject())).thenReturn(this.mappedLongDelegate);
-    when(this.delegate.mapToDouble(anyObject())).thenReturn(this.mappedDoubleDelegate);
-    when(this.delegate.flatMap(anyObject())).thenReturn((Stream) this.mappedDelegate);
-    when(this.delegate.flatMapToInt(anyObject())).thenReturn(this.mappedIntDelegate);
-    when(this.delegate.flatMapToLong(anyObject())).thenReturn(this.mappedLongDelegate);
-    when(this.delegate.flatMapToDouble(anyObject())).thenReturn(this.mappedDoubleDelegate);
-    when(this.delegate.iterator()).thenReturn((Iterator) this.iterator);
-    when(this.delegate.spliterator()).thenReturn((Spliterator) this.spliterator);
-    when(this.delegate.isParallel()).thenReturn(true);
+    when(this.delegateMock.map(anyObject())).thenReturn((Stream) this.mappedDelegateMock);
+    when(this.delegateMock.mapToInt(anyObject())).thenReturn(this.mappedIntDelegateMock);
+    when(this.delegateMock.mapToLong(anyObject())).thenReturn(this.mappedLongDelegateMock);
+    when(this.delegateMock.mapToDouble(anyObject())).thenReturn(this.mappedDoubleDelegateMock);
+    when(this.delegateMock.flatMap(anyObject())).thenReturn((Stream) this.mappedDelegateMock);
+    when(this.delegateMock.flatMapToInt(anyObject())).thenReturn(this.mappedIntDelegateMock);
+    when(this.delegateMock.flatMapToLong(anyObject())).thenReturn(this.mappedLongDelegateMock);
+    when(this.delegateMock.flatMapToDouble(anyObject())).thenReturn(this.mappedDoubleDelegateMock);
+    when(this.delegateMock.iterator()).thenReturn((Iterator) this.iteratorMock);
+    when(this.delegateMock.spliterator()).thenReturn((Spliterator) this.spliteratorMock);
+    when(this.delegateMock.isParallel()).thenReturn(false);
 
-    this.parallelStreamSupport = new ParallelStreamSupport<>(this.delegate, this.workerPool);
+    this.parallelStreamSupportMock = new ParallelStreamSupport<>(this.delegateMock, this.workerPool);
   }
 
   @After
@@ -84,217 +84,218 @@ public class ParallelStreamSupportTest {
 
   @Test
   public void iterator() {
-    Iterator<String> iterator = this.parallelStreamSupport.iterator();
+    Iterator<String> iterator = this.parallelStreamSupportMock.iterator();
 
-    verify(this.delegate).iterator();
-    assertSame(this.iterator, iterator);
+    verify(this.delegateMock).iterator();
+    assertSame(this.iteratorMock, iterator);
   }
 
   @Test
   public void spliterator() {
-    Spliterator<String> spliterator = this.parallelStreamSupport.spliterator();
+    Spliterator<String> spliterator = this.parallelStreamSupportMock.spliterator();
 
-    verify(this.delegate).spliterator();
-    assertSame(this.spliterator, spliterator);
+    verify(this.delegateMock).spliterator();
+    assertSame(this.spliteratorMock, spliterator);
   }
 
   @Test
   public void isParallel() {
-    boolean parallel = this.parallelStreamSupport.isParallel();
+    when(this.delegateMock.isParallel()).thenReturn(true);
+    boolean parallel = this.parallelStreamSupportMock.isParallel();
 
-    verify(this.delegate).isParallel();
+    verify(this.delegateMock).isParallel();
     assertTrue(parallel);
   }
 
   @Test
   public void sequential() {
-    Stream<String> stream = this.parallelStreamSupport.sequential();
+    Stream<String> stream = this.parallelStreamSupportMock.sequential();
 
-    verify(this.delegate).sequential();
-    assertSame(this.parallelStreamSupport, stream);
+    verify(this.delegateMock).sequential();
+    assertSame(this.parallelStreamSupportMock, stream);
   }
 
   @Test
   public void parallel() {
-    Stream<String> stream = this.parallelStreamSupport.parallel();
+    Stream<String> stream = this.parallelStreamSupportMock.parallel();
 
-    verify(this.delegate).parallel();
-    assertSame(this.parallelStreamSupport, stream);
+    verify(this.delegateMock).parallel();
+    assertSame(this.parallelStreamSupportMock, stream);
   }
 
   @Test
   public void unordered() {
-    Stream<String> stream = this.parallelStreamSupport.unordered();
+    Stream<String> stream = this.parallelStreamSupportMock.unordered();
 
-    verify(this.delegate).unordered();
-    assertSame(this.parallelStreamSupport, stream);
+    verify(this.delegateMock).unordered();
+    assertSame(this.parallelStreamSupportMock, stream);
   }
 
   @Test
   public void onClose() {
     Runnable r = () -> {};
-    Stream<String> stream = this.parallelStreamSupport.onClose(r);
+    Stream<String> stream = this.parallelStreamSupportMock.onClose(r);
 
-    verify(this.delegate).onClose(r);
-    assertSame(this.parallelStreamSupport, stream);
+    verify(this.delegateMock).onClose(r);
+    assertSame(this.parallelStreamSupportMock, stream);
   }
 
   @Test
   public void close() {
-    this.parallelStreamSupport.close();
+    this.parallelStreamSupportMock.close();
 
-    verify(this.delegate).close();
+    verify(this.delegateMock).close();
   }
 
   @Test
   public void filter() {
     Predicate<String> p = s -> true;
-    Stream<String> stream = this.parallelStreamSupport.filter(p);
+    Stream<String> stream = this.parallelStreamSupportMock.filter(p);
 
-    verify(this.delegate).filter(p);
-    assertSame(this.parallelStreamSupport, stream);
+    verify(this.delegateMock).filter(p);
+    assertSame(this.parallelStreamSupportMock, stream);
   }
 
   @Test
   public void map() {
     Function<String, BigDecimal> f = s -> BigDecimal.ONE;
-    Stream<BigDecimal> stream = this.parallelStreamSupport.map(f);
+    Stream<BigDecimal> stream = this.parallelStreamSupportMock.map(f);
 
-    verify(this.delegate).map(f);
+    verify(this.delegateMock).map(f);
     assertThat(stream, instanceOf(ParallelStreamSupport.class));
-    assertSame(ParallelStreamSupport.class.cast(stream).delegate, this.mappedDelegate);
+    assertSame(ParallelStreamSupport.class.cast(stream).delegate, this.mappedDelegateMock);
     assertSame(ParallelStreamSupport.class.cast(stream).workerPool, this.workerPool);
   }
 
   @Test
   public void mapToInt() {
     ToIntFunction<String> f = s -> 1;
-    IntStream stream = this.parallelStreamSupport.mapToInt(f);
+    IntStream stream = this.parallelStreamSupportMock.mapToInt(f);
 
-    verify(this.delegate).mapToInt(f);
+    verify(this.delegateMock).mapToInt(f);
     assertThat(stream, instanceOf(ParallelIntStreamSupport.class));
-    assertSame(ParallelIntStreamSupport.class.cast(stream).delegate, this.mappedIntDelegate);
+    assertSame(ParallelIntStreamSupport.class.cast(stream).delegate, this.mappedIntDelegateMock);
     assertSame(ParallelIntStreamSupport.class.cast(stream).workerPool, this.workerPool);
   }
 
   @Test
   public void mapToLong() {
     ToLongFunction<String> f = s -> 1L;
-    LongStream stream = this.parallelStreamSupport.mapToLong(f);
+    LongStream stream = this.parallelStreamSupportMock.mapToLong(f);
 
-    verify(this.delegate).mapToLong(f);
+    verify(this.delegateMock).mapToLong(f);
     assertThat(stream, instanceOf(ParallelLongStreamSupport.class));
-    assertSame(ParallelLongStreamSupport.class.cast(stream).delegate, this.mappedLongDelegate);
+    assertSame(ParallelLongStreamSupport.class.cast(stream).delegate, this.mappedLongDelegateMock);
     assertSame(ParallelLongStreamSupport.class.cast(stream).workerPool, this.workerPool);
   }
 
   @Test
   public void mapToDouble() {
     ToDoubleFunction<String> f = s -> 1D;
-    DoubleStream stream = this.parallelStreamSupport.mapToDouble(f);
+    DoubleStream stream = this.parallelStreamSupportMock.mapToDouble(f);
 
-    verify(this.delegate).mapToDouble(f);
+    verify(this.delegateMock).mapToDouble(f);
     assertThat(stream, instanceOf(ParallelDoubleStreamSupport.class));
-    assertSame(ParallelDoubleStreamSupport.class.cast(stream).delegate, this.mappedDoubleDelegate);
+    assertSame(ParallelDoubleStreamSupport.class.cast(stream).delegate, this.mappedDoubleDelegateMock);
     assertSame(ParallelDoubleStreamSupport.class.cast(stream).workerPool, this.workerPool);
   }
 
   @Test
   public void flatMap() {
     Function<String, Stream<BigDecimal>> f = s -> Stream.of(BigDecimal.ONE);
-    Stream<BigDecimal> stream = this.parallelStreamSupport.flatMap(f);
+    Stream<BigDecimal> stream = this.parallelStreamSupportMock.flatMap(f);
 
-    verify(this.delegate).flatMap(f);
+    verify(this.delegateMock).flatMap(f);
     assertThat(stream, instanceOf(ParallelStreamSupport.class));
-    assertSame(ParallelStreamSupport.class.cast(stream).delegate, this.mappedDelegate);
+    assertSame(ParallelStreamSupport.class.cast(stream).delegate, this.mappedDelegateMock);
   }
 
 
   @Test
   public void flatMapToInt() {
     Function<String, IntStream> f = s -> IntStream.of(1);
-    IntStream stream = this.parallelStreamSupport.flatMapToInt(f);
+    IntStream stream = this.parallelStreamSupportMock.flatMapToInt(f);
 
-    verify(this.delegate).flatMapToInt(f);
+    verify(this.delegateMock).flatMapToInt(f);
     assertThat(stream, instanceOf(ParallelIntStreamSupport.class));
-    assertSame(ParallelIntStreamSupport.class.cast(stream).delegate, this.mappedIntDelegate);
+    assertSame(ParallelIntStreamSupport.class.cast(stream).delegate, this.mappedIntDelegateMock);
   }
 
   @Test
   public void flatMapToLong() {
     Function<String, LongStream> f = s -> LongStream.of(1L);
-    LongStream stream = this.parallelStreamSupport.flatMapToLong(f);
+    LongStream stream = this.parallelStreamSupportMock.flatMapToLong(f);
 
-    verify(this.delegate).flatMapToLong(f);
+    verify(this.delegateMock).flatMapToLong(f);
     assertThat(stream, instanceOf(ParallelLongStreamSupport.class));
-    assertSame(ParallelLongStreamSupport.class.cast(stream).delegate, this.mappedLongDelegate);
+    assertSame(ParallelLongStreamSupport.class.cast(stream).delegate, this.mappedLongDelegateMock);
   }
 
   @Test
   public void flatMapToDouble() {
     Function<String, DoubleStream> f = s -> DoubleStream.of(1L);
-    DoubleStream stream = this.parallelStreamSupport.flatMapToDouble(f);
+    DoubleStream stream = this.parallelStreamSupportMock.flatMapToDouble(f);
 
-    verify(this.delegate).flatMapToDouble(f);
+    verify(this.delegateMock).flatMapToDouble(f);
     assertThat(stream, instanceOf(ParallelDoubleStreamSupport.class));
-    assertSame(ParallelDoubleStreamSupport.class.cast(stream).delegate, this.mappedDoubleDelegate);
+    assertSame(ParallelDoubleStreamSupport.class.cast(stream).delegate, this.mappedDoubleDelegateMock);
   }
 
   @Test
   public void distinct() {
-    Stream<String> stream = this.parallelStreamSupport.distinct();
+    Stream<String> stream = this.parallelStreamSupportMock.distinct();
 
-    verify(this.delegate).distinct();
-    assertSame(this.parallelStreamSupport, stream);
+    verify(this.delegateMock).distinct();
+    assertSame(this.parallelStreamSupportMock, stream);
   }
 
   @Test
   public void sorted() {
-    Stream<String> stream = this.parallelStreamSupport.sorted();
+    Stream<String> stream = this.parallelStreamSupportMock.sorted();
 
-    verify(this.delegate).sorted();
-    assertSame(this.parallelStreamSupport, stream);
+    verify(this.delegateMock).sorted();
+    assertSame(this.parallelStreamSupportMock, stream);
   }
 
   @Test
   public void sortedWithComparator() {
     Comparator<String> c = (s1, s2) -> 0;
-    Stream<String> stream = this.parallelStreamSupport.sorted(c);
+    Stream<String> stream = this.parallelStreamSupportMock.sorted(c);
 
-    verify(this.delegate).sorted(c);
-    assertSame(this.parallelStreamSupport, stream);
+    verify(this.delegateMock).sorted(c);
+    assertSame(this.parallelStreamSupportMock, stream);
   }
 
   @Test
   public void peek() {
     Consumer<String> c = s -> {};
-    Stream<String> stream = this.parallelStreamSupport.peek(c);
+    Stream<String> stream = this.parallelStreamSupportMock.peek(c);
 
-    verify(this.delegate).peek(c);
-    assertSame(this.parallelStreamSupport, stream);
+    verify(this.delegateMock).peek(c);
+    assertSame(this.parallelStreamSupportMock, stream);
   }
 
   @Test
   public void limit() {
-    Stream<String> stream = this.parallelStreamSupport.limit(5);
+    Stream<String> stream = this.parallelStreamSupportMock.limit(5);
 
-    verify(this.delegate).limit(5);
-    assertSame(this.parallelStreamSupport, stream);
+    verify(this.delegateMock).limit(5);
+    assertSame(this.parallelStreamSupportMock, stream);
   }
 
   @Test
   public void skip() {
-    Stream<String> stream = this.parallelStreamSupport.skip(5);
+    Stream<String> stream = this.parallelStreamSupportMock.skip(5);
 
-    verify(this.delegate).skip(5);
-    assertSame(this.parallelStreamSupport, stream);
+    verify(this.delegateMock).skip(5);
+    assertSame(this.parallelStreamSupportMock, stream);
   }
 
   @Test
   public void forEach() {
     Consumer<String> c = s -> {};
-    this.parallelStreamSupport.forEach(c);
+    this.parallelStreamSupportMock.forEach(c);
 
-    verify(this.delegate).forEach(c);
+    verify(this.delegateMock).forEach(c);
   }
 }

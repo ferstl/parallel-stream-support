@@ -289,4 +289,12 @@ public class ParallelStreamSupportTest {
     verify(this.delegate).skip(5);
     assertSame(this.parallelStreamSupport, stream);
   }
+
+  @Test
+  public void forEach() {
+    Consumer<String> c = s -> {};
+    this.parallelStreamSupport.forEach(c);
+
+    verify(this.delegate).forEach(c);
+  }
 }

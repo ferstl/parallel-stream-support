@@ -329,4 +329,35 @@ public class ParallelStreamSupportTest {
 
     assertThat(threadRef.get(), instanceOf(ForkJoinWorkerThread.class));
   }
+
+  @Test
+  public void forEachOrdered() {
+    Consumer<String> c = s -> {};
+    this.parallelStreamSupportMock.forEachOrdered(c);
+
+    verify(this.delegateMock).forEachOrdered(c);
+  }
+
+  @Test
+  public void forEachOrderedSequencial() {
+    this.parallelStreamSupport.sequential();
+    Thread thisThread = Thread.currentThread();
+    // Used to write from the Lambda
+    AtomicReference<Thread> threadRef = new AtomicReference<>();
+
+    this.parallelStreamSupport.forEachOrdered(s -> threadRef.set(currentThread()));
+
+    assertEquals(thisThread, threadRef.get());
+  }
+
+  @Test
+  public void forEachOrderedParallel() {
+    this.parallelStreamSupport.parallel();
+    // Used to write from the Lambda
+    AtomicReference<Thread> threadRef = new AtomicReference<>();
+
+    this.parallelStreamSupport.forEachOrdered(s -> threadRef.set(currentThread()));
+
+    assertThat(threadRef.get(), instanceOf(ForkJoinWorkerThread.class));
+  }
 }

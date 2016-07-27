@@ -323,7 +323,7 @@ public class ParallelStreamSupportTest {
   @Test
   public void forEachSequential() {
     this.parallelStreamSupport.sequential();
-    Thread thisThread = Thread.currentThread();
+    Thread thisThread = currentThread();
     // Used to write from the Lambda
     AtomicReference<Thread> threadRef = new AtomicReference<>();
 
@@ -354,7 +354,7 @@ public class ParallelStreamSupportTest {
   @Test
   public void forEachOrderedSequential() {
     this.parallelStreamSupport.sequential();
-    Thread thisThread = Thread.currentThread();
+    Thread thisThread = currentThread();
     // Used to write from the Lambda
     AtomicReference<Thread> threadRef = new AtomicReference<>();
 
@@ -385,7 +385,7 @@ public class ParallelStreamSupportTest {
   @Test
   public void toArraySequential() {
     this.parallelStreamSupport.sequential();
-    Thread thisThread = Thread.currentThread();
+    Thread thisThread = currentThread();
 
     Object[] array = this.parallelStreamSupport
         .map(s -> currentThread())
@@ -420,7 +420,7 @@ public class ParallelStreamSupportTest {
   public void toArrayWithGeneratorSequential() {
     this.parallelStreamSupport.sequential();
     IntFunction<Thread[]> generator = i -> new Thread[i];
-    Thread thisThread = Thread.currentThread();
+    Thread thisThread = currentThread();
 
     Object[] array = this.parallelStreamSupport
         .map(s -> currentThread())
@@ -455,7 +455,7 @@ public class ParallelStreamSupportTest {
   public void reduceWithIdentityAndAccumulatorSequential() {
     this.parallelStreamSupport.sequential();
     BinaryOperator<Thread> accumulator = (a, b) -> b;
-    Thread thisThread = Thread.currentThread();
+    Thread thisThread = currentThread();
 
     Thread result = this.parallelStreamSupport
         .map(s -> currentThread())
@@ -489,10 +489,10 @@ public class ParallelStreamSupportTest {
   public void reduceWithAccumulatorSequential() {
     this.parallelStreamSupport.sequential();
     BinaryOperator<Thread> accumulator = (a, b) -> b;
-    Thread thisThread = Thread.currentThread();
+    Thread thisThread = currentThread();
 
     Optional<Thread> result = this.parallelStreamSupport
-        .map(s -> Thread.currentThread())
+        .map(s -> currentThread())
         .reduce(accumulator);
 
     assertEquals(Optional.of(thisThread), result);
@@ -504,7 +504,7 @@ public class ParallelStreamSupportTest {
     BinaryOperator<Thread> accumulator = (a, b) -> b;
 
     Optional<Thread> result = this.parallelStreamSupport
-        .map(s -> Thread.currentThread())
+        .map(s -> currentThread())
         .reduce(accumulator);
 
     assertThat(result.get(), instanceOf(ForkJoinWorkerThread.class));

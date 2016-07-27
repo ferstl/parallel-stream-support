@@ -3,11 +3,14 @@ package com.github.ferstl.streams;
 import java.math.BigDecimal;
 import java.util.Comparator;
 import java.util.Iterator;
+import java.util.Optional;
 import java.util.Spliterator;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.ForkJoinWorkerThread;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.BiFunction;
+import java.util.function.BinaryOperator;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.IntFunction;
@@ -32,6 +35,7 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -84,6 +88,9 @@ public class ParallelStreamSupportTest {
     when(this.delegateMock.isParallel()).thenReturn(false);
     when(this.delegateMock.toArray()).thenReturn(this.toArrayResult);
     when(this.delegateMock.toArray(anyObject())).thenReturn(this.toArrayResult);
+    when(this.delegateMock.reduce(anyString(), anyObject())).thenReturn("reduce");
+    when(this.delegateMock.reduce(anyObject())).thenReturn(Optional.of("reduce"));
+    when(this.delegateMock.reduce(anyObject(), anyObject(), anyObject())).thenReturn(42);
 
     this.parallelStreamSupportMock = new ParallelStreamSupport<>(this.delegateMock, this.workerPool);
     this.delegate = singletonList("x").parallelStream();
@@ -433,5 +440,108 @@ public class ParallelStreamSupportTest {
         .toArray(generator);
 
     assertThat(array, arrayContaining(instanceOf(ForkJoinWorkerThread.class)));
+  }
+
+  @Test
+  public void reduceWithIdentityAndAccumulator() {
+    BinaryOperator<String> accumulator = (a, b) -> b;
+    String result = this.parallelStreamSupportMock.reduce("x", accumulator);
+
+    verify(this.delegateMock).reduce("x", accumulator);
+    assertEquals("reduce", result);
+  }
+
+  @Test
+  public void reduceWithIdentityAndAccumulatorSequential() {
+    this.parallelStreamSupport.sequential();
+    BinaryOperator<Thread> accumulator = (a, b) -> b;
+    Thread thisThread = Thread.currentThread();
+
+    Thread result = this.parallelStreamSupport
+        .map(s -> currentThread())
+        .reduce(thisThread, accumulator);
+
+    assertEquals(thisThread, result);
+  }
+
+  @Test
+  public void reduceWithIdentityAndAccumulatorParallel() {
+    this.parallelStreamSupport.parallel();
+    BinaryOperator<Thread> accumulator = (a, b) -> b;
+
+    Thread result = this.parallelStreamSupport
+        .map(s -> currentThread())
+        .reduce(currentThread(), accumulator);
+
+    assertThat(result, instanceOf(ForkJoinWorkerThread.class));
+  }
+
+  @Test
+  public void reduceWithAccumulator() {
+    BinaryOperator<String> accumulator = (a, b) -> b;
+    Optional<String> result = this.parallelStreamSupportMock.reduce(accumulator);
+
+    verify(this.delegateMock).reduce(accumulator);
+    assertEquals(Optional.of("reduce"), result);
+  }
+
+  @Test
+  public void reduceWithAccumulatorSequential() {
+    this.parallelStreamSupport.sequential();
+    BinaryOperator<Thread> accumulator = (a, b) -> b;
+    Thread thisThread = Thread.currentThread();
+
+    Optional<Thread> result = this.parallelStreamSupport
+        .map(s -> Thread.currentThread())
+        .reduce(accumulator);
+
+    assertEquals(Optional.of(thisThread), result);
+  }
+
+  @Test
+  public void reduceWithAccumulatorParallel() {
+    this.parallelStreamSupport.parallel();
+    BinaryOperator<Thread> accumulator = (a, b) -> b;
+
+    Optional<Thread> result = this.parallelStreamSupport
+        .map(s -> Thread.currentThread())
+        .reduce(accumulator);
+
+    assertThat(result.get(), instanceOf(ForkJoinWorkerThread.class));
+  }
+
+
+  @Test
+  public void reduceWithIdentityAndAccumulatorAndCombiner() {
+    BiFunction<Integer, String, Integer> accumulator = (a, b) -> a;
+    BinaryOperator<Integer> combiner = (a, b) -> b;
+
+    Integer result = this.parallelStreamSupportMock.reduce(0, accumulator, combiner);
+
+    verify(this.delegateMock).reduce(0, accumulator, combiner);
+    assertEquals((Integer) 42, result);
+  }
+
+  @Test
+  public void reduceWithIdentityAndAccumulatorAndCombinerSequential() {
+    this.parallelStreamSupport.sequential();
+    BiFunction<Thread, String, Thread> accumulator = (a, b) -> a;
+    BinaryOperator<Thread> combiner = (a, b) -> currentThread();
+    Thread thisThread = currentThread();
+
+    Thread result = this.parallelStreamSupport.reduce(currentThread(), accumulator, combiner);
+
+    assertEquals(thisThread, result);
+  }
+
+  @Test
+  public void reduceWithIdentityAndAccumulatorAndCombinerParallel() {
+    this.parallelStreamSupport.parallel();
+    BiFunction<Thread, String, Thread> accumulator = (a, b) -> currentThread();
+    BinaryOperator<Thread> combiner = (a, b) -> b;
+
+    Thread result = this.parallelStreamSupport.reduce(currentThread(), accumulator, combiner);
+
+    assertThat(result, instanceOf(ForkJoinWorkerThread.class));
   }
 }

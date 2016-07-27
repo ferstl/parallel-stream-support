@@ -10,6 +10,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.IntFunction;
 import java.util.function.Predicate;
 import java.util.function.ToDoubleFunction;
 import java.util.function.ToIntFunction;
@@ -23,6 +24,7 @@ import org.junit.Before;
 import org.junit.Test;
 import static java.lang.Thread.currentThread;
 import static java.util.Collections.singletonList;
+import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -47,6 +49,7 @@ public class ParallelStreamSupportTest {
   private Iterator<?> iteratorMock;
   private Spliterator<?> spliteratorMock;
   private ParallelStreamSupport<String> parallelStreamSupportMock;
+  private String[] toArrayResult;
 
   private Stream<String> delegate;
   private ParallelStreamSupport<String> parallelStreamSupport;
@@ -66,6 +69,7 @@ public class ParallelStreamSupportTest {
     this.mappedDoubleDelegateMock = mock(DoubleStream.class);
     this.iteratorMock = mock(Iterator.class);
     this.spliteratorMock = mock(Spliterator.class);
+    this.toArrayResult = new String[0];
 
     when(this.delegateMock.map(anyObject())).thenReturn((Stream) this.mappedDelegateMock);
     when(this.delegateMock.mapToInt(anyObject())).thenReturn(this.mappedIntDelegateMock);
@@ -78,6 +82,8 @@ public class ParallelStreamSupportTest {
     when(this.delegateMock.iterator()).thenReturn((Iterator) this.iteratorMock);
     when(this.delegateMock.spliterator()).thenReturn((Spliterator) this.spliteratorMock);
     when(this.delegateMock.isParallel()).thenReturn(false);
+    when(this.delegateMock.toArray()).thenReturn(this.toArrayResult);
+    when(this.delegateMock.toArray(anyObject())).thenReturn(this.toArrayResult);
 
     this.parallelStreamSupportMock = new ParallelStreamSupport<>(this.delegateMock, this.workerPool);
     this.delegate = singletonList("x").parallelStream();
@@ -359,5 +365,73 @@ public class ParallelStreamSupportTest {
     this.parallelStreamSupport.forEachOrdered(s -> threadRef.set(currentThread()));
 
     assertThat(threadRef.get(), instanceOf(ForkJoinWorkerThread.class));
+  }
+
+  @Test
+  public void toArray() {
+    Object[] array = this.parallelStreamSupportMock.toArray();
+
+    verify(this.delegateMock).toArray();
+    assertSame(this.toArrayResult, array);
+  }
+
+  @Test
+  public void toArraySequencial() {
+    this.parallelStreamSupport.sequential();
+    Thread thisThread = Thread.currentThread();
+
+    Object[] array = this.parallelStreamSupport
+        .map(s -> currentThread())
+        .toArray();
+
+    assertThat(array, arrayContaining(thisThread));
+  }
+
+  @Test
+  @SuppressWarnings("unchecked")
+  public void toArrayParallel() {
+    this.parallelStreamSupport.parallel();
+
+    Object[] array = this.parallelStreamSupport
+        .map(s -> currentThread())
+        .toArray();
+
+    assertThat(array, arrayContaining(instanceOf(ForkJoinWorkerThread.class)));
+  }
+
+  @Test
+  public void toArrayWithGenerator() {
+    IntFunction<String[]> generator = i -> new String[i];
+    Object[] array = this.parallelStreamSupportMock.toArray(generator);
+
+    verify(this.delegateMock).toArray(generator);
+    assertSame(this.toArrayResult, array);
+  }
+
+
+  @Test
+  public void toArrayWithGeneratorSequential() {
+    this.parallelStreamSupport.sequential();
+    IntFunction<Thread[]> generator = i -> new Thread[i];
+    Thread thisThread = Thread.currentThread();
+
+    Object[] array = this.parallelStreamSupport
+        .map(s -> currentThread())
+        .toArray(generator);
+
+    assertThat(array, arrayContaining(thisThread));
+  }
+
+  @Test
+  @SuppressWarnings("unchecked")
+  public void toArrayWithGeneratorParallel() {
+    this.parallelStreamSupport.parallel();
+    IntFunction<Thread[]> generator = i -> new Thread[i];
+
+    Object[] array = this.parallelStreamSupport
+        .map(s -> currentThread())
+        .toArray(generator);
+
+    assertThat(array, arrayContaining(instanceOf(ForkJoinWorkerThread.class)));
   }
 }

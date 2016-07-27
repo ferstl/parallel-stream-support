@@ -321,7 +321,7 @@ public class ParallelStreamSupportTest {
   }
 
   @Test
-  public void forEachSequencial() {
+  public void forEachSequential() {
     this.parallelStreamSupport.sequential();
     Thread thisThread = Thread.currentThread();
     // Used to write from the Lambda
@@ -352,7 +352,7 @@ public class ParallelStreamSupportTest {
   }
 
   @Test
-  public void forEachOrderedSequencial() {
+  public void forEachOrderedSequential() {
     this.parallelStreamSupport.sequential();
     Thread thisThread = Thread.currentThread();
     // Used to write from the Lambda
@@ -383,7 +383,7 @@ public class ParallelStreamSupportTest {
   }
 
   @Test
-  public void toArraySequencial() {
+  public void toArraySequential() {
     this.parallelStreamSupport.sequential();
     Thread thisThread = Thread.currentThread();
 

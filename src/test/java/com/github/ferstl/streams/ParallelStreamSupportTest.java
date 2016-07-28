@@ -1,20 +1,24 @@
 package com.github.ferstl.streams;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Optional;
 import java.util.Spliterator;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.ForkJoinWorkerThread;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.BinaryOperator;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.IntFunction;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.function.ToDoubleFunction;
 import java.util.function.ToIntFunction;
 import java.util.function.ToLongFunction;
@@ -27,7 +31,9 @@ import org.junit.Before;
 import org.junit.Test;
 import static java.lang.Thread.currentThread;
 import static java.util.Collections.singletonList;
+import static java.util.stream.Collectors.toList;
 import static org.hamcrest.Matchers.arrayContaining;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -91,6 +97,8 @@ public class ParallelStreamSupportTest {
     when(this.delegateMock.reduce(anyString(), anyObject())).thenReturn("reduce");
     when(this.delegateMock.reduce(anyObject())).thenReturn(Optional.of("reduce"));
     when(this.delegateMock.reduce(anyObject(), anyObject(), anyObject())).thenReturn(42);
+    when(this.delegateMock.collect(anyObject(), anyObject(), anyObject())).thenReturn(42);
+    when(this.delegateMock.collect(anyObject())).thenReturn(singletonList("collect"));
 
     this.parallelStreamSupportMock = new ParallelStreamSupport<>(this.delegateMock, this.workerPool);
     this.delegate = singletonList("x").parallelStream();
@@ -543,5 +551,70 @@ public class ParallelStreamSupportTest {
     Thread result = this.parallelStreamSupport.reduce(currentThread(), accumulator, combiner);
 
     assertThat(result, instanceOf(ForkJoinWorkerThread.class));
+  }
+
+  @Test
+  public void collectWithSupplierAndAccumulatorAndCombiner() {
+    Supplier<Integer> supplier = () -> 1;
+    BiConsumer<Integer, String> accumulator = (a, b) -> {};
+    BiConsumer<Integer, Integer> combiner = (a, b) -> {};
+
+    Integer result = this.parallelStreamSupportMock.collect(supplier, accumulator, combiner);
+
+    verify(this.delegateMock).collect(supplier, accumulator, combiner);
+    assertEquals((Integer) 42, result);
+  }
+
+  @Test
+  public void collectWithSupplierAndAccumulatorAndCombinerSequential() {
+    this.parallelStreamSupport.sequential();
+    Thread thisThread = currentThread();
+
+    List<Thread> result = this.parallelStreamSupport
+        .map(s -> currentThread())
+        .collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
+
+    assertThat(result, contains(thisThread));
+  }
+
+  @Test
+  public void collectWithSupplierAndAccumulatorAndCombinerParallel() {
+    this.parallelStreamSupport.parallel();
+
+    List<Thread> result = this.parallelStreamSupport
+        .map(s -> currentThread())
+        .collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
+
+    assertThat(result, contains(instanceOf(ForkJoinWorkerThread.class)));
+  }
+
+  @Test
+  public void collectWithCollector() {
+    List<String> result = this.parallelStreamSupportMock.collect(toList());
+
+    assertThat(result, contains("collect"));
+  }
+
+  @Test
+  public void collectWithCollectorSequential() {
+    this.parallelStreamSupport.sequential();
+    Thread thisThread = currentThread();
+
+    List<Thread> result = this.parallelStreamSupport
+        .map(s -> currentThread())
+        .collect(toList());
+
+    assertThat(result, contains(thisThread));
+  }
+
+  @Test
+  public void collectWithCollectorParallel() {
+    this.parallelStreamSupport.parallel();
+
+    List<Thread> result = this.parallelStreamSupport
+        .map(s -> currentThread())
+        .collect(toList());
+
+    assertThat(result, contains(instanceOf(ForkJoinWorkerThread.class)));
   }
 }

@@ -103,6 +103,8 @@ public class ParallelStreamSupportTest {
     when(this.delegateMock.anyMatch(anyObject())).thenReturn(true);
     when(this.delegateMock.allMatch(anyObject())).thenReturn(true);
     when(this.delegateMock.noneMatch(anyObject())).thenReturn(true);
+    when(this.delegateMock.findFirst()).thenReturn(Optional.of("findFirst"));
+    when(this.delegateMock.findAny()).thenReturn(Optional.of("findAny"));
 
     this.parallelStreamSupportMock = new ParallelStreamSupport<>(this.delegateMock, this.workerPool);
     this.delegate = singletonList("x").parallelStream();
@@ -764,6 +766,76 @@ public class ParallelStreamSupportTest {
     this.parallelStreamSupport
         .peek(s -> threadRef.set(currentThread()))
         .noneMatch(s -> true);
+
+    assertThat(threadRef.get(), instanceOf(ForkJoinWorkerThread.class));
+  }
+
+  @Test
+  public void findFirst() {
+    Optional<String> result = this.parallelStreamSupportMock.findFirst();
+
+    verify(this.delegateMock).findFirst();
+    assertEquals(Optional.of("findFirst"), result);
+  }
+
+  @Test
+  public void findFirstSequential() {
+    this.parallelStreamSupport.sequential();
+    Thread thisThread = currentThread();
+    // Used to write from the Lambda
+    AtomicReference<Thread> threadRef = new AtomicReference<>();
+
+    this.parallelStreamSupport
+        .peek(s -> threadRef.set(currentThread()))
+        .findFirst();
+
+    assertEquals(thisThread, threadRef.get());
+  }
+
+  @Test
+  public void findFirstParallel() {
+    this.parallelStreamSupport.parallel();
+    // Used to write from the Lambda
+    AtomicReference<Thread> threadRef = new AtomicReference<>();
+
+    this.parallelStreamSupport
+        .peek(s -> threadRef.set(currentThread()))
+        .findFirst();
+
+    assertThat(threadRef.get(), instanceOf(ForkJoinWorkerThread.class));
+  }
+
+  @Test
+  public void findAny() {
+    Optional<String> result = this.parallelStreamSupportMock.findAny();
+
+    verify(this.delegateMock).findAny();
+    assertEquals(Optional.of("findAny"), result);
+  }
+
+  @Test
+  public void findAnytSequential() {
+    this.parallelStreamSupport.sequential();
+    Thread thisThread = currentThread();
+    // Used to write from the Lambda
+    AtomicReference<Thread> threadRef = new AtomicReference<>();
+
+    this.parallelStreamSupport
+        .peek(s -> threadRef.set(currentThread()))
+        .findAny();
+
+    assertEquals(thisThread, threadRef.get());
+  }
+
+  @Test
+  public void findAnyParallel() {
+    this.parallelStreamSupport.parallel();
+    // Used to write from the Lambda
+    AtomicReference<Thread> threadRef = new AtomicReference<>();
+
+    this.parallelStreamSupport
+        .peek(s -> threadRef.set(currentThread()))
+        .findAny();
 
     assertThat(threadRef.get(), instanceOf(ForkJoinWorkerThread.class));
   }

@@ -13,7 +13,7 @@ abstract class AbstractParallelStreamSupport<T> {
 
   AbstractParallelStreamSupport(T delegate, ForkJoinPool workerPool) {
     requireNonNull(delegate, "Stream must not be null");
-    requireNonNull(workerPool, "Stream must not be null");
+    requireNonNull(workerPool, "Worker pool must not be null");
 
     this.delegate = delegate;
     this.workerPool = workerPool;

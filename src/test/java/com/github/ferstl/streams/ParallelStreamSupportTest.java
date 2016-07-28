@@ -2,6 +2,7 @@ package com.github.ferstl.streams;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
@@ -117,6 +118,26 @@ public class ParallelStreamSupportTest {
   public void after() throws InterruptedException {
     this.workerPool.shutdown();
     this.workerPool.awaitTermination(1, TimeUnit.SECONDS);
+  }
+
+  @Test
+  @SuppressWarnings("unchecked")
+  public void parallelStream() {
+    Collection<?> collection = mock(Collection.class);
+    when(collection.parallelStream()).thenReturn(mock(Stream.class));
+    ParallelStreamSupport.parallelStream(collection, this.workerPool);
+
+    verify(collection).parallelStream();
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void parallelStreamNullCollection() {
+    ParallelStreamSupport.parallelStream(null, this.workerPool);
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void parallelStreamNullWorkerPool() {
+    ParallelStreamSupport.parallelStream(new ArrayList<>(), null);
   }
 
   @Test

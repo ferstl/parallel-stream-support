@@ -99,6 +99,8 @@ public class ParallelStreamSupportTest {
     when(this.delegateMock.reduce(anyObject(), anyObject(), anyObject())).thenReturn(42);
     when(this.delegateMock.collect(anyObject(), anyObject(), anyObject())).thenReturn(42);
     when(this.delegateMock.collect(anyObject())).thenReturn(singletonList("collect"));
+    when(this.delegateMock.min(anyObject())).thenReturn(Optional.of("min"));
+    when(this.delegateMock.max(anyObject())).thenReturn(Optional.of("max"));
     when(this.delegateMock.count()).thenReturn(42L);
     when(this.delegateMock.anyMatch(anyObject())).thenReturn(true);
     when(this.delegateMock.allMatch(anyObject())).thenReturn(true);
@@ -622,6 +624,84 @@ public class ParallelStreamSupportTest {
         .collect(toList());
 
     assertThat(result, contains(instanceOf(ForkJoinWorkerThread.class)));
+  }
+
+  @Test
+  public void min() {
+    Comparator<String> comparator = (a, b) -> 0;
+
+    Optional<String> result = this.parallelStreamSupportMock.min(comparator);
+
+    verify(this.delegateMock).min(comparator);
+    assertEquals(Optional.of("min"), result);
+  }
+
+  @Test
+  public void minSequential() {
+    this.parallelStreamSupport.sequential();
+    Comparator<String> comparator = (a, b) -> 0;
+    Thread thisThread = currentThread();
+    // Used to write from the Lambda
+    AtomicReference<Thread> threadRef = new AtomicReference<>();
+
+    this.parallelStreamSupport
+        .peek(s -> threadRef.set(currentThread()))
+        .min(comparator);
+
+    assertEquals(thisThread, threadRef.get());
+  }
+
+  @Test
+  public void minParallel() {
+    this.parallelStreamSupport.parallel();
+    Comparator<String> comparator = (a, b) -> 0;
+    // Used to write from the Lambda
+    AtomicReference<Thread> threadRef = new AtomicReference<>();
+
+    this.parallelStreamSupport
+        .peek(s -> threadRef.set(currentThread()))
+        .min(comparator);
+
+    assertThat(threadRef.get(), instanceOf(ForkJoinWorkerThread.class));
+  }
+
+  @Test
+  public void max() {
+    Comparator<String> comparator = (a, b) -> 0;
+
+    Optional<String> result = this.parallelStreamSupportMock.max(comparator);
+
+    verify(this.delegateMock).max(comparator);
+    assertEquals(Optional.of("max"), result);
+  }
+
+  @Test
+  public void maxSequential() {
+    this.parallelStreamSupport.sequential();
+    Comparator<String> comparator = (a, b) -> 0;
+    Thread thisThread = currentThread();
+    // Used to write from the Lambda
+    AtomicReference<Thread> threadRef = new AtomicReference<>();
+
+    this.parallelStreamSupport
+        .peek(s -> threadRef.set(currentThread()))
+        .max(comparator);
+
+    assertEquals(thisThread, threadRef.get());
+  }
+
+  @Test
+  public void maxParallel() {
+    this.parallelStreamSupport.parallel();
+    Comparator<String> comparator = (a, b) -> 0;
+    // Used to write from the Lambda
+    AtomicReference<Thread> threadRef = new AtomicReference<>();
+
+    this.parallelStreamSupport
+        .peek(s -> threadRef.set(currentThread()))
+        .max(comparator);
+
+    assertThat(threadRef.get(), instanceOf(ForkJoinWorkerThread.class));
   }
 
   @Test

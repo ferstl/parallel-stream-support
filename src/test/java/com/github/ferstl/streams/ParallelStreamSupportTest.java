@@ -100,6 +100,9 @@ public class ParallelStreamSupportTest {
     when(this.delegateMock.collect(anyObject(), anyObject(), anyObject())).thenReturn(42);
     when(this.delegateMock.collect(anyObject())).thenReturn(singletonList("collect"));
     when(this.delegateMock.count()).thenReturn(42L);
+    when(this.delegateMock.anyMatch(anyObject())).thenReturn(true);
+    when(this.delegateMock.allMatch(anyObject())).thenReturn(true);
+    when(this.delegateMock.noneMatch(anyObject())).thenReturn(true);
 
     this.parallelStreamSupportMock = new ParallelStreamSupport<>(this.delegateMock, this.workerPool);
     this.delegate = singletonList("x").parallelStream();
@@ -650,6 +653,117 @@ public class ParallelStreamSupportTest {
     this.parallelStreamSupport
         .peek(s -> threadRef.set(currentThread()))
         .count();
+
+    assertThat(threadRef.get(), instanceOf(ForkJoinWorkerThread.class));
+  }
+
+  @Test
+  public void anyMatch() {
+    Predicate<String> p = s -> true;
+
+    boolean result = this.parallelStreamSupportMock.anyMatch(p);
+
+    verify(this.delegateMock).anyMatch(p);
+    assertTrue(result);
+  }
+
+  @Test
+  public void anyMatchSequential() {
+    this.parallelStreamSupport.sequential();
+    Thread thisThread = currentThread();
+    // Used to write from the Lambda
+    AtomicReference<Thread> threadRef = new AtomicReference<>();
+
+    this.parallelStreamSupport
+        .peek(s -> threadRef.set(currentThread()))
+        .anyMatch(s -> true);
+
+    assertEquals(thisThread, threadRef.get());
+  }
+
+  @Test
+  public void anyMatchParallel() {
+    this.parallelStreamSupport.parallel();
+    // Used to write from the Lambda
+    AtomicReference<Thread> threadRef = new AtomicReference<>();
+
+    this.parallelStreamSupport
+        .peek(s -> threadRef.set(currentThread()))
+        .anyMatch(s -> true);
+
+    assertThat(threadRef.get(), instanceOf(ForkJoinWorkerThread.class));
+  }
+
+  @Test
+  public void allMatch() {
+    Predicate<String> p = s -> true;
+
+    boolean result = this.parallelStreamSupportMock.allMatch(p);
+
+    verify(this.delegateMock).allMatch(p);
+    assertTrue(result);
+  }
+
+  @Test
+  public void allMatchSequential() {
+    this.parallelStreamSupport.sequential();
+    Thread thisThread = currentThread();
+    // Used to write from the Lambda
+    AtomicReference<Thread> threadRef = new AtomicReference<>();
+
+    this.parallelStreamSupport
+        .peek(s -> threadRef.set(currentThread()))
+        .allMatch(s -> true);
+
+    assertEquals(thisThread, threadRef.get());
+  }
+
+  @Test
+  public void allMatchParallel() {
+    this.parallelStreamSupport.parallel();
+    // Used to write from the Lambda
+    AtomicReference<Thread> threadRef = new AtomicReference<>();
+
+    this.parallelStreamSupport
+        .peek(s -> threadRef.set(currentThread()))
+        .allMatch(s -> true);
+
+    assertThat(threadRef.get(), instanceOf(ForkJoinWorkerThread.class));
+  }
+
+  @Test
+  public void noneMatch() {
+    Predicate<String> p = s -> true;
+
+    boolean result = this.parallelStreamSupportMock.noneMatch(p);
+
+    verify(this.delegateMock).noneMatch(p);
+    assertTrue(result);
+  }
+
+  @Test
+  public void noneMatchSequential() {
+    this.parallelStreamSupport.sequential();
+    Thread thisThread = currentThread();
+    // Used to write from the Lambda
+    AtomicReference<Thread> threadRef = new AtomicReference<>();
+
+    this.parallelStreamSupport
+        .peek(s -> threadRef.set(currentThread()))
+        .noneMatch(s -> true);
+
+    assertEquals(thisThread, threadRef.get());
+  }
+
+  @Test
+  public void noneMatchParallel() {
+    this.parallelStreamSupport.parallel();
+    // Used to write from the Lambda
+    AtomicReference<Thread> threadRef = new AtomicReference<>();
+
+    this.parallelStreamSupport
+        .peek(s -> threadRef.set(currentThread()))
+        .noneMatch(s -> true);
 
     assertThat(threadRef.get(), instanceOf(ForkJoinWorkerThread.class));
   }

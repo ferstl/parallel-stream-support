@@ -99,6 +99,7 @@ public class ParallelStreamSupportTest {
     when(this.delegateMock.reduce(anyObject(), anyObject(), anyObject())).thenReturn(42);
     when(this.delegateMock.collect(anyObject(), anyObject(), anyObject())).thenReturn(42);
     when(this.delegateMock.collect(anyObject())).thenReturn(singletonList("collect"));
+    when(this.delegateMock.count()).thenReturn(42L);
 
     this.parallelStreamSupportMock = new ParallelStreamSupport<>(this.delegateMock, this.workerPool);
     this.delegate = singletonList("x").parallelStream();
@@ -616,5 +617,40 @@ public class ParallelStreamSupportTest {
         .collect(toList());
 
     assertThat(result, contains(instanceOf(ForkJoinWorkerThread.class)));
+  }
+
+  @Test
+  public void count() {
+    long count = this.parallelStreamSupportMock.count();
+
+    verify(this.delegateMock).count();
+    assertEquals(42L, count);
+  }
+
+  @Test
+  public void countSequential() {
+    this.parallelStreamSupport.sequential();
+    Thread thisThread = currentThread();
+    // Used to write from the Lambda
+    AtomicReference<Thread> threadRef = new AtomicReference<>();
+
+    this.parallelStreamSupport
+        .peek(s -> threadRef.set(currentThread()))
+        .count();
+
+    assertEquals(thisThread, threadRef.get());
+  }
+
+  @Test
+  public void countParallel() {
+    this.parallelStreamSupport.parallel();
+    // Used to write from the Lambda
+    AtomicReference<Thread> threadRef = new AtomicReference<>();
+
+    this.parallelStreamSupport
+        .peek(s -> threadRef.set(currentThread()))
+        .count();
+
+    assertThat(threadRef.get(), instanceOf(ForkJoinWorkerThread.class));
   }
 }

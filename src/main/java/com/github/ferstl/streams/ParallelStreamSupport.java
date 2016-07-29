@@ -22,7 +22,9 @@ import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
+import static java.util.Arrays.stream;
 import static java.util.Objects.requireNonNull;
+import static java.util.stream.StreamSupport.stream;
 
 public class ParallelStreamSupport<T> extends AbstractParallelStreamSupport<Stream<T>> implements Stream<T> {
 
@@ -35,6 +37,18 @@ public class ParallelStreamSupport<T> extends AbstractParallelStreamSupport<Stre
     requireNonNull(workerPool, "Worker pool must not be null");
 
     return new ParallelStreamSupport<T>(collection.parallelStream(), workerPool);
+  }
+
+  public static <T> Stream<T> parallelStream(T[] array, ForkJoinPool workerPool) {
+    requireNonNull(array, "Array must not be null");
+
+    return new ParallelStreamSupport<>(stream(array).parallel(), workerPool);
+  }
+
+  public static <T> Stream<T> parallelStream(Spliterator<T> spliterator, ForkJoinPool workerPool) {
+    requireNonNull(spliterator, "Spliterator must not be null");
+
+    return new ParallelStreamSupport<>(stream(spliterator, true), workerPool);
   }
 
   // BaseStream methods

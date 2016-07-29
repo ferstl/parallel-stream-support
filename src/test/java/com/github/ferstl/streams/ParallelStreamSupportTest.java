@@ -132,12 +132,39 @@ public class ParallelStreamSupportTest {
 
   @Test(expected = NullPointerException.class)
   public void parallelStreamNullCollection() {
-    ParallelStreamSupport.parallelStream(null, this.workerPool);
+    ParallelStreamSupport.parallelStream((Collection<?>) null, this.workerPool);
   }
 
   @Test(expected = NullPointerException.class)
   public void parallelStreamNullWorkerPool() {
     ParallelStreamSupport.parallelStream(new ArrayList<>(), null);
+  }
+
+  @Test
+  public void parallelStreamWithArray() {
+    Stream<String> stream = ParallelStreamSupport.parallelStream(new String[0], this.workerPool);
+
+    assertThat(stream, instanceOf(ParallelStreamSupport.class));
+    assertTrue(stream.isParallel());
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void parallelStreamWithNullArray() {
+    ParallelStreamSupport.parallelStream((String[]) null, this.workerPool);
+  }
+
+  @Test
+  public void parallelStreamSupportWithSpliterator() {
+    List<String> list = new ArrayList<String>();
+    Stream<String> stream = ParallelStreamSupport.parallelStream(list.spliterator(), this.workerPool);
+
+    assertThat(stream, instanceOf(ParallelStreamSupport.class));
+    assertTrue(stream.isParallel());
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void parallelStreamSupportWithNullSpliterator() {
+    ParallelStreamSupport.parallelStream((Spliterator<?>) null, this.workerPool);
   }
 
   @Test

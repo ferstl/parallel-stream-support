@@ -33,7 +33,6 @@ import org.junit.Test;
 import static java.lang.Thread.currentThread;
 import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toList;
-import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.junit.Assert.assertEquals;
@@ -388,7 +387,6 @@ public class ParallelStreamSupportTest {
   public void forEachSequential() {
     this.parallelStreamSupport.sequential();
     Thread thisThread = currentThread();
-    // Used to write from the Lambda
     AtomicReference<Thread> threadRef = new AtomicReference<>();
 
     this.parallelStreamSupport.forEach(s -> threadRef.set(currentThread()));
@@ -399,7 +397,6 @@ public class ParallelStreamSupportTest {
   @Test
   public void forEachParallel() {
     this.parallelStreamSupport.parallel();
-    // Used to write from the Lambda
     AtomicReference<Thread> threadRef = new AtomicReference<>();
 
     this.parallelStreamSupport.forEach(s -> threadRef.set(currentThread()));
@@ -419,7 +416,6 @@ public class ParallelStreamSupportTest {
   public void forEachOrderedSequential() {
     this.parallelStreamSupport.sequential();
     Thread thisThread = currentThread();
-    // Used to write from the Lambda
     AtomicReference<Thread> threadRef = new AtomicReference<>();
 
     this.parallelStreamSupport.forEachOrdered(s -> threadRef.set(currentThread()));
@@ -430,7 +426,6 @@ public class ParallelStreamSupportTest {
   @Test
   public void forEachOrderedParallel() {
     this.parallelStreamSupport.parallel();
-    // Used to write from the Lambda
     AtomicReference<Thread> threadRef = new AtomicReference<>();
 
     this.parallelStreamSupport.forEachOrdered(s -> threadRef.set(currentThread()));
@@ -450,24 +445,25 @@ public class ParallelStreamSupportTest {
   public void toArraySequential() {
     this.parallelStreamSupport.sequential();
     Thread thisThread = currentThread();
+    AtomicReference<Thread> threadRef = new AtomicReference<>();
 
-    Object[] array = this.parallelStreamSupport
-        .map(s -> currentThread())
+    this.parallelStreamSupport
+        .peek(s -> threadRef.set(currentThread()))
         .toArray();
 
-    assertThat(array, arrayContaining(thisThread));
+    assertEquals(thisThread, threadRef.get());
   }
 
   @Test
-  @SuppressWarnings("unchecked")
   public void toArrayParallel() {
     this.parallelStreamSupport.parallel();
+    AtomicReference<Thread> threadRef = new AtomicReference<>();
 
-    Object[] array = this.parallelStreamSupport
-        .map(s -> currentThread())
+    this.parallelStreamSupport
+        .peek(s -> threadRef.set(currentThread()))
         .toArray();
 
-    assertThat(array, arrayContaining(instanceOf(ForkJoinWorkerThread.class)));
+    assertThat(threadRef.get(), instanceOf(ForkJoinWorkerThread.class));
   }
 
   @Test
@@ -483,27 +479,28 @@ public class ParallelStreamSupportTest {
   @Test
   public void toArrayWithGeneratorSequential() {
     this.parallelStreamSupport.sequential();
-    IntFunction<Thread[]> generator = i -> new Thread[i];
+    IntFunction<String[]> generator = i -> new String[i];
     Thread thisThread = currentThread();
+    AtomicReference<Thread> threadRef = new AtomicReference<>();
 
-    Object[] array = this.parallelStreamSupport
-        .map(s -> currentThread())
+    this.parallelStreamSupport
+        .peek(s -> threadRef.set(currentThread()))
         .toArray(generator);
 
-    assertThat(array, arrayContaining(thisThread));
+    assertEquals(thisThread, threadRef.get());
   }
 
   @Test
-  @SuppressWarnings("unchecked")
   public void toArrayWithGeneratorParallel() {
     this.parallelStreamSupport.parallel();
-    IntFunction<Thread[]> generator = i -> new Thread[i];
+    IntFunction<String[]> generator = i -> new String[i];
+    AtomicReference<Thread> threadRef = new AtomicReference<>();
 
-    Object[] array = this.parallelStreamSupport
-        .map(s -> currentThread())
+    this.parallelStreamSupport
+        .peek(s -> threadRef.set(currentThread()))
         .toArray(generator);
 
-    assertThat(array, arrayContaining(instanceOf(ForkJoinWorkerThread.class)));
+    assertThat(threadRef.get(), instanceOf(ForkJoinWorkerThread.class));
   }
 
   @Test
@@ -518,26 +515,28 @@ public class ParallelStreamSupportTest {
   @Test
   public void reduceWithIdentityAndAccumulatorSequential() {
     this.parallelStreamSupport.sequential();
-    BinaryOperator<Thread> accumulator = (a, b) -> b;
+    BinaryOperator<String> accumulator = (a, b) -> b;
     Thread thisThread = currentThread();
+    AtomicReference<Thread> threadRef = new AtomicReference<>();
 
-    Thread result = this.parallelStreamSupport
-        .map(s -> currentThread())
-        .reduce(thisThread, accumulator);
+    this.parallelStreamSupport
+        .peek(s -> threadRef.set(currentThread()))
+        .reduce("a", accumulator);
 
-    assertEquals(thisThread, result);
+    assertEquals(thisThread, threadRef.get());
   }
 
   @Test
   public void reduceWithIdentityAndAccumulatorParallel() {
     this.parallelStreamSupport.parallel();
-    BinaryOperator<Thread> accumulator = (a, b) -> b;
+    BinaryOperator<String> accumulator = (a, b) -> b;
+    AtomicReference<Thread> threadRef = new AtomicReference<>();
 
-    Thread result = this.parallelStreamSupport
-        .map(s -> currentThread())
-        .reduce(currentThread(), accumulator);
+    this.parallelStreamSupport
+        .peek(s -> threadRef.set(currentThread()))
+        .reduce("a", accumulator);
 
-    assertThat(result, instanceOf(ForkJoinWorkerThread.class));
+    assertThat(threadRef.get(), instanceOf(ForkJoinWorkerThread.class));
   }
 
   @Test
@@ -552,26 +551,28 @@ public class ParallelStreamSupportTest {
   @Test
   public void reduceWithAccumulatorSequential() {
     this.parallelStreamSupport.sequential();
-    BinaryOperator<Thread> accumulator = (a, b) -> b;
+    BinaryOperator<String> accumulator = (a, b) -> b;
     Thread thisThread = currentThread();
+    AtomicReference<Thread> threadRef = new AtomicReference<>();
 
-    Optional<Thread> result = this.parallelStreamSupport
-        .map(s -> currentThread())
+    this.parallelStreamSupport
+        .peek(s -> threadRef.set(currentThread()))
         .reduce(accumulator);
 
-    assertEquals(Optional.of(thisThread), result);
+    assertEquals(thisThread, threadRef.get());
   }
 
   @Test
   public void reduceWithAccumulatorParallel() {
     this.parallelStreamSupport.parallel();
-    BinaryOperator<Thread> accumulator = (a, b) -> b;
+    BinaryOperator<String> accumulator = (a, b) -> b;
+    AtomicReference<Thread> threadRef = new AtomicReference<>();
 
-    Optional<Thread> result = this.parallelStreamSupport
-        .map(s -> currentThread())
+    this.parallelStreamSupport
+        .peek(s -> threadRef.set(currentThread()))
         .reduce(accumulator);
 
-    assertThat(result.get(), instanceOf(ForkJoinWorkerThread.class));
+    assertThat(threadRef.get(), instanceOf(ForkJoinWorkerThread.class));
   }
 
 
@@ -625,23 +626,25 @@ public class ParallelStreamSupportTest {
   public void collectWithSupplierAndAccumulatorAndCombinerSequential() {
     this.parallelStreamSupport.sequential();
     Thread thisThread = currentThread();
+    AtomicReference<Thread> threadRef = new AtomicReference<>();
 
-    List<Thread> result = this.parallelStreamSupport
-        .map(s -> currentThread())
+    this.parallelStreamSupport
+        .peek(s -> threadRef.set(currentThread()))
         .collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
 
-    assertThat(result, contains(thisThread));
+    assertEquals(thisThread, threadRef.get());
   }
 
   @Test
   public void collectWithSupplierAndAccumulatorAndCombinerParallel() {
     this.parallelStreamSupport.parallel();
+    AtomicReference<Thread> threadRef = new AtomicReference<>();
 
-    List<Thread> result = this.parallelStreamSupport
-        .map(s -> currentThread())
+    this.parallelStreamSupport
+        .peek(s -> threadRef.set(currentThread()))
         .collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
 
-    assertThat(result, contains(instanceOf(ForkJoinWorkerThread.class)));
+    assertThat(threadRef.get(), instanceOf(ForkJoinWorkerThread.class));
   }
 
   @Test
@@ -655,23 +658,25 @@ public class ParallelStreamSupportTest {
   public void collectWithCollectorSequential() {
     this.parallelStreamSupport.sequential();
     Thread thisThread = currentThread();
+    AtomicReference<Thread> threadRef = new AtomicReference<>();
 
-    List<Thread> result = this.parallelStreamSupport
-        .map(s -> currentThread())
+    this.parallelStreamSupport
+        .peek(s -> threadRef.set(currentThread()))
         .collect(toList());
 
-    assertThat(result, contains(thisThread));
+    assertEquals(thisThread, threadRef.get());
   }
 
   @Test
   public void collectWithCollectorParallel() {
     this.parallelStreamSupport.parallel();
+    AtomicReference<Thread> threadRef = new AtomicReference<>();
 
-    List<Thread> result = this.parallelStreamSupport
-        .map(s -> currentThread())
+    this.parallelStreamSupport
+        .peek(s -> threadRef.set(currentThread()))
         .collect(toList());
 
-    assertThat(result, contains(instanceOf(ForkJoinWorkerThread.class)));
+    assertThat(threadRef.get(), instanceOf(ForkJoinWorkerThread.class));
   }
 
   @Test
@@ -689,7 +694,6 @@ public class ParallelStreamSupportTest {
     this.parallelStreamSupport.sequential();
     Comparator<String> comparator = (a, b) -> 0;
     Thread thisThread = currentThread();
-    // Used to write from the Lambda
     AtomicReference<Thread> threadRef = new AtomicReference<>();
 
     this.parallelStreamSupport
@@ -703,7 +707,6 @@ public class ParallelStreamSupportTest {
   public void minParallel() {
     this.parallelStreamSupport.parallel();
     Comparator<String> comparator = (a, b) -> 0;
-    // Used to write from the Lambda
     AtomicReference<Thread> threadRef = new AtomicReference<>();
 
     this.parallelStreamSupport
@@ -728,7 +731,6 @@ public class ParallelStreamSupportTest {
     this.parallelStreamSupport.sequential();
     Comparator<String> comparator = (a, b) -> 0;
     Thread thisThread = currentThread();
-    // Used to write from the Lambda
     AtomicReference<Thread> threadRef = new AtomicReference<>();
 
     this.parallelStreamSupport
@@ -742,7 +744,6 @@ public class ParallelStreamSupportTest {
   public void maxParallel() {
     this.parallelStreamSupport.parallel();
     Comparator<String> comparator = (a, b) -> 0;
-    // Used to write from the Lambda
     AtomicReference<Thread> threadRef = new AtomicReference<>();
 
     this.parallelStreamSupport
@@ -764,7 +765,6 @@ public class ParallelStreamSupportTest {
   public void countSequential() {
     this.parallelStreamSupport.sequential();
     Thread thisThread = currentThread();
-    // Used to write from the Lambda
     AtomicReference<Thread> threadRef = new AtomicReference<>();
 
     this.parallelStreamSupport
@@ -777,7 +777,6 @@ public class ParallelStreamSupportTest {
   @Test
   public void countParallel() {
     this.parallelStreamSupport.parallel();
-    // Used to write from the Lambda
     AtomicReference<Thread> threadRef = new AtomicReference<>();
 
     this.parallelStreamSupport
@@ -801,7 +800,6 @@ public class ParallelStreamSupportTest {
   public void anyMatchSequential() {
     this.parallelStreamSupport.sequential();
     Thread thisThread = currentThread();
-    // Used to write from the Lambda
     AtomicReference<Thread> threadRef = new AtomicReference<>();
 
     this.parallelStreamSupport
@@ -814,7 +812,6 @@ public class ParallelStreamSupportTest {
   @Test
   public void anyMatchParallel() {
     this.parallelStreamSupport.parallel();
-    // Used to write from the Lambda
     AtomicReference<Thread> threadRef = new AtomicReference<>();
 
     this.parallelStreamSupport
@@ -838,7 +835,6 @@ public class ParallelStreamSupportTest {
   public void allMatchSequential() {
     this.parallelStreamSupport.sequential();
     Thread thisThread = currentThread();
-    // Used to write from the Lambda
     AtomicReference<Thread> threadRef = new AtomicReference<>();
 
     this.parallelStreamSupport
@@ -851,7 +847,6 @@ public class ParallelStreamSupportTest {
   @Test
   public void allMatchParallel() {
     this.parallelStreamSupport.parallel();
-    // Used to write from the Lambda
     AtomicReference<Thread> threadRef = new AtomicReference<>();
 
     this.parallelStreamSupport
@@ -875,7 +870,6 @@ public class ParallelStreamSupportTest {
   public void noneMatchSequential() {
     this.parallelStreamSupport.sequential();
     Thread thisThread = currentThread();
-    // Used to write from the Lambda
     AtomicReference<Thread> threadRef = new AtomicReference<>();
 
     this.parallelStreamSupport
@@ -888,7 +882,6 @@ public class ParallelStreamSupportTest {
   @Test
   public void noneMatchParallel() {
     this.parallelStreamSupport.parallel();
-    // Used to write from the Lambda
     AtomicReference<Thread> threadRef = new AtomicReference<>();
 
     this.parallelStreamSupport
@@ -910,7 +903,6 @@ public class ParallelStreamSupportTest {
   public void findFirstSequential() {
     this.parallelStreamSupport.sequential();
     Thread thisThread = currentThread();
-    // Used to write from the Lambda
     AtomicReference<Thread> threadRef = new AtomicReference<>();
 
     this.parallelStreamSupport
@@ -923,7 +915,6 @@ public class ParallelStreamSupportTest {
   @Test
   public void findFirstParallel() {
     this.parallelStreamSupport.parallel();
-    // Used to write from the Lambda
     AtomicReference<Thread> threadRef = new AtomicReference<>();
 
     this.parallelStreamSupport
@@ -945,7 +936,6 @@ public class ParallelStreamSupportTest {
   public void findAnytSequential() {
     this.parallelStreamSupport.sequential();
     Thread thisThread = currentThread();
-    // Used to write from the Lambda
     AtomicReference<Thread> threadRef = new AtomicReference<>();
 
     this.parallelStreamSupport
@@ -958,7 +948,6 @@ public class ParallelStreamSupportTest {
   @Test
   public void findAnyParallel() {
     this.parallelStreamSupport.parallel();
-    // Used to write from the Lambda
     AtomicReference<Thread> threadRef = new AtomicReference<>();
 
     this.parallelStreamSupport

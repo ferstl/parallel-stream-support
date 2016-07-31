@@ -85,6 +85,7 @@ public class ParallelIntStreamSupportTest {
     when(this.delegateMock.reduce(anyInt(), anyObject())).thenReturn(42);
     when(this.delegateMock.reduce(anyObject())).thenReturn(OptionalInt.of(42));
     when(this.delegateMock.collect(anyObject(), anyObject(), anyObject())).thenReturn("collect");
+    when(this.delegateMock.sum()).thenReturn(42);
     when(this.delegateMock.min()).thenReturn(OptionalInt.of(42));
     when(this.delegateMock.max()).thenReturn(OptionalInt.of(42));
     when(this.delegateMock.count()).thenReturn(42L);
@@ -438,6 +439,39 @@ public class ParallelIntStreamSupportTest {
     this.parallelIntStreamSupport
         .peek(i -> threadRef.set(currentThread()))
         .collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
+
+    assertThat(threadRef.get(), instanceOf(ForkJoinWorkerThread.class));
+  }
+
+  @Test
+  public void sum() {
+    int result = this.parallelIntStreamSupportMock.sum();
+
+    verify(this.delegateMock).sum();
+    assertEquals(42, result);
+  }
+
+  @Test
+  public void sumSequential() {
+    this.parallelIntStreamSupport.sequential();
+    Thread thisThread = currentThread();
+    AtomicReference<Thread> threadRef = new AtomicReference<>();
+
+    this.parallelIntStreamSupport
+        .peek(i -> threadRef.set(currentThread()))
+        .sum();
+
+    assertEquals(thisThread, threadRef.get());
+  }
+
+  @Test
+  public void sumParallel() {
+    this.parallelIntStreamSupport.parallel();
+    AtomicReference<Thread> threadRef = new AtomicReference<>();
+
+    this.parallelIntStreamSupport
+        .peek(i -> threadRef.set(currentThread()))
+        .sum();
 
     assertThat(threadRef.get(), instanceOf(ForkJoinWorkerThread.class));
   }

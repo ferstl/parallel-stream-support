@@ -786,24 +786,6 @@ public class ParallelDoubleStreamSupportTest extends AbstractParallelStreamSuppo
 
   @Override
   @Test
-  public void sequential() {
-    DoubleStream stream = this.parallelStreamSupportMock.sequential();
-
-    verify(this.delegateMock).sequential();
-    assertSame(this.parallelStreamSupportMock, stream);
-  }
-
-  @Override
-  @Test
-  public void parallel() {
-    DoubleStream stream = this.parallelStreamSupportMock.parallel();
-
-    verify(this.delegateMock).parallel();
-    assertSame(this.parallelStreamSupportMock, stream);
-  }
-
-  @Override
-  @Test
   public void iterator() {
     PrimitiveIterator.OfDouble iterator = this.parallelStreamSupportMock.iterator();
 

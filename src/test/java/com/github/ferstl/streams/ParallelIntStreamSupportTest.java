@@ -810,24 +810,6 @@ public class ParallelIntStreamSupportTest extends AbstractParallelStreamSupportT
 
   @Override
   @Test
-  public void sequential() {
-    IntStream stream = this.parallelStreamSupportMock.sequential();
-
-    verify(this.delegateMock).sequential();
-    assertSame(this.parallelStreamSupportMock, stream);
-  }
-
-  @Override
-  @Test
-  public void parallel() {
-    IntStream stream = this.parallelStreamSupportMock.parallel();
-
-    verify(this.delegateMock).parallel();
-    assertSame(this.parallelStreamSupportMock, stream);
-  }
-
-  @Override
-  @Test
   public void iterator() {
     PrimitiveIterator.OfInt iterator = this.parallelStreamSupportMock.iterator();
 

@@ -798,24 +798,6 @@ public class ParallelLongStreamSupportTest extends AbstractParallelStreamSupport
 
   @Override
   @Test
-  public void sequential() {
-    LongStream stream = this.parallelStreamSupportMock.sequential();
-
-    verify(this.delegateMock).sequential();
-    assertSame(this.parallelStreamSupportMock, stream);
-  }
-
-  @Override
-  @Test
-  public void parallel() {
-    LongStream stream = this.parallelStreamSupportMock.parallel();
-
-    verify(this.delegateMock).parallel();
-    assertSame(this.parallelStreamSupportMock, stream);
-  }
-
-  @Override
-  @Test
   public void iterator() {
     PrimitiveIterator.OfLong iterator = this.parallelStreamSupportMock.iterator();
 

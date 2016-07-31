@@ -21,32 +21,10 @@ import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
 
-class ParallelLongStreamSupport extends AbstractParallelStreamSupport<LongStream> implements LongStream {
+class ParallelLongStreamSupport extends AbstractParallelStreamSupport<Long, LongStream> implements LongStream {
 
   ParallelLongStreamSupport(LongStream delegate, ForkJoinPool workerPool) {
     super(delegate, workerPool);
-  }
-
-  @Override
-  public boolean isParallel() {
-    return this.delegate.isParallel();
-  }
-
-  @Override
-  public LongStream unordered() {
-    this.delegate = this.delegate.unordered();
-    return this;
-  }
-
-  @Override
-  public LongStream onClose(Runnable closeHandler) {
-    this.delegate = this.delegate.onClose(closeHandler);
-    return this;
-  }
-
-  @Override
-  public void close() {
-    this.delegate.close();
   }
 
   @Override
@@ -205,18 +183,6 @@ class ParallelLongStreamSupport extends AbstractParallelStreamSupport<LongStream
   @Override
   public Stream<Long> boxed() {
     return new ParallelStreamSupport<>(this.delegate.boxed(), this.workerPool);
-  }
-
-  @Override
-  public LongStream sequential() {
-    this.delegate = this.delegate.sequential();
-    return this;
-  }
-
-  @Override
-  public LongStream parallel() {
-    this.delegate = this.delegate.parallel();
-    return this;
   }
 
   @Override

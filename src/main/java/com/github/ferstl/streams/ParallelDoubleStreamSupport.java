@@ -20,32 +20,10 @@ import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
 
-public class ParallelDoubleStreamSupport extends AbstractParallelStreamSupport<DoubleStream> implements DoubleStream {
+public class ParallelDoubleStreamSupport extends AbstractParallelStreamSupport<Double, DoubleStream> implements DoubleStream {
 
   ParallelDoubleStreamSupport(DoubleStream delegate, ForkJoinPool workerPool) {
     super(delegate, workerPool);
-  }
-
-  @Override
-  public boolean isParallel() {
-    return this.delegate.isParallel();
-  }
-
-  @Override
-  public DoubleStream unordered() {
-    this.delegate = this.delegate.unordered();
-    return this;
-  }
-
-  @Override
-  public DoubleStream onClose(Runnable closeHandler) {
-    this.delegate = this.delegate.onClose(closeHandler);
-    return this;
-  }
-
-  @Override
-  public void close() {
-    this.delegate.close();
   }
 
   @Override
@@ -199,18 +177,6 @@ public class ParallelDoubleStreamSupport extends AbstractParallelStreamSupport<D
   @Override
   public Stream<Double> boxed() {
     return new ParallelStreamSupport<>(this.delegate.boxed(), this.workerPool);
-  }
-
-  @Override
-  public DoubleStream sequential() {
-    this.delegate = this.delegate.sequential();
-    return this;
-  }
-
-  @Override
-  public DoubleStream parallel() {
-    this.delegate = this.delegate.parallel();
-    return this;
   }
 
   @Override

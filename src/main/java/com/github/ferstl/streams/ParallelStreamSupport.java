@@ -2,7 +2,6 @@ package com.github.ferstl.streams;
 
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.Optional;
 import java.util.Spliterator;
 import java.util.concurrent.ForkJoinPool;
@@ -26,7 +25,7 @@ import static java.util.Arrays.stream;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.StreamSupport.stream;
 
-public class ParallelStreamSupport<T> extends AbstractParallelStreamSupport<Stream<T>> implements Stream<T> {
+public class ParallelStreamSupport<T> extends AbstractParallelStreamSupport<T, Stream<T>> implements Stream<T> {
 
   ParallelStreamSupport(Stream<T> delegate, ForkJoinPool workerPool) {
     super(delegate, workerPool);
@@ -50,54 +49,6 @@ public class ParallelStreamSupport<T> extends AbstractParallelStreamSupport<Stre
 
     return new ParallelStreamSupport<>(stream(spliterator, true), workerPool);
   }
-
-  // BaseStream methods
-
-  @Override
-  public Iterator<T> iterator() {
-    return this.delegate.iterator();
-  }
-
-  @Override
-  public Spliterator<T> spliterator() {
-    return this.delegate.spliterator();
-  }
-
-  @Override
-  public boolean isParallel() {
-    return this.delegate.isParallel();
-  }
-
-  @Override
-  public Stream<T> sequential() {
-    this.delegate = this.delegate.sequential();
-    return this;
-  }
-
-  @Override
-  public Stream<T> parallel() {
-    this.delegate = this.delegate.parallel();
-    return this;
-  }
-
-  @Override
-  public Stream<T> unordered() {
-    this.delegate = this.delegate.unordered();
-    return this;
-  }
-
-  @Override
-  public Stream<T> onClose(Runnable closeHandler) {
-    this.delegate = this.delegate.onClose(closeHandler);
-    return this;
-  }
-
-  @Override
-  public void close() {
-    this.delegate.close();
-  }
-
-  // Stream methods
 
   @Override
   public Stream<T> filter(Predicate<? super T> predicate) {

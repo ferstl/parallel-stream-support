@@ -28,14 +28,31 @@ class ParallelIntStreamSupport extends AbstractParallelStreamSupport<IntStream> 
   }
 
   @Override
-  public IntStream filter(IntPredicate predicate) {
-    this.delegate = this.delegate.filter(predicate);
+  public boolean isParallel() {
+    return this.delegate.isParallel();
+  }
+
+  @Override
+  public IntStream unordered() {
+    this.delegate = this.delegate.unordered();
     return this;
   }
 
   @Override
-  public boolean isParallel() {
-    return this.delegate.isParallel();
+  public IntStream onClose(Runnable closeHandler) {
+    this.delegate = this.delegate.onClose(closeHandler);
+    return this;
+  }
+
+  @Override
+  public void close() {
+    this.delegate.close();
+  }
+
+  @Override
+  public IntStream filter(IntPredicate predicate) {
+    this.delegate = this.delegate.filter(predicate);
+    return this;
   }
 
   @Override
@@ -50,30 +67,13 @@ class ParallelIntStreamSupport extends AbstractParallelStreamSupport<IntStream> 
   }
 
   @Override
-  public IntStream unordered() {
-    this.delegate = this.delegate.unordered();
-    return this;
-  }
-
-  @Override
   public LongStream mapToLong(IntToLongFunction mapper) {
     return new ParallelLongStreamSupport(this.delegate.mapToLong(mapper), this.workerPool);
   }
 
   @Override
-  public IntStream onClose(Runnable closeHandler) {
-    this.delegate = this.delegate.onClose(closeHandler);
-    return this;
-  }
-
-  @Override
   public DoubleStream mapToDouble(IntToDoubleFunction mapper) {
     return new ParallelDoubleStreamSupport(this.delegate.mapToDouble(mapper), this.workerPool);
-  }
-
-  @Override
-  public void close() {
-    this.delegate.close();
   }
 
   @Override

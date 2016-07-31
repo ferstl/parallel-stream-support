@@ -1,6 +1,7 @@
 package com.github.ferstl.streams;
 
 import java.util.ArrayList;
+import java.util.IntSummaryStatistics;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
 import java.util.PrimitiveIterator;
@@ -53,6 +54,7 @@ public class ParallelIntStreamSupportTest {
   private Spliterator.OfInt spliteratorMock;
   private ParallelIntStreamSupport parallelIntStreamSupportMock;
   private int[] toArrayResult;
+  private IntSummaryStatistics summaryStatistics;
 
   private IntStream delegate;
   private ParallelIntStreamSupport parallelIntStreamSupport;
@@ -73,6 +75,7 @@ public class ParallelIntStreamSupportTest {
     this.iteratorMock = mock(PrimitiveIterator.OfInt.class);
     this.spliteratorMock = mock(Spliterator.OfInt.class);
     this.toArrayResult = new int[0];
+    this.summaryStatistics = new IntSummaryStatistics();
 
     when(this.delegateMock.map(anyObject())).thenReturn(this.mappedIntDelegateMock);
     when(this.delegateMock.mapToObj(anyObject())).thenReturn((Stream) this.mappedDelegateMock);
@@ -91,6 +94,7 @@ public class ParallelIntStreamSupportTest {
     when(this.delegateMock.max()).thenReturn(OptionalInt.of(42));
     when(this.delegateMock.count()).thenReturn(42L);
     when(this.delegateMock.average()).thenReturn(OptionalDouble.of(42.0));
+    when(this.delegateMock.summaryStatistics()).thenReturn(this.summaryStatistics);
     when(this.delegateMock.anyMatch(anyObject())).thenReturn(true);
     when(this.delegateMock.allMatch(anyObject())).thenReturn(true);
     when(this.delegateMock.noneMatch(anyObject())).thenReturn(true);
@@ -606,6 +610,39 @@ public class ParallelIntStreamSupportTest {
     this.parallelIntStreamSupport
         .peek(i -> threadRef.set(currentThread()))
         .average();
+
+    assertThat(threadRef.get(), instanceOf(ForkJoinWorkerThread.class));
+  }
+
+  @Test
+  public void summaryStatistics() {
+    IntSummaryStatistics result = this.parallelIntStreamSupportMock.summaryStatistics();
+
+    verify(this.delegateMock).summaryStatistics();
+    assertEquals(this.summaryStatistics, result);
+  }
+
+  @Test
+  public void summaryStatisticsSequential() {
+    this.parallelIntStreamSupport.sequential();
+    Thread thisThread = currentThread();
+    AtomicReference<Thread> threadRef = new AtomicReference<>();
+
+    this.parallelIntStreamSupport
+        .peek(i -> threadRef.set(currentThread()))
+        .summaryStatistics();
+
+    assertEquals(thisThread, threadRef.get());
+  }
+
+  @Test
+  public void summaryStatisticsParallel() {
+    this.parallelIntStreamSupport.parallel();
+    AtomicReference<Thread> threadRef = new AtomicReference<>();
+
+    this.parallelIntStreamSupport
+        .peek(i -> threadRef.set(currentThread()))
+        .summaryStatistics();
 
     assertThat(threadRef.get(), instanceOf(ForkJoinWorkerThread.class));
   }

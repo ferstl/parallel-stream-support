@@ -1,6 +1,7 @@
 package com.github.ferstl.streams;
 
 import java.util.ArrayList;
+import java.util.OptionalDouble;
 import java.util.OptionalInt;
 import java.util.PrimitiveIterator;
 import java.util.Spliterator;
@@ -89,6 +90,7 @@ public class ParallelIntStreamSupportTest {
     when(this.delegateMock.min()).thenReturn(OptionalInt.of(42));
     when(this.delegateMock.max()).thenReturn(OptionalInt.of(42));
     when(this.delegateMock.count()).thenReturn(42L);
+    when(this.delegateMock.average()).thenReturn(OptionalDouble.of(42.0));
     when(this.delegateMock.anyMatch(anyObject())).thenReturn(true);
     when(this.delegateMock.allMatch(anyObject())).thenReturn(true);
     when(this.delegateMock.noneMatch(anyObject())).thenReturn(true);
@@ -571,6 +573,39 @@ public class ParallelIntStreamSupportTest {
     this.parallelIntStreamSupport
         .peek(i -> threadRef.set(currentThread()))
         .count();
+
+    assertThat(threadRef.get(), instanceOf(ForkJoinWorkerThread.class));
+  }
+
+  @Test
+  public void average() {
+    OptionalDouble result = this.parallelIntStreamSupportMock.average();
+
+    verify(this.delegateMock).average();
+    assertEquals(OptionalDouble.of(42.0), result);
+  }
+
+  @Test
+  public void averageSequential() {
+    this.parallelIntStreamSupport.sequential();
+    Thread thisThread = currentThread();
+    AtomicReference<Thread> threadRef = new AtomicReference<>();
+
+    this.parallelIntStreamSupport
+        .peek(i -> threadRef.set(currentThread()))
+        .average();
+
+    assertEquals(thisThread, threadRef.get());
+  }
+
+  @Test
+  public void averageParallel() {
+    this.parallelIntStreamSupport.parallel();
+    AtomicReference<Thread> threadRef = new AtomicReference<>();
+
+    this.parallelIntStreamSupport
+        .peek(i -> threadRef.set(currentThread()))
+        .average();
 
     assertThat(threadRef.get(), instanceOf(ForkJoinWorkerThread.class));
   }

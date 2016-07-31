@@ -100,6 +100,9 @@ public class ParallelIntStreamSupportTest {
     when(this.delegateMock.noneMatch(anyObject())).thenReturn(true);
     when(this.delegateMock.findFirst()).thenReturn(OptionalInt.of(42));
     when(this.delegateMock.findAny()).thenReturn(OptionalInt.of(42));
+    when(this.delegateMock.asLongStream()).thenReturn(this.mappedLongDelegateMock);
+    when(this.delegateMock.asDoubleStream()).thenReturn(this.mappedDoubleDelegateMock);
+    when(this.delegateMock.boxed()).thenReturn((Stream) this.mappedDelegateMock);
 
     this.parallelIntStreamSupportMock = new ParallelIntStreamSupport(this.delegateMock, this.workerPool);
     this.delegate = IntStream.of(1).parallel();
@@ -816,6 +819,36 @@ public class ParallelIntStreamSupportTest {
         .findAny();
 
     assertThat(threadRef.get(), instanceOf(ForkJoinWorkerThread.class));
+  }
+
+  @Test
+  public void asLongStream() {
+    LongStream stream = this.parallelIntStreamSupportMock.asLongStream();
+
+    verify(this.delegateMock).asLongStream();
+    assertThat(stream, instanceOf(ParallelLongStreamSupport.class));
+    assertSame(this.mappedLongDelegateMock, ParallelLongStreamSupport.class.cast(stream).delegate);
+    assertSame(this.workerPool, ParallelLongStreamSupport.class.cast(stream).workerPool);
+  }
+
+  @Test
+  public void asDoubleStream() {
+    DoubleStream stream = this.parallelIntStreamSupportMock.asDoubleStream();
+
+    verify(this.delegateMock).asDoubleStream();
+    assertThat(stream, instanceOf(ParallelDoubleStreamSupport.class));
+    assertSame(this.mappedDoubleDelegateMock, ParallelDoubleStreamSupport.class.cast(stream).delegate);
+    assertSame(this.workerPool, ParallelDoubleStreamSupport.class.cast(stream).workerPool);
+  }
+
+  @Test
+  public void boxed() {
+    Stream<Integer> stream = this.parallelIntStreamSupportMock.boxed();
+
+    verify(this.delegateMock).boxed();
+    assertThat(stream, instanceOf(ParallelStreamSupport.class));
+    assertSame(this.mappedDelegateMock, ParallelStreamSupport.class.cast(stream).delegate);
+    assertSame(this.workerPool, ParallelStreamSupport.class.cast(stream).workerPool);
   }
 
   @Test

@@ -209,7 +209,7 @@ class ParallelIntStreamSupport extends AbstractParallelStreamSupport<IntStream> 
 
   @Override
   public Stream<Integer> boxed() {
-    return new ParallelStreamSupport<Integer>(this.delegate.boxed(), this.workerPool);
+    return new ParallelStreamSupport<>(this.delegate.boxed(), this.workerPool);
   }
 
   @Override

@@ -198,7 +198,7 @@ public class ParallelDoubleStreamSupport extends AbstractParallelStreamSupport<D
 
   @Override
   public Stream<Double> boxed() {
-    return execute(() -> this.delegate.boxed());
+    return new ParallelStreamSupport<>(this.delegate.boxed(), this.workerPool);
   }
 
   @Override

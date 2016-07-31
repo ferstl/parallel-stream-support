@@ -275,7 +275,7 @@ public class ParallelStreamSupportTest {
 
   @Test
   public void mapToDouble() {
-    ToDoubleFunction<String> f = s -> 1D;
+    ToDoubleFunction<String> f = s -> 1.0;
     DoubleStream stream = this.parallelStreamSupportMock.mapToDouble(f);
 
     verify(this.delegateMock).mapToDouble(f);

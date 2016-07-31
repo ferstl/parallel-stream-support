@@ -28,25 +28,8 @@ class ParallelLongStreamSupport extends AbstractParallelStreamSupport<LongStream
   }
 
   @Override
-  public LongStream filter(LongPredicate predicate) {
-    this.delegate = this.delegate.filter(predicate);
-    return this;
-  }
-
-  @Override
   public boolean isParallel() {
     return this.delegate.isParallel();
-  }
-
-  @Override
-  public LongStream map(LongUnaryOperator mapper) {
-    this.delegate = this.delegate.map(mapper);
-    return this;
-  }
-
-  @Override
-  public <U> Stream<U> mapToObj(LongFunction<? extends U> mapper) {
-    return new ParallelStreamSupport<>(this.delegate.mapToObj(mapper), this.workerPool);
   }
 
   @Override
@@ -62,6 +45,28 @@ class ParallelLongStreamSupport extends AbstractParallelStreamSupport<LongStream
   }
 
   @Override
+  public void close() {
+    this.delegate.close();
+  }
+
+  @Override
+  public LongStream filter(LongPredicate predicate) {
+    this.delegate = this.delegate.filter(predicate);
+    return this;
+  }
+
+  @Override
+  public LongStream map(LongUnaryOperator mapper) {
+    this.delegate = this.delegate.map(mapper);
+    return this;
+  }
+
+  @Override
+  public <U> Stream<U> mapToObj(LongFunction<? extends U> mapper) {
+    return new ParallelStreamSupport<>(this.delegate.mapToObj(mapper), this.workerPool);
+  }
+
+  @Override
   public IntStream mapToInt(LongToIntFunction mapper) {
     return new ParallelIntStreamSupport(this.delegate.mapToInt(mapper), this.workerPool);
   }
@@ -69,11 +74,6 @@ class ParallelLongStreamSupport extends AbstractParallelStreamSupport<LongStream
   @Override
   public DoubleStream mapToDouble(LongToDoubleFunction mapper) {
     return new ParallelDoubleStreamSupport(this.delegate.mapToDouble(mapper), this.workerPool);
-  }
-
-  @Override
-  public void close() {
-    this.delegate.close();
   }
 
   @Override

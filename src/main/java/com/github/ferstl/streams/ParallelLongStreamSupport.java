@@ -114,87 +114,87 @@ class ParallelLongStreamSupport extends AbstractParallelStreamSupport<LongStream
 
   @Override
   public void forEach(LongConsumer action) {
-    execute(() -> forEach(action));
+    execute(() -> this.delegate.forEach(action));
   }
 
   @Override
   public void forEachOrdered(LongConsumer action) {
-    execute(() -> forEachOrdered(action));
+    execute(() -> this.delegate.forEachOrdered(action));
   }
 
   @Override
   public long[] toArray() {
-    return execute(() -> toArray());
+    return execute(() -> this.delegate.toArray());
   }
 
   @Override
   public long reduce(long identity, LongBinaryOperator op) {
-    return execute(() -> reduce(identity, op));
+    return execute(() -> this.delegate.reduce(identity, op));
   }
 
   @Override
   public OptionalLong reduce(LongBinaryOperator op) {
-    return execute(() -> reduce(op));
+    return execute(() -> this.delegate.reduce(op));
   }
 
   @Override
   public <R> R collect(Supplier<R> supplier, ObjLongConsumer<R> accumulator, BiConsumer<R, R> combiner) {
-    return execute(() -> collect(supplier, accumulator, combiner));
+    return execute(() -> this.delegate.collect(supplier, accumulator, combiner));
   }
 
   @Override
   public long sum() {
-    return execute(() -> sum());
+    return execute(() -> this.delegate.sum());
   }
 
   @Override
   public OptionalLong min() {
-    return execute(() -> min());
+    return execute(() -> this.delegate.min());
   }
 
   @Override
   public OptionalLong max() {
-    return execute(() -> max());
+    return execute(() -> this.delegate.max());
   }
 
   @Override
   public long count() {
-    return execute(() -> count());
+    return execute(() -> this.delegate.count());
   }
 
   @Override
   public OptionalDouble average() {
-    return execute(() -> average());
+    return execute(() -> this.delegate.average());
   }
 
   @Override
   public LongSummaryStatistics summaryStatistics() {
-    return execute(() -> summaryStatistics());
+    return execute(() -> this.delegate.summaryStatistics());
   }
 
   @Override
   public boolean anyMatch(LongPredicate predicate) {
-    return execute(() -> anyMatch(predicate));
+    return execute(() -> this.delegate.anyMatch(predicate));
   }
 
   @Override
   public boolean allMatch(LongPredicate predicate) {
-    return execute(() -> allMatch(predicate));
+    return execute(() -> this.delegate.allMatch(predicate));
   }
 
   @Override
   public boolean noneMatch(LongPredicate predicate) {
-    return execute(() -> noneMatch(predicate));
+    return execute(() -> this.delegate.noneMatch(predicate));
   }
 
   @Override
   public OptionalLong findFirst() {
-    return execute(() -> findFirst());
+    return execute(() -> this.delegate.findFirst());
   }
 
   @Override
   public OptionalLong findAny() {
-    return execute(() -> findAny());
+    return execute(() -> this.delegate.findAny());
   }
 
   @Override

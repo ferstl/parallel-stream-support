@@ -113,92 +113,92 @@ public class ParallelDoubleStreamSupport extends AbstractParallelStreamSupport<D
 
   @Override
   public void forEach(DoubleConsumer action) {
-    execute(() -> forEach(action));
+    execute(() -> this.delegate.forEach(action));
   }
 
   @Override
   public void forEachOrdered(DoubleConsumer action) {
-    execute(() -> forEachOrdered(action));
+    execute(() -> this.delegate.forEachOrdered(action));
   }
 
   @Override
   public double[] toArray() {
-    return execute(() -> toArray());
+    return execute(() -> this.delegate.toArray());
   }
 
   @Override
   public double reduce(double identity, DoubleBinaryOperator op) {
-    return execute(() -> reduce(identity, op));
+    return execute(() -> this.delegate.reduce(identity, op));
   }
 
   @Override
   public OptionalDouble reduce(DoubleBinaryOperator op) {
-    return execute(() -> reduce(op));
+    return execute(() -> this.delegate.reduce(op));
   }
 
   @Override
   public <R> R collect(Supplier<R> supplier, ObjDoubleConsumer<R> accumulator, BiConsumer<R, R> combiner) {
-    return execute(() -> collect(supplier, accumulator, combiner));
+    return execute(() -> this.delegate.collect(supplier, accumulator, combiner));
   }
 
   @Override
   public double sum() {
-    return execute(() -> sum());
+    return execute(() -> this.delegate.sum());
   }
 
   @Override
   public OptionalDouble min() {
-    return execute(() -> min());
+    return execute(() -> this.delegate.min());
   }
 
   @Override
   public OptionalDouble max() {
-    return execute(() -> max());
+    return execute(() -> this.delegate.max());
   }
 
   @Override
   public long count() {
-    return execute(() -> count());
+    return execute(() -> this.delegate.count());
   }
 
   @Override
   public OptionalDouble average() {
-    return execute(() -> average());
+    return execute(() -> this.delegate.average());
   }
 
   @Override
   public DoubleSummaryStatistics summaryStatistics() {
-    return execute(() -> summaryStatistics());
+    return execute(() -> this.delegate.summaryStatistics());
   }
 
   @Override
   public boolean anyMatch(DoublePredicate predicate) {
-    return execute(() -> anyMatch(predicate));
+    return execute(() -> this.delegate.anyMatch(predicate));
   }
 
   @Override
   public boolean allMatch(DoublePredicate predicate) {
-    return execute(() -> allMatch(predicate));
+    return execute(() -> this.delegate.allMatch(predicate));
   }
 
   @Override
   public boolean noneMatch(DoublePredicate predicate) {
-    return execute(() -> noneMatch(predicate));
+    return execute(() -> this.delegate.noneMatch(predicate));
   }
 
   @Override
   public OptionalDouble findFirst() {
-    return execute(() -> findFirst());
+    return execute(() -> this.delegate.findFirst());
   }
 
   @Override
   public OptionalDouble findAny() {
-    return execute(() -> findAny());
+    return execute(() -> this.delegate.findAny());
   }
 
   @Override
   public Stream<Double> boxed() {
-    return execute(() -> boxed());
+    return execute(() -> this.delegate.boxed());
   }
 
   @Override

@@ -4,13 +4,11 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Spliterator;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.ForkJoinWorkerThread;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
@@ -27,7 +25,6 @@ import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import static java.lang.Thread.currentThread;
@@ -47,38 +44,33 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 
-public class ParallelStreamSupportTest {
+public class ParallelStreamSupportTest extends AbstractParallelStreamSupportTest<String, Stream<String>, ParallelStreamSupport<String>> {
 
-  private ForkJoinPool workerPool;
-
-  private Stream<String> delegateMock;
   private Stream<?> mappedDelegateMock;
   private IntStream mappedIntDelegateMock;
   private LongStream mappedLongDelegateMock;
   private DoubleStream mappedDoubleDelegateMock;
-  private Iterator<?> iteratorMock;
-  private Spliterator<?> spliteratorMock;
-  private ParallelStreamSupport<String> parallelStreamSupportMock;
   private String[] toArrayResult;
 
   private Stream<String> delegate;
   private ParallelStreamSupport<String> parallelStreamSupport;
 
+  @Override
+  @SuppressWarnings("unchecked")
+  protected ParallelStreamSupport<String> createParallelStreamSupportMock(ForkJoinPool workerPool) {
+    return new ParallelStreamSupport<>(mock(Stream.class), workerPool);
+  }
 
   @Before
   @SuppressWarnings({"unchecked", "rawtypes"})
-  public void before() {
+  public void init() {
     // Precondition for all tests
     assertFalse("This test must not run in a ForkJoinPool", currentThread() instanceof ForkJoinWorkerThread);
 
-    this.workerPool = new ForkJoinPool(1);
-    this.delegateMock = mock(Stream.class);
     this.mappedDelegateMock = mock(Stream.class);
     this.mappedIntDelegateMock = mock(IntStream.class);
     this.mappedLongDelegateMock = mock(LongStream.class);
     this.mappedDoubleDelegateMock = mock(DoubleStream.class);
-    this.iteratorMock = mock(Iterator.class);
-    this.spliteratorMock = mock(Spliterator.class);
     this.toArrayResult = new String[0];
 
     when(this.delegateMock.map(anyObject())).thenReturn((Stream) this.mappedDelegateMock);
@@ -89,8 +81,6 @@ public class ParallelStreamSupportTest {
     when(this.delegateMock.flatMapToInt(anyObject())).thenReturn(this.mappedIntDelegateMock);
     when(this.delegateMock.flatMapToLong(anyObject())).thenReturn(this.mappedLongDelegateMock);
     when(this.delegateMock.flatMapToDouble(anyObject())).thenReturn(this.mappedDoubleDelegateMock);
-    when(this.delegateMock.iterator()).thenReturn((Iterator) this.iteratorMock);
-    when(this.delegateMock.spliterator()).thenReturn((Spliterator) this.spliteratorMock);
     when(this.delegateMock.isParallel()).thenReturn(false);
     when(this.delegateMock.toArray()).thenReturn(this.toArrayResult);
     when(this.delegateMock.toArray(anyObject())).thenReturn(this.toArrayResult);
@@ -108,15 +98,8 @@ public class ParallelStreamSupportTest {
     when(this.delegateMock.findFirst()).thenReturn(Optional.of("findFirst"));
     when(this.delegateMock.findAny()).thenReturn(Optional.of("findAny"));
 
-    this.parallelStreamSupportMock = new ParallelStreamSupport<>(this.delegateMock, this.workerPool);
     this.delegate = singletonList("x").parallelStream();
     this.parallelStreamSupport = new ParallelStreamSupport<>(this.delegate, this.workerPool);
-  }
-
-  @After
-  public void after() throws InterruptedException {
-    this.workerPool.shutdown();
-    this.workerPool.awaitTermination(1, TimeUnit.SECONDS);
   }
 
   @Test
@@ -164,71 +147,6 @@ public class ParallelStreamSupportTest {
   @Test(expected = NullPointerException.class)
   public void parallelStreamSupportWithNullSpliterator() {
     ParallelStreamSupport.parallelStream((Spliterator<?>) null, this.workerPool);
-  }
-
-  @Test
-  public void iterator() {
-    Iterator<String> iterator = this.parallelStreamSupportMock.iterator();
-
-    verify(this.delegateMock).iterator();
-    assertSame(this.iteratorMock, iterator);
-  }
-
-  @Test
-  public void spliterator() {
-    Spliterator<String> spliterator = this.parallelStreamSupportMock.spliterator();
-
-    verify(this.delegateMock).spliterator();
-    assertSame(this.spliteratorMock, spliterator);
-  }
-
-  @Test
-  public void isParallel() {
-    when(this.delegateMock.isParallel()).thenReturn(true);
-    boolean parallel = this.parallelStreamSupportMock.isParallel();
-
-    verify(this.delegateMock).isParallel();
-    assertTrue(parallel);
-  }
-
-  @Test
-  public void sequential() {
-    Stream<String> stream = this.parallelStreamSupportMock.sequential();
-
-    verify(this.delegateMock).sequential();
-    assertSame(this.parallelStreamSupportMock, stream);
-  }
-
-  @Test
-  public void parallel() {
-    Stream<String> stream = this.parallelStreamSupportMock.parallel();
-
-    verify(this.delegateMock).parallel();
-    assertSame(this.parallelStreamSupportMock, stream);
-  }
-
-  @Test
-  public void unordered() {
-    Stream<String> stream = this.parallelStreamSupportMock.unordered();
-
-    verify(this.delegateMock).unordered();
-    assertSame(this.parallelStreamSupportMock, stream);
-  }
-
-  @Test
-  public void onClose() {
-    Runnable r = () -> {};
-    Stream<String> stream = this.parallelStreamSupportMock.onClose(r);
-
-    verify(this.delegateMock).onClose(r);
-    assertSame(this.parallelStreamSupportMock, stream);
-  }
-
-  @Test
-  public void close() {
-    this.parallelStreamSupportMock.close();
-
-    verify(this.delegateMock).close();
   }
 
   @Test

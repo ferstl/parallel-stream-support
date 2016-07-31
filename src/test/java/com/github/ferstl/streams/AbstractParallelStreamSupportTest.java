@@ -3,8 +3,9 @@ package com.github.ferstl.streams;
 import java.util.Iterator;
 import java.util.Spliterator;
 import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.BaseStream;
-import java.util.stream.Stream;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.assertSame;
@@ -14,44 +15,47 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 
-public class AbstractParallelStreamSupportTest {
+public abstract class AbstractParallelStreamSupportTest<T, S extends BaseStream<T, S>, R extends AbstractParallelStreamSupport<T, S>> {
 
-  private ForkJoinPool workerPool;
+  ForkJoinPool workerPool;
+  S delegateMock;
+  R parallelStreamSupportMock;
 
-  private Stream<String> delegateMock;
-  private Iterator<?> iteratorMock;
-  private Spliterator<?> spliteratorMock;
-
-  private AbstractParallelStreamSupport<String, Stream<String>> parallelStreamSupportMock;
+  protected abstract R createParallelStreamSupportMock(ForkJoinPool workerPool);
 
   @Before
-  @SuppressWarnings({"rawtypes", "unchecked"})
   public void before() {
     this.workerPool = new ForkJoinPool(1);
-    this.delegateMock = mock(Stream.class);
-    this.iteratorMock = mock(Iterator.class);
-    this.spliteratorMock = mock(Spliterator.class);
+    this.parallelStreamSupportMock = createParallelStreamSupportMock(this.workerPool);
+    this.delegateMock = this.parallelStreamSupportMock.delegate;
+  }
 
-    when(this.delegateMock.iterator()).thenReturn((Iterator) this.iteratorMock);
-    when(this.delegateMock.spliterator()).thenReturn((Spliterator) this.spliteratorMock);
-
-    this.parallelStreamSupportMock = new AbstractParallelStreamSupport<String, Stream<String>>(this.delegateMock, this.workerPool) {};
+  @After
+  public void after() throws InterruptedException {
+    this.workerPool.shutdown();
+    this.workerPool.awaitTermination(1, TimeUnit.SECONDS);
   }
 
   @Test
+  @SuppressWarnings({"unchecked", "rawtypes"})
   public void iterator() {
-    Iterator<String> iterator = this.parallelStreamSupportMock.iterator();
+    Iterator<?> iteratorMock = mock(Iterator.class);
+    when(this.delegateMock.iterator()).thenReturn((Iterator) iteratorMock);
+    Iterator<?> iterator = this.parallelStreamSupportMock.iterator();
 
     verify(this.delegateMock).iterator();
-    assertSame(this.iteratorMock, iterator);
+    assertSame(iteratorMock, iterator);
   }
 
   @Test
+  @SuppressWarnings({"unchecked", "rawtypes"})
   public void spliterator() {
-    Spliterator<String> spliterator = this.parallelStreamSupportMock.spliterator();
+    Spliterator<?> spliteratorMock = mock(Spliterator.class);
+    when(this.delegateMock.spliterator()).thenReturn((Spliterator) spliteratorMock);
+    Spliterator<?> spliterator = this.parallelStreamSupportMock.spliterator();
 
     verify(this.delegateMock).spliterator();
-    assertSame(this.spliteratorMock, spliterator);
+    assertSame(spliteratorMock, spliterator);
   }
 
   @Test
@@ -65,7 +69,7 @@ public class AbstractParallelStreamSupportTest {
 
   @Test
   public void sequential() {
-    BaseStream<String, Stream<String>> stream = this.parallelStreamSupportMock.sequential();
+    BaseStream<?, ?> stream = this.parallelStreamSupportMock.sequential();
 
     verify(this.delegateMock).sequential();
     assertSame(this.parallelStreamSupportMock, stream);
@@ -73,7 +77,7 @@ public class AbstractParallelStreamSupportTest {
 
   @Test
   public void parallel() {
-    BaseStream<String, Stream<String>> stream = this.parallelStreamSupportMock.parallel();
+    BaseStream<?, ?> stream = this.parallelStreamSupportMock.parallel();
 
     verify(this.delegateMock).parallel();
     assertSame(this.parallelStreamSupportMock, stream);
@@ -81,7 +85,7 @@ public class AbstractParallelStreamSupportTest {
 
   @Test
   public void unordered() {
-    BaseStream<String, Stream<String>> stream = this.parallelStreamSupportMock.unordered();
+    BaseStream<?, ?> stream = this.parallelStreamSupportMock.unordered();
 
     verify(this.delegateMock).unordered();
     assertSame(this.parallelStreamSupportMock, stream);
@@ -90,7 +94,7 @@ public class AbstractParallelStreamSupportTest {
   @Test
   public void onClose() {
     Runnable r = () -> {};
-    BaseStream<String, Stream<String>> stream = this.parallelStreamSupportMock.onClose(r);
+    BaseStream<?, ?> stream = this.parallelStreamSupportMock.onClose(r);
 
     verify(this.delegateMock).onClose(r);
     assertSame(this.parallelStreamSupportMock, stream);

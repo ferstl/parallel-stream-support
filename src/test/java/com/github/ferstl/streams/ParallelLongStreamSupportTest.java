@@ -8,7 +8,6 @@ import java.util.PrimitiveIterator;
 import java.util.Spliterator;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.ForkJoinWorkerThread;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 import java.util.function.LongBinaryOperator;
@@ -24,7 +23,6 @@ import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import static java.lang.Thread.currentThread;
@@ -41,33 +39,31 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 
-public class ParallelLongStreamSupportTest {
+public class ParallelLongStreamSupportTest extends AbstractParallelStreamSupportTest<Long, LongStream, ParallelLongStreamSupport> {
 
-  private ForkJoinPool workerPool;
-
-  private LongStream delegateMock;
   private Stream<?> mappedDelegateMock;
   private IntStream mappedIntDelegateMock;
   private LongStream mappedLongDelegateMock;
   private DoubleStream mappedDoubleDelegateMock;
   private PrimitiveIterator.OfLong iteratorMock;
   private Spliterator.OfLong spliteratorMock;
-  private ParallelLongStreamSupport parallelLongStreamSupportMock;
   private long[] toArrayResult;
   private LongSummaryStatistics summaryStatistics;
 
   private LongStream delegate;
   private ParallelLongStreamSupport parallelLongStreamSupport;
 
+  @Override
+  protected ParallelLongStreamSupport createParallelStreamSupportMock(ForkJoinPool workerPool) {
+    return new ParallelLongStreamSupport(mock(LongStream.class), workerPool);
+  }
 
   @Before
   @SuppressWarnings({"unchecked", "rawtypes"})
-  public void before() {
+  public void init() {
     // Precondition for all tests
     assertFalse("This test must not run in a ForkJoinPool", currentThread() instanceof ForkJoinWorkerThread);
 
-    this.workerPool = new ForkJoinPool(1);
-    this.delegateMock = mock(LongStream.class);
     this.mappedDelegateMock = mock(Stream.class);
     this.mappedIntDelegateMock = mock(IntStream.class);
     this.mappedLongDelegateMock = mock(LongStream.class);
@@ -103,63 +99,23 @@ public class ParallelLongStreamSupportTest {
     when(this.delegateMock.asDoubleStream()).thenReturn(this.mappedDoubleDelegateMock);
     when(this.delegateMock.boxed()).thenReturn((Stream) this.mappedDelegateMock);
 
-    this.parallelLongStreamSupportMock = new ParallelLongStreamSupport(this.delegateMock, this.workerPool);
     this.delegate = LongStream.of(1L).parallel();
     this.parallelLongStreamSupport = new ParallelLongStreamSupport(this.delegate, this.workerPool);
-  }
-
-  @After
-  public void after() throws InterruptedException {
-    this.workerPool.shutdown();
-    this.workerPool.awaitTermination(1, TimeUnit.SECONDS);
-  }
-
-  @Test
-  public void isParallel() {
-    when(this.delegateMock.isParallel()).thenReturn(true);
-    boolean parallel = this.parallelLongStreamSupportMock.isParallel();
-
-    verify(this.delegateMock).isParallel();
-    assertTrue(parallel);
-  }
-
-  @Test
-  public void unordered() {
-    LongStream stream = this.parallelLongStreamSupportMock.unordered();
-
-    verify(this.delegateMock).unordered();
-    assertSame(this.parallelLongStreamSupportMock, stream);
-  }
-
-  @Test
-  public void onClose() {
-    Runnable r = () -> {};
-    LongStream stream = this.parallelLongStreamSupportMock.onClose(r);
-
-    verify(this.delegateMock).onClose(r);
-    assertSame(this.parallelLongStreamSupportMock, stream);
-  }
-
-  @Test
-  public void close() {
-    this.parallelLongStreamSupportMock.close();
-
-    verify(this.delegateMock).close();
   }
 
   @Test
   public void filter() {
     LongPredicate p = i -> true;
-    LongStream stream = this.parallelLongStreamSupportMock.filter(p);
+    LongStream stream = this.parallelStreamSupportMock.filter(p);
 
     verify(this.delegateMock).filter(p);
-    assertSame(this.parallelLongStreamSupportMock, stream);
+    assertSame(this.parallelStreamSupportMock, stream);
   }
 
   @Test
   public void map() {
     LongUnaryOperator f = i -> 42;
-    LongStream stream = this.parallelLongStreamSupportMock.map(f);
+    LongStream stream = this.parallelStreamSupportMock.map(f);
 
     verify(this.delegateMock).map(f);
     assertThat(stream, instanceOf(ParallelLongStreamSupport.class));
@@ -170,7 +126,7 @@ public class ParallelLongStreamSupportTest {
   @Test
   public void mapToObj() {
     LongFunction<String> f = i -> "x";
-    Stream<String> stream = this.parallelLongStreamSupportMock.mapToObj(f);
+    Stream<String> stream = this.parallelStreamSupportMock.mapToObj(f);
 
     verify(this.delegateMock).mapToObj(f);
     assertThat(stream, instanceOf(ParallelStreamSupport.class));
@@ -181,7 +137,7 @@ public class ParallelLongStreamSupportTest {
   @Test
   public void mapToInt() {
     LongToIntFunction f = i -> 1;
-    IntStream stream = this.parallelLongStreamSupportMock.mapToInt(f);
+    IntStream stream = this.parallelStreamSupportMock.mapToInt(f);
 
     verify(this.delegateMock).mapToInt(f);
     assertThat(stream, instanceOf(ParallelIntStreamSupport.class));
@@ -192,7 +148,7 @@ public class ParallelLongStreamSupportTest {
   @Test
   public void mapToDouble() {
     LongToDoubleFunction f = i -> 1.0;
-    DoubleStream stream = this.parallelLongStreamSupportMock.mapToDouble(f);
+    DoubleStream stream = this.parallelStreamSupportMock.mapToDouble(f);
 
     verify(this.delegateMock).mapToDouble(f);
     assertThat(stream, instanceOf(ParallelDoubleStreamSupport.class));
@@ -203,7 +159,7 @@ public class ParallelLongStreamSupportTest {
   @Test
   public void flatMap() {
     LongFunction<LongStream> f = i -> LongStream.of(1);
-    LongStream stream = this.parallelLongStreamSupportMock.flatMap(f);
+    LongStream stream = this.parallelStreamSupportMock.flatMap(f);
 
     verify(this.delegateMock).flatMap(f);
     assertThat(stream, instanceOf(ParallelLongStreamSupport.class));
@@ -212,49 +168,49 @@ public class ParallelLongStreamSupportTest {
 
   @Test
   public void distinct() {
-    LongStream stream = this.parallelLongStreamSupportMock.distinct();
+    LongStream stream = this.parallelStreamSupportMock.distinct();
 
     verify(this.delegateMock).distinct();
-    assertSame(this.parallelLongStreamSupportMock, stream);
+    assertSame(this.parallelStreamSupportMock, stream);
   }
 
   @Test
   public void sorted() {
-    LongStream stream = this.parallelLongStreamSupportMock.sorted();
+    LongStream stream = this.parallelStreamSupportMock.sorted();
 
     verify(this.delegateMock).sorted();
-    assertSame(this.parallelLongStreamSupportMock, stream);
+    assertSame(this.parallelStreamSupportMock, stream);
   }
 
   @Test
   public void peek() {
     LongConsumer c = i -> {};
-    LongStream stream = this.parallelLongStreamSupportMock.peek(c);
+    LongStream stream = this.parallelStreamSupportMock.peek(c);
 
     verify(this.delegateMock).peek(c);
-    assertSame(this.parallelLongStreamSupportMock, stream);
+    assertSame(this.parallelStreamSupportMock, stream);
   }
 
   @Test
   public void limit() {
-    LongStream stream = this.parallelLongStreamSupportMock.limit(5);
+    LongStream stream = this.parallelStreamSupportMock.limit(5);
 
     verify(this.delegateMock).limit(5);
-    assertSame(this.parallelLongStreamSupportMock, stream);
+    assertSame(this.parallelStreamSupportMock, stream);
   }
 
   @Test
   public void skip() {
-    LongStream stream = this.parallelLongStreamSupportMock.skip(5);
+    LongStream stream = this.parallelStreamSupportMock.skip(5);
 
     verify(this.delegateMock).skip(5);
-    assertSame(this.parallelLongStreamSupportMock, stream);
+    assertSame(this.parallelStreamSupportMock, stream);
   }
 
   @Test
   public void forEach() {
     LongConsumer c = i -> {};
-    this.parallelLongStreamSupportMock.forEach(c);
+    this.parallelStreamSupportMock.forEach(c);
 
     verify(this.delegateMock).forEach(c);
   }
@@ -283,7 +239,7 @@ public class ParallelLongStreamSupportTest {
   @Test
   public void forEachOrdered() {
     LongConsumer c = i -> {};
-    this.parallelLongStreamSupportMock.forEachOrdered(c);
+    this.parallelStreamSupportMock.forEachOrdered(c);
 
     verify(this.delegateMock).forEachOrdered(c);
   }
@@ -311,7 +267,7 @@ public class ParallelLongStreamSupportTest {
 
   @Test
   public void toArray() {
-    long[] array = this.parallelLongStreamSupportMock.toArray();
+    long[] array = this.parallelStreamSupportMock.toArray();
 
     verify(this.delegateMock).toArray();
     assertSame(this.toArrayResult, array);
@@ -345,7 +301,7 @@ public class ParallelLongStreamSupportTest {
   @Test
   public void reduceWithIdentityAndAccumulator() {
     LongBinaryOperator accumulator = (a, b) -> b;
-    long result = this.parallelLongStreamSupportMock.reduce(0, accumulator);
+    long result = this.parallelStreamSupportMock.reduce(0, accumulator);
 
     verify(this.delegateMock).reduce(0, accumulator);
     assertEquals(42, result);
@@ -381,7 +337,7 @@ public class ParallelLongStreamSupportTest {
   @Test
   public void reduceWithAccumulator() {
     LongBinaryOperator accumulator = (a, b) -> b;
-    OptionalLong result = this.parallelLongStreamSupportMock.reduce(accumulator);
+    OptionalLong result = this.parallelStreamSupportMock.reduce(accumulator);
 
     verify(this.delegateMock).reduce(accumulator);
     assertEquals(OptionalLong.of(42), result);
@@ -420,7 +376,7 @@ public class ParallelLongStreamSupportTest {
     ObjLongConsumer<String> accumulator = (a, b) -> {};
     BiConsumer<String, String> combiner = (a, b) -> {};
 
-    String result = this.parallelLongStreamSupportMock.collect(supplier, accumulator, combiner);
+    String result = this.parallelStreamSupportMock.collect(supplier, accumulator, combiner);
 
     verify(this.delegateMock).collect(supplier, accumulator, combiner);
     assertEquals("collect", result);
@@ -453,7 +409,7 @@ public class ParallelLongStreamSupportTest {
 
   @Test
   public void sum() {
-    long result = this.parallelLongStreamSupportMock.sum();
+    long result = this.parallelStreamSupportMock.sum();
 
     verify(this.delegateMock).sum();
     assertEquals(42, result);
@@ -486,7 +442,7 @@ public class ParallelLongStreamSupportTest {
 
   @Test
   public void min() {
-    OptionalLong result = this.parallelLongStreamSupportMock.min();
+    OptionalLong result = this.parallelStreamSupportMock.min();
 
     verify(this.delegateMock).min();
     assertEquals(OptionalLong.of(42), result);
@@ -519,7 +475,7 @@ public class ParallelLongStreamSupportTest {
 
   @Test
   public void max() {
-    OptionalLong result = this.parallelLongStreamSupportMock.max();
+    OptionalLong result = this.parallelStreamSupportMock.max();
 
     verify(this.delegateMock).max();
     assertEquals(OptionalLong.of(42), result);
@@ -552,7 +508,7 @@ public class ParallelLongStreamSupportTest {
 
   @Test
   public void count() {
-    long count = this.parallelLongStreamSupportMock.count();
+    long count = this.parallelStreamSupportMock.count();
 
     verify(this.delegateMock).count();
     assertEquals(42, count);
@@ -585,7 +541,7 @@ public class ParallelLongStreamSupportTest {
 
   @Test
   public void average() {
-    OptionalDouble result = this.parallelLongStreamSupportMock.average();
+    OptionalDouble result = this.parallelStreamSupportMock.average();
 
     verify(this.delegateMock).average();
     assertEquals(OptionalDouble.of(42.0), result);
@@ -618,7 +574,7 @@ public class ParallelLongStreamSupportTest {
 
   @Test
   public void summaryStatistics() {
-    LongSummaryStatistics result = this.parallelLongStreamSupportMock.summaryStatistics();
+    LongSummaryStatistics result = this.parallelStreamSupportMock.summaryStatistics();
 
     verify(this.delegateMock).summaryStatistics();
     assertEquals(this.summaryStatistics, result);
@@ -653,7 +609,7 @@ public class ParallelLongStreamSupportTest {
   public void anyMatch() {
     LongPredicate p = i -> true;
 
-    boolean result = this.parallelLongStreamSupportMock.anyMatch(p);
+    boolean result = this.parallelStreamSupportMock.anyMatch(p);
 
     verify(this.delegateMock).anyMatch(p);
     assertTrue(result);
@@ -688,7 +644,7 @@ public class ParallelLongStreamSupportTest {
   public void allMatch() {
     LongPredicate p = i -> true;
 
-    boolean result = this.parallelLongStreamSupportMock.allMatch(p);
+    boolean result = this.parallelStreamSupportMock.allMatch(p);
 
     verify(this.delegateMock).allMatch(p);
     assertTrue(result);
@@ -723,7 +679,7 @@ public class ParallelLongStreamSupportTest {
   public void noneMatch() {
     LongPredicate p = i -> true;
 
-    boolean result = this.parallelLongStreamSupportMock.noneMatch(p);
+    boolean result = this.parallelStreamSupportMock.noneMatch(p);
 
     verify(this.delegateMock).noneMatch(p);
     assertTrue(result);
@@ -756,7 +712,7 @@ public class ParallelLongStreamSupportTest {
 
   @Test
   public void findFirst() {
-    OptionalLong result = this.parallelLongStreamSupportMock.findFirst();
+    OptionalLong result = this.parallelStreamSupportMock.findFirst();
 
     verify(this.delegateMock).findFirst();
     assertEquals(OptionalLong.of(42), result);
@@ -789,7 +745,7 @@ public class ParallelLongStreamSupportTest {
 
   @Test
   public void findAny() {
-    OptionalLong result = this.parallelLongStreamSupportMock.findAny();
+    OptionalLong result = this.parallelStreamSupportMock.findAny();
 
     verify(this.delegateMock).findAny();
     assertEquals(OptionalLong.of(42), result);
@@ -822,7 +778,7 @@ public class ParallelLongStreamSupportTest {
 
   @Test
   public void asDoubleStream() {
-    DoubleStream stream = this.parallelLongStreamSupportMock.asDoubleStream();
+    DoubleStream stream = this.parallelStreamSupportMock.asDoubleStream();
 
     verify(this.delegateMock).asDoubleStream();
     assertThat(stream, instanceOf(ParallelDoubleStreamSupport.class));
@@ -832,7 +788,7 @@ public class ParallelLongStreamSupportTest {
 
   @Test
   public void boxed() {
-    Stream<Long> stream = this.parallelLongStreamSupportMock.boxed();
+    Stream<Long> stream = this.parallelStreamSupportMock.boxed();
 
     verify(this.delegateMock).boxed();
     assertThat(stream, instanceOf(ParallelStreamSupport.class));
@@ -840,33 +796,37 @@ public class ParallelLongStreamSupportTest {
     assertSame(this.workerPool, ParallelStreamSupport.class.cast(stream).workerPool);
   }
 
+  @Override
   @Test
   public void sequential() {
-    LongStream stream = this.parallelLongStreamSupportMock.sequential();
+    LongStream stream = this.parallelStreamSupportMock.sequential();
 
     verify(this.delegateMock).sequential();
-    assertSame(this.parallelLongStreamSupportMock, stream);
+    assertSame(this.parallelStreamSupportMock, stream);
   }
 
+  @Override
   @Test
   public void parallel() {
-    LongStream stream = this.parallelLongStreamSupportMock.parallel();
+    LongStream stream = this.parallelStreamSupportMock.parallel();
 
     verify(this.delegateMock).parallel();
-    assertSame(this.parallelLongStreamSupportMock, stream);
+    assertSame(this.parallelStreamSupportMock, stream);
   }
 
+  @Override
   @Test
   public void iterator() {
-    PrimitiveIterator.OfLong iterator = this.parallelLongStreamSupportMock.iterator();
+    PrimitiveIterator.OfLong iterator = this.parallelStreamSupportMock.iterator();
 
     verify(this.delegateMock).iterator();
     assertSame(this.iteratorMock, iterator);
   }
 
+  @Override
   @Test
   public void spliterator() {
-    Spliterator.OfLong spliterator = this.parallelLongStreamSupportMock.spliterator();
+    Spliterator.OfLong spliterator = this.parallelStreamSupportMock.spliterator();
 
     verify(this.delegateMock).spliterator();
     assertSame(this.spliteratorMock, spliterator);

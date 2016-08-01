@@ -111,6 +111,7 @@ public class ParallelStreamSupportTest extends AbstractParallelStreamSupportTest
 
     assertThat(stream, instanceOf(ParallelStreamSupport.class));
     assertTrue(stream.isParallel());
+    assertEquals(Optional.of("a"), stream.findAny());
   }
 
   @Test(expected = NullPointerException.class)
@@ -125,10 +126,11 @@ public class ParallelStreamSupportTest extends AbstractParallelStreamSupportTest
 
   @Test
   public void parallelStreamWithArray() {
-    Stream<String> stream = ParallelStreamSupport.parallelStream(new String[0], this.workerPool);
+    Stream<String> stream = ParallelStreamSupport.parallelStream(new String[]{"a"}, this.workerPool);
 
     assertThat(stream, instanceOf(ParallelStreamSupport.class));
     assertTrue(stream.isParallel());
+    assertEquals(Optional.of("a"), stream.findAny());
   }
 
   @Test(expected = NullPointerException.class)
@@ -138,11 +140,12 @@ public class ParallelStreamSupportTest extends AbstractParallelStreamSupportTest
 
   @Test
   public void parallelStreamSupportWithSpliterator() {
-    List<String> list = new ArrayList<String>();
+    List<String> list = singletonList("a");
     Stream<String> stream = ParallelStreamSupport.parallelStream(list.spliterator(), this.workerPool);
 
     assertThat(stream, instanceOf(ParallelStreamSupport.class));
     assertTrue(stream.isParallel());
+    assertEquals(Optional.of("a"), stream.findAny());
   }
 
   @Test(expected = NullPointerException.class)
@@ -152,11 +155,12 @@ public class ParallelStreamSupportTest extends AbstractParallelStreamSupportTest
 
   @Test
   public void parallelStreamSupportWithSpliteratorSupplier() {
-    Supplier<Spliterator<String>> supplier = () -> new ArrayList<String>().spliterator();
+    Supplier<Spliterator<String>> supplier = () -> singletonList("a").spliterator();
     Stream<String> stream = ParallelStreamSupport.parallelStream(supplier, 0, this.workerPool);
 
     assertThat(stream, instanceOf(ParallelStreamSupport.class));
     assertTrue(stream.isParallel());
+    assertEquals(Optional.of("a"), stream.findAny());
   }
 
   @Test(expected = NullPointerException.class)
@@ -167,10 +171,12 @@ public class ParallelStreamSupportTest extends AbstractParallelStreamSupportTest
   @Test
   public void parallelStreamWithBuilder() {
     Builder<String> builder = Stream.builder();
+    builder.accept("a");
     Stream<String> stream = ParallelStreamSupport.parallelStream(builder, this.workerPool);
 
     assertThat(stream, instanceOf(ParallelStreamSupport.class));
     assertTrue(stream.isParallel());
+    assertEquals(Optional.of("a"), stream.findAny());
   }
 
   @Test(expected = NullPointerException.class)
@@ -186,6 +192,7 @@ public class ParallelStreamSupportTest extends AbstractParallelStreamSupportTest
 
     assertThat(stream, instanceOf(ParallelStreamSupport.class));
     assertTrue(stream.isParallel());
+    assertEquals(Optional.of("a"), stream.findAny());
   }
 
   @Test(expected = NullPointerException.class)
@@ -200,6 +207,7 @@ public class ParallelStreamSupportTest extends AbstractParallelStreamSupportTest
 
     assertThat(stream, instanceOf(ParallelStreamSupport.class));
     assertTrue(stream.isParallel());
+    assertEquals(Optional.of("a"), stream.findAny());
   }
 
   @Test(expected = NullPointerException.class)
@@ -215,6 +223,7 @@ public class ParallelStreamSupportTest extends AbstractParallelStreamSupportTest
 
     assertThat(stream, instanceOf(ParallelStreamSupport.class));
     assertTrue(stream.isParallel());
+    assertThat(stream.collect(toList()), contains("a", "b"));
   }
 
   @Test(expected = NullPointerException.class)

@@ -4,12 +4,14 @@ import java.util.IntSummaryStatistics;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
 import java.util.PrimitiveIterator.OfInt;
+import java.util.Spliterator;
 import java.util.concurrent.ForkJoinPool;
 import java.util.function.BiConsumer;
 import java.util.function.IntBinaryOperator;
 import java.util.function.IntConsumer;
 import java.util.function.IntFunction;
 import java.util.function.IntPredicate;
+import java.util.function.IntSupplier;
 import java.util.function.IntToDoubleFunction;
 import java.util.function.IntToLongFunction;
 import java.util.function.IntUnaryOperator;
@@ -19,12 +21,66 @@ import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
+import static java.util.Arrays.stream;
+import static java.util.Objects.requireNonNull;
+import static java.util.stream.StreamSupport.intStream;
 
 
 public class ParallelIntStreamSupport extends AbstractParallelStreamSupport<Integer, IntStream> implements IntStream {
 
   ParallelIntStreamSupport(IntStream delegate, ForkJoinPool workerPool) {
     super(delegate, workerPool);
+  }
+
+  public static IntStream parallelStream(int[] array, ForkJoinPool workerPool) {
+    requireNonNull(array, "Array must not be null");
+
+    return new ParallelIntStreamSupport(stream(array).parallel(), workerPool);
+  }
+
+  public static IntStream parallelStream(Spliterator.OfInt spliterator, ForkJoinPool workerPool) {
+    requireNonNull(spliterator, "Spliterator must not be null");
+
+    return new ParallelIntStreamSupport(intStream(spliterator, true), workerPool);
+  }
+
+  public static IntStream parallelStream(Supplier<? extends Spliterator.OfInt> supplier, int characteristics, ForkJoinPool workerPool) {
+    requireNonNull(supplier, "Supplier must not be null");
+
+    return new ParallelIntStreamSupport(intStream(supplier, characteristics, true), workerPool);
+  }
+
+  public static IntStream parallelStream(Builder builder, ForkJoinPool workerPool) {
+    requireNonNull(builder, "Builder must not be null");
+
+    return new ParallelIntStreamSupport(builder.build().parallel(), workerPool);
+  }
+
+  public static IntStream iterate(int seed, IntUnaryOperator operator, ForkJoinPool workerPool) {
+    requireNonNull(operator, "Operator must not be null");
+
+    return new ParallelIntStreamSupport(IntStream.iterate(seed, operator).parallel(), workerPool);
+  }
+
+  public static IntStream generate(IntSupplier supplier, ForkJoinPool workerPool) {
+    requireNonNull(supplier, "Supplier must not be null");
+
+    return new ParallelIntStreamSupport(IntStream.generate(supplier).parallel(), workerPool);
+  }
+
+  public static IntStream range(int startInclusive, int endExclusive, ForkJoinPool workerPool) {
+    return new ParallelIntStreamSupport(IntStream.range(startInclusive, endExclusive).parallel(), workerPool);
+  }
+
+  public static IntStream rangeClosed(int startInclusive, int endInclusive, ForkJoinPool workerPool) {
+    return new ParallelIntStreamSupport(IntStream.rangeClosed(startInclusive, endInclusive).parallel(), workerPool);
+  }
+
+  public static IntStream concat(IntStream a, IntStream b, ForkJoinPool workerPool) {
+    requireNonNull(a, "Stream a must not be null");
+    requireNonNull(b, "Stream b must not be null");
+
+    return new ParallelIntStreamSupport(IntStream.concat(a, b).parallel(), workerPool);
   }
 
   @Override

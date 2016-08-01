@@ -13,12 +13,14 @@ import java.util.function.DoubleBinaryOperator;
 import java.util.function.DoubleConsumer;
 import java.util.function.DoubleFunction;
 import java.util.function.DoublePredicate;
+import java.util.function.DoubleSupplier;
 import java.util.function.DoubleToIntFunction;
 import java.util.function.DoubleToLongFunction;
 import java.util.function.DoubleUnaryOperator;
 import java.util.function.ObjDoubleConsumer;
 import java.util.function.Supplier;
 import java.util.stream.DoubleStream;
+import java.util.stream.DoubleStream.Builder;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
@@ -26,6 +28,7 @@ import org.junit.Before;
 import org.junit.Test;
 import static java.lang.Thread.currentThread;
 import static org.hamcrest.Matchers.instanceOf;
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertSame;
@@ -99,6 +102,118 @@ public class ParallelDoubleStreamSupportTest extends AbstractParallelStreamSuppo
 
     this.delegate = DoubleStream.of(1.0).parallel();
     this.parallelDoubleStreamSupport = new ParallelDoubleStreamSupport(this.delegate, this.workerPool);
+  }
+
+
+  @Test
+  public void parallelStreamWithArray() {
+    DoubleStream stream = ParallelDoubleStreamSupport.parallelStream(new double[]{42.0}, this.workerPool);
+
+    assertThat(stream, instanceOf(ParallelDoubleStreamSupport.class));
+    assertTrue(stream.isParallel());
+    assertEquals(OptionalDouble.of(42.0), stream.findAny());
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void parallelStreamWithNullArray() {
+    ParallelDoubleStreamSupport.parallelStream((double[]) null, this.workerPool);
+  }
+
+  @Test
+  public void parallelStreamSupportWithSpliterator() {
+    Spliterator.OfDouble spliterator = DoubleStream.of(42.0).spliterator();
+    DoubleStream stream = ParallelDoubleStreamSupport.parallelStream(spliterator, this.workerPool);
+
+    assertThat(stream, instanceOf(ParallelDoubleStreamSupport.class));
+    assertTrue(stream.isParallel());
+    assertEquals(OptionalDouble.of(42.0), stream.findAny());
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void parallelStreamSupportWithNullSpliterator() {
+    ParallelDoubleStreamSupport.parallelStream((Spliterator.OfDouble) null, this.workerPool);
+  }
+
+  @Test
+  public void parallelStreamSupportWithSpliteratorSupplier() {
+    Supplier<Spliterator.OfDouble> supplier = () -> DoubleStream.of(42.0).spliterator();
+    DoubleStream stream = ParallelDoubleStreamSupport.parallelStream(supplier, 0, this.workerPool);
+
+    assertThat(stream, instanceOf(ParallelDoubleStreamSupport.class));
+    assertTrue(stream.isParallel());
+    assertEquals(OptionalDouble.of(42.0), stream.findAny());
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void parallelStreamSupportWithNullSpliteratorSupplier() {
+    ParallelDoubleStreamSupport.parallelStream(null, 0, this.workerPool);
+  }
+
+  @Test
+  public void parallelStreamWithBuilder() {
+    Builder builder = DoubleStream.builder();
+    builder.accept(42.0);
+    DoubleStream stream = ParallelDoubleStreamSupport.parallelStream(builder, this.workerPool);
+
+    assertThat(stream, instanceOf(ParallelDoubleStreamSupport.class));
+    assertTrue(stream.isParallel());
+    assertEquals(OptionalDouble.of(42.0), stream.findAny());
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void parallelStreamWithNullBuilder() {
+    ParallelDoubleStreamSupport.parallelStream((Builder) null, this.workerPool);
+  }
+
+  @Test
+  public void iterate() {
+    DoubleUnaryOperator operator = a -> a;
+    DoubleStream stream = ParallelDoubleStreamSupport.iterate(42.0, operator, this.workerPool);
+
+    assertThat(stream, instanceOf(ParallelDoubleStreamSupport.class));
+    assertTrue(stream.isParallel());
+    assertEquals(OptionalDouble.of(42.0), stream.findAny());
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void iterateWithNullOperator() {
+    ParallelDoubleStreamSupport.iterate(42.0, null, this.workerPool);
+  }
+
+  @Test
+  public void generate() {
+    DoubleSupplier supplier = () -> 42.0;
+    DoubleStream stream = ParallelDoubleStreamSupport.generate(supplier, this.workerPool);
+
+    assertThat(stream, instanceOf(ParallelDoubleStreamSupport.class));
+    assertTrue(stream.isParallel());
+    assertEquals(OptionalDouble.of(42.0), stream.findAny());
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void generateWithNullSupplier() {
+    ParallelDoubleStreamSupport.generate(null, this.workerPool);
+  }
+
+  @Test
+  public void concat() {
+    DoubleStream a = DoubleStream.of(42.0);
+    DoubleStream b = DoubleStream.of(43);
+    DoubleStream stream = ParallelDoubleStreamSupport.concat(a, b, this.workerPool);
+
+    assertThat(stream, instanceOf(ParallelDoubleStreamSupport.class));
+    assertTrue(stream.isParallel());
+    assertArrayEquals(stream.toArray(), new double[]{42.0, 43.0}, 0.000001);
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void concatWithNullStreamA() {
+    ParallelDoubleStreamSupport.concat(null, DoubleStream.of(42.0), this.workerPool);
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void concatWithNullStreamB() {
+    ParallelDoubleStreamSupport.concat(DoubleStream.of(42.0), null, this.workerPool);
   }
 
   @Test

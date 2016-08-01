@@ -3,12 +3,14 @@ package com.github.ferstl.streams;
 import java.util.DoubleSummaryStatistics;
 import java.util.OptionalDouble;
 import java.util.PrimitiveIterator.OfDouble;
+import java.util.Spliterator;
 import java.util.concurrent.ForkJoinPool;
 import java.util.function.BiConsumer;
 import java.util.function.DoubleBinaryOperator;
 import java.util.function.DoubleConsumer;
 import java.util.function.DoubleFunction;
 import java.util.function.DoublePredicate;
+import java.util.function.DoubleSupplier;
 import java.util.function.DoubleToIntFunction;
 import java.util.function.DoubleToLongFunction;
 import java.util.function.DoubleUnaryOperator;
@@ -18,12 +20,58 @@ import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
+import static java.util.Arrays.stream;
+import static java.util.Objects.requireNonNull;
+import static java.util.stream.StreamSupport.doubleStream;
 
 
 public class ParallelDoubleStreamSupport extends AbstractParallelStreamSupport<Double, DoubleStream> implements DoubleStream {
 
   ParallelDoubleStreamSupport(DoubleStream delegate, ForkJoinPool workerPool) {
     super(delegate, workerPool);
+  }
+
+  public static DoubleStream parallelStream(double[] array, ForkJoinPool workerPool) {
+    requireNonNull(array, "Array must not be null");
+
+    return new ParallelDoubleStreamSupport(stream(array).parallel(), workerPool);
+  }
+
+  public static DoubleStream parallelStream(Spliterator.OfDouble spliterator, ForkJoinPool workerPool) {
+    requireNonNull(spliterator, "Spliterator must not be null");
+
+    return new ParallelDoubleStreamSupport(doubleStream(spliterator, true), workerPool);
+  }
+
+  public static DoubleStream parallelStream(Supplier<? extends Spliterator.OfDouble> supplier, int characteristics, ForkJoinPool workerPool) {
+    requireNonNull(supplier, "Supplier must not be null");
+
+    return new ParallelDoubleStreamSupport(doubleStream(supplier, characteristics, true), workerPool);
+  }
+
+  public static DoubleStream parallelStream(Builder builder, ForkJoinPool workerPool) {
+    requireNonNull(builder, "Builder must not be null");
+
+    return new ParallelDoubleStreamSupport(builder.build().parallel(), workerPool);
+  }
+
+  public static DoubleStream iterate(double seed, DoubleUnaryOperator operator, ForkJoinPool workerPool) {
+    requireNonNull(operator, "Operator must not be null");
+
+    return new ParallelDoubleStreamSupport(DoubleStream.iterate(seed, operator).parallel(), workerPool);
+  }
+
+  public static DoubleStream generate(DoubleSupplier supplier, ForkJoinPool workerPool) {
+    requireNonNull(supplier, "Supplier must not be null");
+
+    return new ParallelDoubleStreamSupport(DoubleStream.generate(supplier).parallel(), workerPool);
+  }
+
+  public static DoubleStream concat(DoubleStream a, DoubleStream b, ForkJoinPool workerPool) {
+    requireNonNull(a, "Stream a must not be null");
+    requireNonNull(b, "Stream b must not be null");
+
+    return new ParallelDoubleStreamSupport(DoubleStream.concat(a, b).parallel(), workerPool);
   }
 
   @Override

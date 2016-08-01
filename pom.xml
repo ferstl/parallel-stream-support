@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>com.github.ferstl</groupId>
@@ -67,7 +68,7 @@
     <maven-gpg-plugin.version>1.6</maven-gpg-plugin.version>
     <maven-install-plugin.version>2.5.2</maven-install-plugin.version>
     <maven-jar-plugin.version>2.5</maven-jar-plugin.version>
-    <maven-javadoc-plugin.version>2.10.1</maven-javadoc-plugin.version>
+    <maven-javadoc-plugin.version>2.10.4</maven-javadoc-plugin.version>
     <maven-project-info-reports-plugin.version>2.9</maven-project-info-reports-plugin.version>
     <maven-release-plugin.version>2.5.3</maven-release-plugin.version>
     <maven-resources-plugin.version>2.7</maven-resources-plugin.version>
@@ -77,11 +78,11 @@
     <!-- Other settings. -->
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    <src.zip.location>${java.home}/../src.zip</src.zip.location>
     <maven.version>3.3.9</maven.version>
   </properties>
 
   <dependencies>
-
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
@@ -101,6 +102,17 @@
       <artifactId>mockito-core</artifactId>
       <version>1.9.5</version>
       <scope>test</scope>
+    </dependency>
+    
+    <!-- Needed for Javadoc -->
+    <dependency>
+      <groupId>com.oracle</groupId>
+      <artifactId>java</artifactId>
+      <version>1.8</version>
+      <scope>system</scope>
+      <classifier>sources</classifier>
+      <type>zip</type>
+      <systemPath>${src.zip.location}</systemPath>
     </dependency>
   </dependencies>
 
@@ -168,11 +180,6 @@
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-javadoc-plugin</artifactId>
           <version>${maven-javadoc-plugin.version}</version>
-          <configuration>
-            <links>
-              <link>http://docs.oracle.com/javase/8/docs/api/</link>
-            </links>
-          </configuration>
         </plugin>
 
         <plugin>
@@ -182,7 +189,7 @@
           <configuration>
             <mavenExecutorId>forked-path</mavenExecutorId>
             <useReleaseProfile>false</useReleaseProfile>
-            <arguments>-Pdeploy-to-sonatype-oss</arguments>
+            <arguments>-Pdeploy-to-sonatype-oss;generate-javadoc</arguments>
           </configuration>
         </plugin>
 
@@ -229,6 +236,56 @@
   </build>
 
   <profiles>
+    <profile>
+      <id>generate-javadoc</id>
+      <activation>
+        <activeByDefault>false</activeByDefault>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-dependency-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>unpack-java-src</id>
+                <phase>process-sources</phase>
+                <goals>
+                  <goal>unpack-dependencies</goal>
+                </goals>
+                <configuration>
+                  <includeScope>system</includeScope>
+                  <includes>**/java/util/**/*.java</includes>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <configuration>
+              <additionalparam>-Xdoclint:none</additionalparam>
+              <sourcepath>${project.build.sourceDirectory};${project.build.directory}/dependency</sourcepath>
+              <sourceFileIncludes>
+                <sourceFileInclude>**/com/github/ferstl/**/*.java</sourceFileInclude>
+              </sourceFileIncludes>
+              <links>
+                <link>http://docs.oracle.com/javase/8/docs/api/</link>
+              </links>
+            </configuration>
+            <executions>
+              <execution>
+                <id>attach-javadocs</id>
+                <goals>
+                  <goal>jar</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    
     <profile>
       <id>deploy-to-sonatype-oss</id>
       <build>

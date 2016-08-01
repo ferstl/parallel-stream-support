@@ -1,6 +1,8 @@
 language: java
 jdk:
 - oraclejdk8
+script:
+- mvn clean install -Pgenerate-javadoc
 cache:
   directories:
   - $HOME/.m2

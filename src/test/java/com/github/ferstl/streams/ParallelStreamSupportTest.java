@@ -3,6 +3,7 @@ package com.github.ferstl.streams;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -21,10 +22,12 @@ import java.util.function.Supplier;
 import java.util.function.ToDoubleFunction;
 import java.util.function.ToIntFunction;
 import java.util.function.ToLongFunction;
+import java.util.function.UnaryOperator;
 import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
+import java.util.stream.Stream.Builder;
 import org.junit.Before;
 import org.junit.Test;
 import static java.lang.Thread.currentThread;
@@ -103,13 +106,11 @@ public class ParallelStreamSupportTest extends AbstractParallelStreamSupportTest
   }
 
   @Test
-  @SuppressWarnings("unchecked")
   public void parallelStream() {
-    Collection<?> collection = mock(Collection.class);
-    when(collection.parallelStream()).thenReturn(mock(Stream.class));
-    ParallelStreamSupport.parallelStream(collection, this.workerPool);
+    Stream<String> stream = ParallelStreamSupport.parallelStream(Collections.singletonList("a"), this.workerPool);
 
-    verify(collection).parallelStream();
+    assertThat(stream, instanceOf(ParallelStreamSupport.class));
+    assertTrue(stream.isParallel());
   }
 
   @Test(expected = NullPointerException.class)
@@ -147,6 +148,83 @@ public class ParallelStreamSupportTest extends AbstractParallelStreamSupportTest
   @Test(expected = NullPointerException.class)
   public void parallelStreamSupportWithNullSpliterator() {
     ParallelStreamSupport.parallelStream((Spliterator<?>) null, this.workerPool);
+  }
+
+  @Test
+  public void parallelStreamSupportWithSpliteratorSupplier() {
+    Supplier<Spliterator<String>> supplier = () -> new ArrayList<String>().spliterator();
+    Stream<String> stream = ParallelStreamSupport.parallelStream(supplier, 0, this.workerPool);
+
+    assertThat(stream, instanceOf(ParallelStreamSupport.class));
+    assertTrue(stream.isParallel());
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void parallelStreamSupportWithNullSpliteratorSupplier() {
+    ParallelStreamSupport.parallelStream(null, 0, this.workerPool);
+  }
+
+  @Test
+  public void parallelStreamWithBuilder() {
+    Builder<String> builder = Stream.builder();
+    Stream<String> stream = ParallelStreamSupport.parallelStream(builder, this.workerPool);
+
+    assertThat(stream, instanceOf(ParallelStreamSupport.class));
+    assertTrue(stream.isParallel());
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void parallelStreamWithNullBuilder() {
+    Builder<String> builder = null;
+    ParallelStreamSupport.parallelStream(builder, this.workerPool);
+  }
+
+  @Test
+  public void iterate() {
+    UnaryOperator<String> operator = a -> a;
+    Stream<String> stream = ParallelStreamSupport.iterate("a", operator, this.workerPool);
+
+    assertThat(stream, instanceOf(ParallelStreamSupport.class));
+    assertTrue(stream.isParallel());
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void iterateWithNullOperator() {
+    ParallelStreamSupport.iterate("a", null, this.workerPool);
+  }
+
+  @Test
+  public void generate() {
+    Supplier<String> supplier = () -> "a";
+    Stream<String> stream = ParallelStreamSupport.generate(supplier, this.workerPool);
+
+    assertThat(stream, instanceOf(ParallelStreamSupport.class));
+    assertTrue(stream.isParallel());
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void generateWithNullSupplier() {
+    ParallelStreamSupport.generate(null, this.workerPool);
+  }
+
+  @Test
+  public void concat() {
+    Stream<String> a = Stream.of("a");
+    Stream<String> b = Stream.of("b");
+    Stream<String> stream = ParallelStreamSupport.concat(a, b, this.workerPool);
+
+    assertThat(stream, instanceOf(ParallelStreamSupport.class));
+    assertTrue(stream.isParallel());
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void concatWithNullStreamA() {
+    ParallelStreamSupport.concat(null, Stream.of("b"), this.workerPool);
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void concatWithNullStreamB() {
+    ParallelStreamSupport.concat(Stream.of("a"), null, this.workerPool);
   }
 
   @Test

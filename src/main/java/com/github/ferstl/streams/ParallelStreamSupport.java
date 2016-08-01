@@ -16,6 +16,7 @@ import java.util.function.Supplier;
 import java.util.function.ToDoubleFunction;
 import java.util.function.ToIntFunction;
 import java.util.function.ToLongFunction;
+import java.util.function.UnaryOperator;
 import java.util.stream.Collector;
 import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
@@ -34,7 +35,7 @@ public class ParallelStreamSupport<T> extends AbstractParallelStreamSupport<T, S
   public static <T> Stream<T> parallelStream(Collection<T> collection, ForkJoinPool workerPool) {
     requireNonNull(collection, "Collection must not be null");
 
-    return new ParallelStreamSupport<T>(collection.parallelStream(), workerPool);
+    return new ParallelStreamSupport<>(collection.parallelStream(), workerPool);
   }
 
   public static <T> Stream<T> parallelStream(T[] array, ForkJoinPool workerPool) {
@@ -47,6 +48,37 @@ public class ParallelStreamSupport<T> extends AbstractParallelStreamSupport<T, S
     requireNonNull(spliterator, "Spliterator must not be null");
 
     return new ParallelStreamSupport<>(stream(spliterator, true), workerPool);
+  }
+
+  public static <T> Stream<T> parallelStream(Supplier<? extends Spliterator<T>> supplier, int characteristics, ForkJoinPool workerPool) {
+    requireNonNull(supplier, "Supplier must not be null");
+
+    return new ParallelStreamSupport<>(stream(supplier, characteristics, true), workerPool);
+  }
+
+  public static <T> Stream<T> parallelStream(Builder<T> builder, ForkJoinPool workerPool) {
+    requireNonNull(builder, "Builder must not be null");
+
+    return new ParallelStreamSupport<>(builder.build().parallel(), workerPool);
+  }
+
+  public static <T> Stream<T> iterate(T seed, UnaryOperator<T> operator, ForkJoinPool workerPool) {
+    requireNonNull(operator, "Operator must not be null");
+
+    return new ParallelStreamSupport<>(Stream.iterate(seed, operator).parallel(), workerPool);
+  }
+
+  public static <T> Stream<T> generate(Supplier<T> supplier, ForkJoinPool workerPool) {
+    requireNonNull(supplier, "Supplier must not be null");
+
+    return new ParallelStreamSupport<>(Stream.generate(supplier).parallel(), workerPool);
+  }
+
+  public static <T> Stream<T> concat(Stream<? extends T> a, Stream<? extends T> b, ForkJoinPool workerPool) {
+    requireNonNull(a, "Stream a must not be null");
+    requireNonNull(b, "Stream b must not be null");
+
+    return new ParallelStreamSupport<>(Stream.concat(a, b).parallel(), workerPool);
   }
 
   @Override

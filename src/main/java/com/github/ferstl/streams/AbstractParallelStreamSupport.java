@@ -9,6 +9,10 @@ import java.util.stream.BaseStream;
 import static java.util.Objects.requireNonNull;
 import static java.util.concurrent.ForkJoinTask.adapt;
 
+/**
+ * Abstract base class for all streams in this package. It implements all Methods of {@link BaseStream} and holds the
+ * {@link ForkJoinPool} and the stream to which the calls are delegated.
+ */
 abstract class AbstractParallelStreamSupport<T, S extends BaseStream<T, S>> implements BaseStream<T, S> {
 
   S delegate;

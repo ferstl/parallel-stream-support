@@ -21,7 +21,7 @@ import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
 
-class ParallelIntStreamSupport extends AbstractParallelStreamSupport<Integer, IntStream> implements IntStream {
+public class ParallelIntStreamSupport extends AbstractParallelStreamSupport<Integer, IntStream> implements IntStream {
 
   ParallelIntStreamSupport(IntStream delegate, ForkJoinPool workerPool) {
     super(delegate, workerPool);

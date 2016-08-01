@@ -33,7 +33,6 @@ public class ParallelStreamSupport<T> extends AbstractParallelStreamSupport<T, S
 
   public static <T> Stream<T> parallelStream(Collection<T> collection, ForkJoinPool workerPool) {
     requireNonNull(collection, "Collection must not be null");
-    requireNonNull(workerPool, "Worker pool must not be null");
 
     return new ParallelStreamSupport<T>(collection.parallelStream(), workerPool);
   }

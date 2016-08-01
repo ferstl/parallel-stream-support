@@ -249,7 +249,7 @@
             <executions>
               <execution>
                 <id>unpack-java-src</id>
-                <phase>process-sources</phase>
+                <phase>package</phase>
                 <goals>
                   <goal>unpack-dependencies</goal>
                 </goals>
@@ -276,6 +276,7 @@
             <executions>
               <execution>
                 <id>attach-javadocs</id>
+                <phase>package</phase>
                 <goals>
                   <goal>jar</goal>
                 </goals>
@@ -290,18 +291,6 @@
       <id>deploy-to-sonatype-oss</id>
       <build>
         <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-javadoc-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>attach-javadocs</id>
-                <goals>
-                  <goal>jar</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-gpg-plugin</artifactId>

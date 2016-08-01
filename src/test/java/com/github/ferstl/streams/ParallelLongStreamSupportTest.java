@@ -14,6 +14,7 @@ import java.util.function.LongBinaryOperator;
 import java.util.function.LongConsumer;
 import java.util.function.LongFunction;
 import java.util.function.LongPredicate;
+import java.util.function.LongSupplier;
 import java.util.function.LongToDoubleFunction;
 import java.util.function.LongToIntFunction;
 import java.util.function.LongUnaryOperator;
@@ -22,11 +23,13 @@ import java.util.function.Supplier;
 import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
+import java.util.stream.LongStream.Builder;
 import java.util.stream.Stream;
 import org.junit.Before;
 import org.junit.Test;
 import static java.lang.Thread.currentThread;
 import static org.hamcrest.Matchers.instanceOf;
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertSame;
@@ -101,6 +104,135 @@ public class ParallelLongStreamSupportTest extends AbstractParallelStreamSupport
 
     this.delegate = LongStream.of(1L).parallel();
     this.parallelLongStreamSupport = new ParallelLongStreamSupport(this.delegate, this.workerPool);
+  }
+
+  @Test
+  public void parallelStreamWithArray() {
+    LongStream stream = ParallelLongStreamSupport.parallelStream(new long[]{42}, this.workerPool);
+
+    assertThat(stream, instanceOf(ParallelLongStreamSupport.class));
+    assertTrue(stream.isParallel());
+    assertEquals(OptionalLong.of(42), stream.findAny());
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void parallelStreamWithNullArray() {
+    ParallelLongStreamSupport.parallelStream((long[]) null, this.workerPool);
+  }
+
+  @Test
+  public void parallelStreamSupportWithSpliterator() {
+    Spliterator.OfLong spliterator = LongStream.of(42).spliterator();
+    LongStream stream = ParallelLongStreamSupport.parallelStream(spliterator, this.workerPool);
+
+    assertThat(stream, instanceOf(ParallelLongStreamSupport.class));
+    assertTrue(stream.isParallel());
+    assertEquals(OptionalLong.of(42), stream.findAny());
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void parallelStreamSupportWithNullSpliterator() {
+    ParallelLongStreamSupport.parallelStream((Spliterator.OfLong) null, this.workerPool);
+  }
+
+  @Test
+  public void parallelStreamSupportWithSpliteratorSupplier() {
+    Supplier<Spliterator.OfLong> supplier = () -> LongStream.of(42).spliterator();
+    LongStream stream = ParallelLongStreamSupport.parallelStream(supplier, 0, this.workerPool);
+
+    assertThat(stream, instanceOf(ParallelLongStreamSupport.class));
+    assertTrue(stream.isParallel());
+    assertEquals(OptionalLong.of(42), stream.findAny());
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void parallelStreamSupportWithNullSpliteratorSupplier() {
+    ParallelLongStreamSupport.parallelStream(null, 0, this.workerPool);
+  }
+
+  @Test
+  public void parallelStreamWithBuilder() {
+    Builder builder = LongStream.builder();
+    builder.accept(42);
+    LongStream stream = ParallelLongStreamSupport.parallelStream(builder, this.workerPool);
+
+    assertThat(stream, instanceOf(ParallelLongStreamSupport.class));
+    assertTrue(stream.isParallel());
+    assertEquals(OptionalLong.of(42), stream.findAny());
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void parallelStreamWithNullBuilder() {
+    ParallelLongStreamSupport.parallelStream((Builder) null, this.workerPool);
+  }
+
+  @Test
+  public void iterate() {
+    LongUnaryOperator operator = a -> a;
+    LongStream stream = ParallelLongStreamSupport.iterate(42, operator, this.workerPool);
+
+    assertThat(stream, instanceOf(ParallelLongStreamSupport.class));
+    assertTrue(stream.isParallel());
+    assertEquals(OptionalLong.of(42), stream.findAny());
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void iterateWithNullOperator() {
+    ParallelLongStreamSupport.iterate(42, null, this.workerPool);
+  }
+
+  @Test
+  public void generate() {
+    LongSupplier supplier = () -> 42;
+    LongStream stream = ParallelLongStreamSupport.generate(supplier, this.workerPool);
+
+    assertThat(stream, instanceOf(ParallelLongStreamSupport.class));
+    assertTrue(stream.isParallel());
+    assertEquals(OptionalLong.of(42), stream.findAny());
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void generateWithNullSupplier() {
+    ParallelLongStreamSupport.generate(null, this.workerPool);
+  }
+
+  @Test
+  public void range() {
+    LongStream stream = ParallelLongStreamSupport.range(0, 5, this.workerPool);
+
+    assertThat(stream, instanceOf(ParallelLongStreamSupport.class));
+    assertTrue(stream.isParallel());
+    assertArrayEquals(stream.toArray(), new long[]{0, 1, 2, 3, 4});
+  }
+
+  @Test
+  public void rangeClosed() {
+    LongStream stream = ParallelLongStreamSupport.rangeClosed(0, 5, this.workerPool);
+
+    assertThat(stream, instanceOf(ParallelLongStreamSupport.class));
+    assertTrue(stream.isParallel());
+    assertArrayEquals(stream.toArray(), new long[]{0, 1, 2, 3, 4, 5});
+  }
+
+  @Test
+  public void concat() {
+    LongStream a = LongStream.of(42);
+    LongStream b = LongStream.of(43);
+    LongStream stream = ParallelLongStreamSupport.concat(a, b, this.workerPool);
+
+    assertThat(stream, instanceOf(ParallelLongStreamSupport.class));
+    assertTrue(stream.isParallel());
+    assertArrayEquals(stream.toArray(), new long[]{42, 43});
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void concatWithNullStreamA() {
+    ParallelLongStreamSupport.concat(null, LongStream.of(42), this.workerPool);
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void concatWithNullStreamB() {
+    ParallelLongStreamSupport.concat(LongStream.of(42), null, this.workerPool);
   }
 
   @Test

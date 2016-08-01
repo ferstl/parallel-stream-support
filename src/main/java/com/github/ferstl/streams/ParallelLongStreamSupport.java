@@ -4,12 +4,14 @@ import java.util.LongSummaryStatistics;
 import java.util.OptionalDouble;
 import java.util.OptionalLong;
 import java.util.PrimitiveIterator.OfLong;
+import java.util.Spliterator;
 import java.util.concurrent.ForkJoinPool;
 import java.util.function.BiConsumer;
 import java.util.function.LongBinaryOperator;
 import java.util.function.LongConsumer;
 import java.util.function.LongFunction;
 import java.util.function.LongPredicate;
+import java.util.function.LongSupplier;
 import java.util.function.LongToDoubleFunction;
 import java.util.function.LongToIntFunction;
 import java.util.function.LongUnaryOperator;
@@ -19,12 +21,66 @@ import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
+import static java.util.Arrays.stream;
+import static java.util.Objects.requireNonNull;
+import static java.util.stream.StreamSupport.longStream;
 
 
 public class ParallelLongStreamSupport extends AbstractParallelStreamSupport<Long, LongStream> implements LongStream {
 
   ParallelLongStreamSupport(LongStream delegate, ForkJoinPool workerPool) {
     super(delegate, workerPool);
+  }
+
+  public static LongStream parallelStream(long[] array, ForkJoinPool workerPool) {
+    requireNonNull(array, "Array must not be null");
+
+    return new ParallelLongStreamSupport(stream(array).parallel(), workerPool);
+  }
+
+  public static LongStream parallelStream(Spliterator.OfLong spliterator, ForkJoinPool workerPool) {
+    requireNonNull(spliterator, "Spliterator must not be null");
+
+    return new ParallelLongStreamSupport(longStream(spliterator, true), workerPool);
+  }
+
+  public static LongStream parallelStream(Supplier<? extends Spliterator.OfLong> supplier, int characteristics, ForkJoinPool workerPool) {
+    requireNonNull(supplier, "Supplier must not be null");
+
+    return new ParallelLongStreamSupport(longStream(supplier, characteristics, true), workerPool);
+  }
+
+  public static LongStream parallelStream(Builder builder, ForkJoinPool workerPool) {
+    requireNonNull(builder, "Builder must not be null");
+
+    return new ParallelLongStreamSupport(builder.build().parallel(), workerPool);
+  }
+
+  public static LongStream iterate(long seed, LongUnaryOperator operator, ForkJoinPool workerPool) {
+    requireNonNull(operator, "Operator must not be null");
+
+    return new ParallelLongStreamSupport(LongStream.iterate(seed, operator).parallel(), workerPool);
+  }
+
+  public static LongStream generate(LongSupplier supplier, ForkJoinPool workerPool) {
+    requireNonNull(supplier, "Supplier must not be null");
+
+    return new ParallelLongStreamSupport(LongStream.generate(supplier).parallel(), workerPool);
+  }
+
+  public static LongStream range(long startInclusive, long endExclusive, ForkJoinPool workerPool) {
+    return new ParallelLongStreamSupport(LongStream.range(startInclusive, endExclusive).parallel(), workerPool);
+  }
+
+  public static LongStream rangeClosed(long startInclusive, long endInclusive, ForkJoinPool workerPool) {
+    return new ParallelLongStreamSupport(LongStream.rangeClosed(startInclusive, endInclusive).parallel(), workerPool);
+  }
+
+  public static LongStream concat(LongStream a, LongStream b, ForkJoinPool workerPool) {
+    requireNonNull(a, "Stream a must not be null");
+    requireNonNull(b, "Stream b must not be null");
+
+    return new ParallelLongStreamSupport(LongStream.concat(a, b).parallel(), workerPool);
   }
 
   @Override

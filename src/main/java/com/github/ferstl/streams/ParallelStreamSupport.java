@@ -68,52 +68,162 @@ import static java.util.stream.StreamSupport.stream;
  */
 public class ParallelStreamSupport<T> extends AbstractParallelStreamSupport<T, Stream<T>> implements Stream<T> {
 
+  /**
+   * Constructor for internal use within this package only.
+   *
+   * @param delegate Stream to delegate each operation.
+   * @param workerPool Worker pool for executing terminaloperations in parallel. Must not be null.
+   */
   ParallelStreamSupport(Stream<T> delegate, ForkJoinPool workerPool) {
     super(delegate, workerPool);
   }
 
+  /**
+   * Creates a <strong>parallel</strong> stream from the given Collection. This operation is similar to
+   * {@link Collection#parallelStream()} with the difference that parallel
+   * <a href="https://docs.oracle.com/javase/8/docs/api/java/util/stream/package-summary.html#StreamOps">terminal
+   * operations</a> will be executed in the given {@link ForkJoinPool}.
+   *
+   * @param <T> The type of stream elements.
+   * @param collection Collection to create the parallel stream from. Must not be null.
+   * @param workerPool Thread pool for parallel execution of a terminal operation. Must not be null.
+   * @return A parallel stream that executes a terminal operation in the given {@link ForkJoinPool}.
+   * @see Collection#parallelStream()
+   */
   public static <T> Stream<T> parallelStream(Collection<T> collection, ForkJoinPool workerPool) {
     requireNonNull(collection, "Collection must not be null");
 
     return new ParallelStreamSupport<>(collection.parallelStream(), workerPool);
   }
 
+  /**
+   * Creates a <strong>parallel</strong> stream from the given Array. This operation is similar to
+   * {@link Arrays#stream(Object[])} with the difference that parallel
+   * <a href="https://docs.oracle.com/javase/8/docs/api/java/util/stream/package-summary.html#StreamOps">terminal
+   * operations</a> will be executed in the given {@link ForkJoinPool}.
+   *
+   * @param <T> The type of stream elements.
+   * @param array Array to create the parallel stream from. Must not be null.
+   * @param workerPool Thread pool for parallel execution of a terminal operation. Must not be null.
+   * @return A parallel stream that executes a terminal operation in the given {@link ForkJoinPool}.
+   * @see Arrays#stream(Object[])
+   */
   public static <T> Stream<T> parallelStream(T[] array, ForkJoinPool workerPool) {
     requireNonNull(array, "Array must not be null");
 
     return new ParallelStreamSupport<>(stream(array).parallel(), workerPool);
   }
 
+  /**
+   * Creates a <strong>parallel</strong> stream from the given Spliterator. This operation is similar to
+   * {@link StreamSupport#stream(Spliterator, boolean)} with the difference that parallel
+   * <a href="https://docs.oracle.com/javase/8/docs/api/java/util/stream/package-summary.html#StreamOps">terminal
+   * operations</a> will be executed in the given {@link ForkJoinPool}.
+   *
+   * @param <T> The type of stream elements.
+   * @param spliterator A {@code Spliterator} describing the stream elements. Must not be null.
+   * @param workerPool Thread pool for parallel execution of a terminal operation. Must not be null.
+   * @return A parallel stream that executes a terminal operation in the given {@link ForkJoinPool}.
+   * @see StreamSupport#stream(Spliterator, boolean)
+   */
   public static <T> Stream<T> parallelStream(Spliterator<T> spliterator, ForkJoinPool workerPool) {
     requireNonNull(spliterator, "Spliterator must not be null");
 
     return new ParallelStreamSupport<>(stream(spliterator, true), workerPool);
   }
 
+  /**
+   * Creates a <strong>parallel</strong> stream from the given Spliterator supplier. This operation is similar to
+   * {@link StreamSupport#longStream(Supplier, int, boolean))} with the difference that parallel
+   * <a href="https://docs.oracle.com/javase/8/docs/api/java/util/stream/package-summary.html#StreamOps">terminal
+   * operations</a> will be executed in the given {@link ForkJoinPool}.
+   *
+   * @param <T> The type of stream elements.
+   * @param supplier A {@code Supplier} of a {@code Spliterator}. Must not be null.
+   * @param characteristics Spliterator characteristics of the supplied {@code Spliterator}. The characteristics must
+   * be equal to {@code supplier.get().characteristics()}, otherwise undefined behavior may occur when terminal
+   * operation commences.
+   * @param workerPool Thread pool for parallel execution of a terminal operation. Must not be null.
+   * @return A parallel stream that executes a terminal operation in the given {@link ForkJoinPool}.
+   * @see StreamSupport#stream(Supplier, int, boolean)
+   */
   public static <T> Stream<T> parallelStream(Supplier<? extends Spliterator<T>> supplier, int characteristics, ForkJoinPool workerPool) {
     requireNonNull(supplier, "Supplier must not be null");
 
     return new ParallelStreamSupport<>(stream(supplier, characteristics, true), workerPool);
   }
 
+  /**
+   * Creates a <strong>parallel</strong> stream from the {@link Builder}. This operation is similar to calling
+   * {@code builder.build().parallel()} with the difference that parallel
+   * <a href="https://docs.oracle.com/javase/8/docs/api/java/util/stream/package-summary.html#StreamOps">terminal
+   * operations</a> will be executed in the given {@link ForkJoinPool}.
+   *
+   * @param <T> The type of stream elements.
+   * @param builder The builder to create the stream from. Must not be null.
+   * @param workerPool Thread pool for parallel execution of a terminal operation. Must not be null.
+   * @return A parallel stream that executes a terminal operation in the given {@link ForkJoinPool}.
+   * @see Stream#builder()
+   */
   public static <T> Stream<T> parallelStream(Builder<T> builder, ForkJoinPool workerPool) {
     requireNonNull(builder, "Builder must not be null");
 
     return new ParallelStreamSupport<>(builder.build().parallel(), workerPool);
   }
 
+  /**
+   * Creates a <strong>parallel</strong> infinite ordered stream produced by iterative application of a function
+   * {@code f} to an initial element {@code seed}. This operation is similar to calling {@code Stream.iterate(seed,
+   * operator).parallel()} with the difference that parallel
+   * <a href="https://docs.oracle.com/javase/8/docs/api/java/util/stream/package-summary.html#StreamOps">terminal
+   * operations</a> will be executed in the given {@link ForkJoinPool}.
+   *
+   * @param <T> The type of stream elements.
+   * @param seed The initial element.
+   * @param operator A function to be applied to to the previous element to produce a new element
+   * @param workerPool Thread pool for parallel execution of a terminal operation. Must not be null.
+   * @return A parallel stream that executes a terminal operation in the given {@link ForkJoinPool}.
+   * @see Stream#iterate(Object, UnaryOperator)
+   */
   public static <T> Stream<T> iterate(T seed, UnaryOperator<T> operator, ForkJoinPool workerPool) {
     requireNonNull(operator, "Operator must not be null");
 
     return new ParallelStreamSupport<>(Stream.iterate(seed, operator).parallel(), workerPool);
   }
 
+  /**
+   * Creates a <strong>parallel</strong> infinite sequential unordered stream where each element is generated by the
+   * provided {@code Supplier}. This operation is similar to calling {@code Stream.generate(supplier).parallel()} with
+   * the difference that parallel
+   * <a href="https://docs.oracle.com/javase/8/docs/api/java/util/stream/package-summary.html#StreamOps">terminal
+   * operations</a> will be executed in the given {@link ForkJoinPool}.
+   *
+   * @param <T> The type of stream elements.
+   * @param supplier The {@code Supplier} of generated elements.
+   * @param workerPool Thread pool for parallel execution of a terminal operation. Must not be null.
+   * @return A parallel stream that executes a terminal operation in the given {@link ForkJoinPool}.
+   * @see Stream#generate(Supplier)
+   */
   public static <T> Stream<T> generate(Supplier<T> supplier, ForkJoinPool workerPool) {
     requireNonNull(supplier, "Supplier must not be null");
 
     return new ParallelStreamSupport<>(Stream.generate(supplier).parallel(), workerPool);
   }
 
+  /**
+   * Creates a lazily concatenated <strong>parallel</strong> stream whose elements are all the elements of the first
+   * stream followed by all the elements of the second stream. his operation is similar to calling
+   * {@code Stream.concat(a, b).parallel()} with the difference that parallel
+   * <a href="https://docs.oracle.com/javase/8/docs/api/java/util/stream/package-summary.html#StreamOps">terminal
+   * operations</a> will be executed in the given {@link ForkJoinPool}.
+   *
+   * @param <T> The type of stream elements.
+   * @param a The first stream
+   * @param b The second stream
+   * @param workerPool Thread pool for parallel execution of a terminal operation. Must not be null.
+   * @return A parallel stream that executes a terminal operation in the given {@link ForkJoinPool}.
+   * @see Stream#concat(Stream, Stream)
+   */
   public static <T> Stream<T> concat(Stream<? extends T> a, Stream<? extends T> b, ForkJoinPool workerPool) {
     requireNonNull(a, "Stream a must not be null");
     requireNonNull(b, "Stream b must not be null");

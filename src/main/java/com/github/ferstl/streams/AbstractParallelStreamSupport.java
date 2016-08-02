@@ -10,8 +10,12 @@ import static java.util.Objects.requireNonNull;
 import static java.util.concurrent.ForkJoinTask.adapt;
 
 /**
- * Abstract base class for all streams in this package. It implements all Methods of {@link BaseStream} and holds the
- * {@link ForkJoinPool} and the stream to which the calls are delegated.
+ * Abstract base class for all parallel streams in this package. It implements all Methods of {@link BaseStream} and
+ * holds the {@link ForkJoinPool} and the stream to which subsequent stream operations are delegated. The two methods
+ * {@link #execute(Callable)} and {@link #execute(Runnable)} are used to execute terminal operations. In case this
+ * stream's {@link #isParallel()} method returns {@code true}, a terminal operation will be executed as
+ * {@link ForkJoinTask} in the {@link #workerPool}. Otherwise the terminal operation will be executed in the calling
+ * thread.
  */
 abstract class AbstractParallelStreamSupport<T, S extends BaseStream<T, S>> implements BaseStream<T, S> {
 

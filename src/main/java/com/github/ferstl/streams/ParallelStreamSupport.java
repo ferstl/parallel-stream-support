@@ -60,6 +60,11 @@ import static java.util.stream.StreamSupport.stream;
  * <li>{@link StreamSupport#stream(Supplier, int, boolean))}</li>
  * </ul>
  * </p>
+ *
+ * @apiNote Internally, this stream wraps a stream which is initially created in one of the static factory methods.
+ * Whenever a non-terminal operation is called the underlying stream will be replaced with the result of calling the
+ * same method on that stream. Although each factory method returns a parallel stream, calling {@link #sequential()} is
+ * still possible and leads to sequential execution of a terminal operation within the calling thread.
  */
 public class ParallelStreamSupport<T> extends AbstractParallelStreamSupport<T, Stream<T>> implements Stream<T> {
 

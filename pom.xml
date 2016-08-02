@@ -103,17 +103,6 @@
       <version>1.9.5</version>
       <scope>test</scope>
     </dependency>
-    
-    <!-- Needed for Javadoc -->
-    <dependency>
-      <groupId>com.oracle</groupId>
-      <artifactId>java</artifactId>
-      <version>1.8</version>
-      <scope>system</scope>
-      <classifier>sources</classifier>
-      <type>zip</type>
-      <systemPath>${src.zip.location}</systemPath>
-    </dependency>
   </dependencies>
 
   <build>
@@ -241,8 +230,21 @@
       <activation>
         <activeByDefault>false</activeByDefault>
       </activation>
+      <dependencies>
+      <!-- Needed for Javadoc -->
+        <dependency>
+          <groupId>com.oracle</groupId>
+          <artifactId>java</artifactId>
+          <version>1.8</version>
+          <scope>system</scope>
+          <classifier>sources</classifier>
+          <type>zip</type>
+          <systemPath>${src.zip.location}</systemPath>
+        </dependency>
+      </dependencies>
       <build>
         <plugins>
+          <!-- Unpack the JDK src.zip -->
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-dependency-plugin</artifactId>
@@ -264,14 +266,28 @@
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-javadoc-plugin</artifactId>
             <configuration>
-              <additionalparam>-Xdoclint:none</additionalparam>
+              <subpackages>com.github.ferstl</subpackages>
               <sourcepath>${project.build.sourceDirectory};${project.build.directory}/dependency</sourcepath>
-              <sourceFileIncludes>
-                <sourceFileInclude>**/com/github/ferstl/**/*.java</sourceFileInclude>
-              </sourceFileIncludes>
               <links>
                 <link>http://docs.oracle.com/javase/8/docs/api/</link>
               </links>
+              <tags>
+                <tag>
+                  <name>apiNote</name>
+                  <placement>a</placement>
+                  <head>API Note:</head>
+                </tag>
+                <tag>
+                  <name>implSpec</name>
+                  <placement>a</placement>
+                  <head>Implementation Requirements:</head>
+                </tag>
+                <tag>
+                  <name>implNote</name>
+                  <placement>a</placement>
+                  <head>Implementation Note:</head>
+                </tag>
+              </tags>
             </configuration>
             <executions>
               <execution>
@@ -286,7 +302,7 @@
         </plugins>
       </build>
     </profile>
-    
+
     <profile>
       <id>deploy-to-sonatype-oss</id>
       <build>

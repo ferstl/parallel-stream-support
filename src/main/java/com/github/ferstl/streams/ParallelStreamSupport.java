@@ -1,10 +1,12 @@
 package com.github.ferstl.streams;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Optional;
 import java.util.Spliterator;
 import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.ForkJoinTask;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.BinaryOperator;
@@ -22,10 +24,43 @@ import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 import static java.util.Arrays.stream;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.StreamSupport.stream;
 
+/**
+ * <p>
+ * An implementation of {@link Stream} which uses a custom {@link ForkJoinPool} for parallel aggregations. The
+ * following example illustrates an aggregate operation using {@link ParallelStreamSupport} with a custom
+ * {@link ForkJoinPool}:
+ *
+ * <pre>
+ *
+ * ForkJoinPool pool = new ForkJoinPool();
+ * int sum = ParallelStreamSupport.parallelStream(widgets, pool)
+ *     .filter(w -> w.getColor() == RED)
+ *     .mapToInt(w -> w.getWeight())
+ *     .sum();
+ * </pre>
+ * </p>
+ * <p>
+ * In case this stream is configured for parallel execution, i.e. {@link #isParallel()} returns {@code true}, a
+ * <a href="https://docs.oracle.com/javase/8/docs/api/java/util/stream/package-summary.html#StreamOps">terminal
+ * operation</a> will be executed as {@link ForkJoinTask} in the custom {@link ForkJoinPool}. Otherwise it will be
+ * executed in the calling thread.
+ * </p>
+ * <p>
+ * This implementation offers various factory methods which are based on:
+ * <ul>
+ * <li>The static factory methods of {@link Stream}, which are meaningful for parallel streams</li>
+ * <li>{@link Collection#parallelStream()}</li>
+ * <li>{@link Arrays#stream(Object[])}</li>
+ * <li>{@link StreamSupport#stream(Spliterator, boolean)}</li>
+ * <li>{@link StreamSupport#stream(Supplier, int, boolean))}</li>
+ * </ul>
+ * </p>
+ */
 public class ParallelStreamSupport<T> extends AbstractParallelStreamSupport<T, Stream<T>> implements Stream<T> {
 
   ParallelStreamSupport(Stream<T> delegate, ForkJoinPool workerPool) {

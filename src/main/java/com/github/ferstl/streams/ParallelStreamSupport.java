@@ -39,27 +39,24 @@ import static java.util.stream.StreamSupport.stream;
  *
  * ForkJoinPool pool = new ForkJoinPool();
  * int sum = ParallelStreamSupport.parallelStream(widgets, pool)
- *     .filter(w -> w.getColor() == RED)
- *     .mapToInt(w -> w.getWeight())
+ *     .filter(w -&gt; w.getColor() == RED)
+ *     .mapToInt(w -&gt; w.getWeight())
  *     .sum();
  * </pre>
- * </p>
  * <p>
  * In case this stream is configured for parallel execution, i.e. {@link #isParallel()} returns {@code true}, a
  * <a href="https://docs.oracle.com/javase/8/docs/api/java/util/stream/package-summary.html#StreamOps">terminal
  * operation</a> will be executed as {@link ForkJoinTask} in the custom {@link ForkJoinPool}. Otherwise it will be
  * executed in the calling thread.
  * </p>
- * <p>
  * This implementation offers various factory methods which are based on:
  * <ul>
  * <li>The static factory methods of {@link Stream}, which are meaningful for parallel streams</li>
  * <li>{@link Collection#parallelStream()}</li>
  * <li>{@link Arrays#stream(Object[])}</li>
  * <li>{@link StreamSupport#stream(Spliterator, boolean)}</li>
- * <li>{@link StreamSupport#stream(Supplier, int, boolean))}</li>
+ * <li>{@link StreamSupport#stream(Supplier, int, boolean)}</li>
  * </ul>
- * </p>
  *
  * @apiNote Internally, this stream wraps a stream which is initially created in one of the static factory methods.
  * Whenever a non-terminal operation is called the underlying stream will be replaced with the result of calling the
@@ -134,7 +131,7 @@ public class ParallelStreamSupport<T> extends AbstractParallelStreamSupport<T, S
 
   /**
    * Creates a <strong>parallel</strong> stream from the given Spliterator supplier. This operation is similar to
-   * {@link StreamSupport#longStream(Supplier, int, boolean))} with the difference that parallel
+   * {@link StreamSupport#stream(Supplier, int, boolean)} with the difference that parallel
    * <a href="https://docs.oracle.com/javase/8/docs/api/java/util/stream/package-summary.html#StreamOps">terminal
    * operations</a> will be executed in the given {@link ForkJoinPool}.
    *

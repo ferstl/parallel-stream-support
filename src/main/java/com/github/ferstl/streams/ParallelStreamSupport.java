@@ -58,10 +58,18 @@ import static java.util.stream.StreamSupport.stream;
  * <li>{@link StreamSupport#stream(Supplier, int, boolean)}</li>
  * </ul>
  *
- * @apiNote Internally, this stream wraps a stream which is initially created in one of the static factory methods.
- * Whenever a non-terminal operation is called the underlying stream will be replaced with the result of calling the
- * same method on that stream. Although each factory method returns a parallel stream, calling {@link #sequential()} is
- * still possible and leads to sequential execution of a terminal operation within the calling thread.
+ * @apiNote
+ * <p>
+ * Internally, this stream wraps a stream which is initially created in one of the static factory methods. Whenever a
+ * non-terminal operation is called the underlying stream will be replaced with the result of calling the same method
+ * on that stream. The return value of these operations is always this stream or, in case of operations that return a
+ * different type of stream, one of {@link ParallelIntStreamSupport}, {@link ParallelLongStreamSupport} or
+ * {@link ParallelDoubleStreamSupport}.
+ * </p>
+ * <p>
+ * Although each factory method returns a parallel stream, calling {@link #sequential()} is still possible and leads to
+ * sequential execution of a terminal operation within the calling thread.
+ * </p>
  * @param <T> The type of the stream elements.
  */
 public class ParallelStreamSupport<T> extends AbstractParallelStreamSupport<T, Stream<T>> implements Stream<T> {

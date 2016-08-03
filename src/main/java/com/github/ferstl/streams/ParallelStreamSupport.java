@@ -78,9 +78,9 @@ public class ParallelStreamSupport<T> extends AbstractParallelStreamSupport<T, S
 
   /**
    * Creates a <strong>parallel</strong> stream from the given Collection. This operation is similar to
-   * {@link Collection#parallelStream()} with the difference that parallel
+   * {@link Collection#parallelStream()} with the difference that a parallel
    * <a href="https://docs.oracle.com/javase/8/docs/api/java/util/stream/package-summary.html#StreamOps">terminal
-   * operations</a> will be executed in the given {@link ForkJoinPool}.
+   * operation</a> will be executed in the given {@link ForkJoinPool}.
    *
    * @param <T> The type of stream elements.
    * @param collection Collection to create the parallel stream from. Must not be null.
@@ -95,10 +95,10 @@ public class ParallelStreamSupport<T> extends AbstractParallelStreamSupport<T, S
   }
 
   /**
-   * Creates a <strong>parallel</strong> stream from the given Array. This operation is similar to
-   * {@link Arrays#stream(Object[])} with the difference that parallel
+   * Creates a <strong>parallel</strong> stream from the given Array. This operation is similar to calling
+   * {@code Arrays.stream(array).parallel()} with the difference that a parallel
    * <a href="https://docs.oracle.com/javase/8/docs/api/java/util/stream/package-summary.html#StreamOps">terminal
-   * operations</a> will be executed in the given {@link ForkJoinPool}.
+   * operation</a> will be executed in the given {@link ForkJoinPool}.
    *
    * @param <T> The type of stream elements.
    * @param array Array to create the parallel stream from. Must not be null.
@@ -113,10 +113,10 @@ public class ParallelStreamSupport<T> extends AbstractParallelStreamSupport<T, S
   }
 
   /**
-   * Creates a <strong>parallel</strong> stream from the given Spliterator. This operation is similar to
-   * {@link StreamSupport#stream(Spliterator, boolean)} with the difference that parallel
+   * Creates a <strong>parallel</strong> stream from the given Spliterator. This operation is similar to calling
+   * {@code StreamSupport.stream(spliterator, true} with the difference that a parallel
    * <a href="https://docs.oracle.com/javase/8/docs/api/java/util/stream/package-summary.html#StreamOps">terminal
-   * operations</a> will be executed in the given {@link ForkJoinPool}.
+   * operation</a> will be executed in the given {@link ForkJoinPool}.
    *
    * @param <T> The type of stream elements.
    * @param spliterator A {@code Spliterator} describing the stream elements. Must not be null.
@@ -132,9 +132,9 @@ public class ParallelStreamSupport<T> extends AbstractParallelStreamSupport<T, S
 
   /**
    * Creates a <strong>parallel</strong> stream from the given Spliterator supplier. This operation is similar to
-   * {@link StreamSupport#stream(Supplier, int, boolean)} with the difference that parallel
+   * calling {@code StreamSupport.stream(supplier, characteristics, true)} with the difference that a parallel
    * <a href="https://docs.oracle.com/javase/8/docs/api/java/util/stream/package-summary.html#StreamOps">terminal
-   * operations</a> will be executed in the given {@link ForkJoinPool}.
+   * operation</a> will be executed in the given {@link ForkJoinPool}.
    *
    * @param <T> The type of stream elements.
    * @param supplier A {@code Supplier} of a {@code Spliterator}. Must not be null.
@@ -153,9 +153,9 @@ public class ParallelStreamSupport<T> extends AbstractParallelStreamSupport<T, S
 
   /**
    * Creates a <strong>parallel</strong> stream from the {@link Builder}. This operation is similar to calling
-   * {@code builder.build().parallel()} with the difference that parallel
+   * {@code builder.build().parallel()} with the difference that a parallel
    * <a href="https://docs.oracle.com/javase/8/docs/api/java/util/stream/package-summary.html#StreamOps">terminal
-   * operations</a> will be executed in the given {@link ForkJoinPool}.
+   * operation</a> will be executed in the given {@link ForkJoinPool}.
    *
    * @param <T> The type of stream elements.
    * @param builder The builder to create the stream from. Must not be null.
@@ -172,9 +172,9 @@ public class ParallelStreamSupport<T> extends AbstractParallelStreamSupport<T, S
   /**
    * Creates a <strong>parallel</strong> infinite ordered stream produced by iterative application of a function
    * {@code f} to an initial element {@code seed}. This operation is similar to calling {@code Stream.iterate(seed,
-   * operator).parallel()} with the difference that parallel
+   * operator).parallel()} with the difference that a parallel
    * <a href="https://docs.oracle.com/javase/8/docs/api/java/util/stream/package-summary.html#StreamOps">terminal
-   * operations</a> will be executed in the given {@link ForkJoinPool}.
+   * operation</a> will be executed in the given {@link ForkJoinPool}.
    *
    * @param <T> The type of stream elements.
    * @param seed The initial element.
@@ -194,7 +194,7 @@ public class ParallelStreamSupport<T> extends AbstractParallelStreamSupport<T, S
    * provided {@code Supplier}. This operation is similar to calling {@code Stream.generate(supplier).parallel()} with
    * the difference that parallel
    * <a href="https://docs.oracle.com/javase/8/docs/api/java/util/stream/package-summary.html#StreamOps">terminal
-   * operations</a> will be executed in the given {@link ForkJoinPool}.
+   * operation</a> will be executed in the given {@link ForkJoinPool}.
    *
    * @param <T> The type of stream elements.
    * @param supplier The {@code Supplier} of generated elements.
@@ -210,10 +210,10 @@ public class ParallelStreamSupport<T> extends AbstractParallelStreamSupport<T, S
 
   /**
    * Creates a lazily concatenated <strong>parallel</strong> stream whose elements are all the elements of the first
-   * stream followed by all the elements of the second stream. his operation is similar to calling
-   * {@code Stream.concat(a, b).parallel()} with the difference that parallel
+   * stream followed by all the elements of the second stream. This operation is similar to calling
+   * {@code Stream.concat(a, b).parallel()} with the difference that a parallel
    * <a href="https://docs.oracle.com/javase/8/docs/api/java/util/stream/package-summary.html#StreamOps">terminal
-   * operations</a> will be executed in the given {@link ForkJoinPool}.
+   * operation</a> will be executed in the given {@link ForkJoinPool}.
    *
    * @param <T> The type of stream elements.
    * @param a The first stream

@@ -16,6 +16,9 @@ import static java.util.concurrent.ForkJoinTask.adapt;
  * stream's {@link #isParallel()} method returns {@code true}, a terminal operation will be executed as
  * {@link ForkJoinTask} in the {@link #workerPool}. Otherwise the terminal operation will be executed in the calling
  * thread.
+ *
+ * @param <T> The type of the stream elements.
+ * @param <S> Type of stream.
  */
 abstract class AbstractParallelStreamSupport<T, S extends BaseStream<T, S>> implements BaseStream<T, S> {
 

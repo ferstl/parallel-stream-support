@@ -192,7 +192,7 @@ public class ParallelStreamSupport<T> extends AbstractParallelStreamSupport<T, S
    *
    * @param <T> The type of stream elements.
    * @param seed The initial element.
-   * @param operator A function to be applied to to the previous element to produce a new element
+   * @param operator A function to be applied to to the previous element to produce a new element. Must not be null.
    * @param workerPool Thread pool for parallel execution of a terminal operation. Must not be null.
    * @return A parallel stream that executes a terminal operation in the given {@link ForkJoinPool}.
    * @see Stream#iterate(Object, UnaryOperator)
@@ -211,7 +211,7 @@ public class ParallelStreamSupport<T> extends AbstractParallelStreamSupport<T, S
    * operation</a> will be executed in the given {@link ForkJoinPool}.
    *
    * @param <T> The type of stream elements.
-   * @param supplier The {@code Supplier} of generated elements.
+   * @param supplier The {@code Supplier} of generated elements. Must not be null.
    * @param workerPool Thread pool for parallel execution of a terminal operation. Must not be null.
    * @return A parallel stream that executes a terminal operation in the given {@link ForkJoinPool}.
    * @see Stream#generate(Supplier)

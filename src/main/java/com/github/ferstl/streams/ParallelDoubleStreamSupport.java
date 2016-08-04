@@ -64,7 +64,7 @@ import static java.util.stream.StreamSupport.doubleStream;
  * methods. Whenever a non-terminal operation is called the underlying stream will be replaced with the result of
  * calling the same method on that stream. The return value of these operations is always this stream or, in case of
  * operations that return a different type of stream, one of {@link ParallelStreamSupport},
- * {@link ParallelLongStreamSupport} or {@link ParallelDoubleStreamSupport}.
+ * {@link ParallelIntStreamSupport} or {@link ParallelLongStreamSupport}.
  * </p>
  * <p>
  * Although each factory method returns a parallel stream, calling {@link #sequential()} is still possible and leads to

@@ -243,8 +243,8 @@ public class ParallelIntStreamSupport extends AbstractParallelStreamSupport<Inte
    * <a href="https://docs.oracle.com/javase/8/docs/api/java/util/stream/package-summary.html#StreamOps">terminal
    * operation</a> will be executed in the given {@link ForkJoinPool}.
    *
-   * @param a The first stream
-   * @param b The second stream
+   * @param a The first stream. Must not be null.
+   * @param b The second stream. Must not be null.
    * @param workerPool Thread pool for parallel execution of a terminal operation. Must not be null.
    * @return A parallel stream that executes a terminal operation in the given {@link ForkJoinPool}.
    * @see IntStream#concat(IntStream, IntStream)

@@ -84,7 +84,7 @@ public class ParallelStreamSupport<T> extends AbstractParallelStreamSupport<T, S
    * Constructor for internal use within this package only.
    *
    * @param delegate Stream to delegate each operation.
-   * @param workerPool Worker pool for executing terminal operations in parallel. Must not be null.
+   * @param workerPool Worker pool for executing terminal operations in parallel. Must not be {@code null}.
    */
   ParallelStreamSupport(Stream<T> delegate, ForkJoinPool workerPool) {
     super(delegate, workerPool);
@@ -97,8 +97,8 @@ public class ParallelStreamSupport<T> extends AbstractParallelStreamSupport<T, S
    * operation</a> will be executed in the given {@link ForkJoinPool}.
    *
    * @param <T> The type of stream elements.
-   * @param collection Collection to create the parallel stream from. Must not be null.
-   * @param workerPool Thread pool for parallel execution of a terminal operation. Must not be null.
+   * @param collection Collection to create the parallel stream from. Must not be {@code null}.
+   * @param workerPool Thread pool for parallel execution of a terminal operation. Must not be {@code null}.
    * @return A parallel stream that executes a terminal operation in the given {@link ForkJoinPool}.
    * @see Collection#parallelStream()
    */
@@ -115,8 +115,8 @@ public class ParallelStreamSupport<T> extends AbstractParallelStreamSupport<T, S
    * operation</a> will be executed in the given {@link ForkJoinPool}.
    *
    * @param <T> The type of stream elements.
-   * @param array Array to create the parallel stream from. Must not be null.
-   * @param workerPool Thread pool for parallel execution of a terminal operation. Must not be null.
+   * @param array Array to create the parallel stream from. Must not be {@code null}.
+   * @param workerPool Thread pool for parallel execution of a terminal operation. Must not be {@code null}.
    * @return A parallel stream that executes a terminal operation in the given {@link ForkJoinPool}.
    * @see Arrays#stream(Object[])
    */
@@ -133,8 +133,8 @@ public class ParallelStreamSupport<T> extends AbstractParallelStreamSupport<T, S
    * operation</a> will be executed in the given {@link ForkJoinPool}.
    *
    * @param <T> The type of stream elements.
-   * @param spliterator A {@code Spliterator} describing the stream elements. Must not be null.
-   * @param workerPool Thread pool for parallel execution of a terminal operation. Must not be null.
+   * @param spliterator A {@code Spliterator} describing the stream elements. Must not be {@code null}.
+   * @param workerPool Thread pool for parallel execution of a terminal operation. Must not be {@code null}.
    * @return A parallel stream that executes a terminal operation in the given {@link ForkJoinPool}.
    * @see StreamSupport#stream(Spliterator, boolean)
    */
@@ -151,11 +151,11 @@ public class ParallelStreamSupport<T> extends AbstractParallelStreamSupport<T, S
    * operation</a> will be executed in the given {@link ForkJoinPool}.
    *
    * @param <T> The type of stream elements.
-   * @param supplier A {@code Supplier} of a {@code Spliterator}. Must not be null.
+   * @param supplier A {@code Supplier} of a {@code Spliterator}. Must not be {@code null}.
    * @param characteristics Spliterator characteristics of the supplied {@code Spliterator}. The characteristics must
    * be equal to {@code supplier.get().characteristics()}, otherwise undefined behavior may occur when terminal
    * operation commences.
-   * @param workerPool Thread pool for parallel execution of a terminal operation. Must not be null.
+   * @param workerPool Thread pool for parallel execution of a terminal operation. Must not be {@code null}.
    * @return A parallel stream that executes a terminal operation in the given {@link ForkJoinPool}.
    * @see StreamSupport#stream(Supplier, int, boolean)
    */
@@ -172,8 +172,8 @@ public class ParallelStreamSupport<T> extends AbstractParallelStreamSupport<T, S
    * operation</a> will be executed in the given {@link ForkJoinPool}.
    *
    * @param <T> The type of stream elements.
-   * @param builder The builder to create the stream from. Must not be null.
-   * @param workerPool Thread pool for parallel execution of a terminal operation. Must not be null.
+   * @param builder The builder to create the stream from. Must not be {@code null}.
+   * @param workerPool Thread pool for parallel execution of a terminal operation. Must not be {@code null}.
    * @return A parallel stream that executes a terminal operation in the given {@link ForkJoinPool}.
    * @see Stream#builder()
    */
@@ -192,8 +192,8 @@ public class ParallelStreamSupport<T> extends AbstractParallelStreamSupport<T, S
    *
    * @param <T> The type of stream elements.
    * @param seed The initial element.
-   * @param operator A function to be applied to to the previous element to produce a new element. Must not be null.
-   * @param workerPool Thread pool for parallel execution of a terminal operation. Must not be null.
+   * @param operator A function to be applied to to the previous element to produce a new element. Must not be {@code null}.
+   * @param workerPool Thread pool for parallel execution of a terminal operation. Must not be {@code null}.
    * @return A parallel stream that executes a terminal operation in the given {@link ForkJoinPool}.
    * @see Stream#iterate(Object, UnaryOperator)
    */
@@ -211,8 +211,8 @@ public class ParallelStreamSupport<T> extends AbstractParallelStreamSupport<T, S
    * operation</a> will be executed in the given {@link ForkJoinPool}.
    *
    * @param <T> The type of stream elements.
-   * @param supplier The {@code Supplier} of generated elements. Must not be null.
-   * @param workerPool Thread pool for parallel execution of a terminal operation. Must not be null.
+   * @param supplier The {@code Supplier} of generated elements. Must not be {@code null}.
+   * @param workerPool Thread pool for parallel execution of a terminal operation. Must not be {@code null}.
    * @return A parallel stream that executes a terminal operation in the given {@link ForkJoinPool}.
    * @see Stream#generate(Supplier)
    */
@@ -230,9 +230,9 @@ public class ParallelStreamSupport<T> extends AbstractParallelStreamSupport<T, S
    * operation</a> will be executed in the given {@link ForkJoinPool}.
    *
    * @param <T> The type of stream elements.
-   * @param a The first stream. Must not be null.
-   * @param b The second stream. Must not be null.
-   * @param workerPool Thread pool for parallel execution of a terminal operation. Must not be null.
+   * @param a The first stream. Must not be {@code null}.
+   * @param b The second stream. Must not be {@code null}.
+   * @param workerPool Thread pool for parallel execution of a terminal operation. Must not be {@code null}.
    * @return A parallel stream that executes a terminal operation in the given {@link ForkJoinPool}.
    * @see Stream#concat(Stream, Stream)
    */

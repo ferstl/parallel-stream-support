@@ -83,7 +83,7 @@ public class ParallelDoubleStreamSupport extends AbstractParallelStreamSupport<D
    * Constructor for internal use within this package only.
    *
    * @param delegate Stream to delegate each operation.
-   * @param workerPool Worker pool for executing terminal operations in parallel. Must not be null.
+   * @param workerPool Worker pool for executing terminal operations in parallel. Must not be {@code null}.
    */
   ParallelDoubleStreamSupport(DoubleStream delegate, ForkJoinPool workerPool) {
     super(delegate, workerPool);
@@ -95,8 +95,8 @@ public class ParallelDoubleStreamSupport extends AbstractParallelStreamSupport<D
    * <a href="https://docs.oracle.com/javase/8/docs/api/java/util/stream/package-summary.html#StreamOps">terminal
    * operation</a> will be executed in the given {@link ForkJoinPool}.
    *
-   * @param array Array to create the parallel stream from. Must not be null.
-   * @param workerPool Thread pool for parallel execution of a terminal operation. Must not be null.
+   * @param array Array to create the parallel stream from. Must not be {@code null}.
+   * @param workerPool Thread pool for parallel execution of a terminal operation. Must not be {@code null}.
    * @return A parallel {@code double} stream that executes a terminal operation in the given {@link ForkJoinPool}.
    * @see Arrays#stream(int[])
    */
@@ -112,8 +112,8 @@ public class ParallelDoubleStreamSupport extends AbstractParallelStreamSupport<D
    * <a href="https://docs.oracle.com/javase/8/docs/api/java/util/stream/package-summary.html#StreamOps">terminal
    * operation</a> will be executed in the given {@link ForkJoinPool}.
    *
-   * @param spliterator A {@code Spliterator.OfDouble} describing the stream elements. Must not be null.
-   * @param workerPool Thread pool for parallel execution of a terminal operation. Must not be null.
+   * @param spliterator A {@code Spliterator.OfDouble} describing the stream elements. Must not be {@code null}.
+   * @param workerPool Thread pool for parallel execution of a terminal operation. Must not be {@code null}.
    * @return A parallel {@code double} stream that executes a terminal operation in the given {@link ForkJoinPool}.
    * @see StreamSupport#doubleStream(Spliterator.OfDouble, boolean)
    */
@@ -130,11 +130,11 @@ public class ParallelDoubleStreamSupport extends AbstractParallelStreamSupport<D
    * <a href="https://docs.oracle.com/javase/8/docs/api/java/util/stream/package-summary.html#StreamOps">terminal
    * operation</a> will be executed in the given {@link ForkJoinPool}.
    *
-   * @param supplier A {@code Supplier} of a {@code Spliterator.OfDouble}. Must not be null.
+   * @param supplier A {@code Supplier} of a {@code Spliterator.OfDouble}. Must not be {@code null}.
    * @param characteristics Spliterator characteristics of the supplied {@code Spliterator}. The characteristics must
    * be equal to {@code supplier.get().characteristics()}, otherwise undefined behavior may occur when terminal
    * operation commences.
-   * @param workerPool Thread pool for parallel execution of a terminal operation. Must not be null.
+   * @param workerPool Thread pool for parallel execution of a terminal operation. Must not be {@code null}.
    * @return A parallel {@code double} stream that executes a terminal operation in the given {@link ForkJoinPool}.
    * @see StreamSupport#doubleStream(Supplier, int, boolean)
    */
@@ -150,8 +150,8 @@ public class ParallelDoubleStreamSupport extends AbstractParallelStreamSupport<D
    * <a href="https://docs.oracle.com/javase/8/docs/api/java/util/stream/package-summary.html#StreamOps">terminal
    * operation</a> will be executed in the given {@link ForkJoinPool}.
    *
-   * @param builder The builder to create the stream from. Must not be null.
-   * @param workerPool Thread pool for parallel execution of a terminal operation. Must not be null.
+   * @param builder The builder to create the stream from. Must not be {@code null}.
+   * @param workerPool Thread pool for parallel execution of a terminal operation. Must not be {@code null}.
    * @return A parallel {@code double} stream that executes a terminal operation in the given {@link ForkJoinPool}.
    * @see DoubleStream#builder()
    */
@@ -169,8 +169,8 @@ public class ParallelDoubleStreamSupport extends AbstractParallelStreamSupport<D
    * operation</a> will be executed in the given {@link ForkJoinPool}.
    *
    * @param seed The initial element.
-   * @param operator A function to be applied to to the previous element to produce a new element. Must not be null.
-   * @param workerPool Thread pool for parallel execution of a terminal operation. Must not be null.
+   * @param operator A function to be applied to to the previous element to produce a new element. Must not be {@code null}.
+   * @param workerPool Thread pool for parallel execution of a terminal operation. Must not be {@code null}.
    * @return A parallel {@code double} stream that executes a terminal operation in the given {@link ForkJoinPool}.
    * @see DoubleStream#iterate(double, DoubleUnaryOperator)
    */
@@ -187,8 +187,8 @@ public class ParallelDoubleStreamSupport extends AbstractParallelStreamSupport<D
    * <a href="https://docs.oracle.com/javase/8/docs/api/java/util/stream/package-summary.html#StreamOps">terminal
    * operation</a> will be executed in the given {@link ForkJoinPool}.
    *
-   * @param supplier The {@code DoubleSupplier} of generated elements. Must not be null.
-   * @param workerPool Thread pool for parallel execution of a terminal operation. Must not be null.
+   * @param supplier The {@code DoubleSupplier} of generated elements. Must not be {@code null}.
+   * @param workerPool Thread pool for parallel execution of a terminal operation. Must not be {@code null}.
    * @return A parallel {@code double} stream that executes a terminal operation in the given {@link ForkJoinPool}.
    * @see DoubleStream#generate(DoubleSupplier)
    */
@@ -205,9 +205,9 @@ public class ParallelDoubleStreamSupport extends AbstractParallelStreamSupport<D
    * <a href="https://docs.oracle.com/javase/8/docs/api/java/util/stream/package-summary.html#StreamOps">terminal
    * operation</a> will be executed in the given {@link ForkJoinPool}.
    *
-   * @param a The first stream. Must not be null.
-   * @param b The second stream. Must not be null.
-   * @param workerPool Thread pool for parallel execution of a terminal operation. Must not be null.
+   * @param a The first stream. Must not be {@code null}.
+   * @param b The second stream. Must not be {@code null}.
+   * @param workerPool Thread pool for parallel execution of a terminal operation. Must not be {@code null}.
    * @return A parallel stream that executes a terminal operation in the given {@link ForkJoinPool}.
    * @see DoubleStream#concat(DoubleStream, DoubleStream)
    */

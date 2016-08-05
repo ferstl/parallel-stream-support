@@ -85,7 +85,7 @@ public class ParallelIntStreamSupport extends AbstractParallelStreamSupport<Inte
    * Constructor for internal use within this package only.
    *
    * @param delegate Stream to delegate each operation.
-   * @param workerPool Worker pool for executing terminal operations in parallel. Must not be null.
+   * @param workerPool Worker pool for executing terminal operations in parallel. Must not be {@code null}.
    */
   ParallelIntStreamSupport(IntStream delegate, ForkJoinPool workerPool) {
     super(delegate, workerPool);
@@ -97,8 +97,8 @@ public class ParallelIntStreamSupport extends AbstractParallelStreamSupport<Inte
    * <a href="https://docs.oracle.com/javase/8/docs/api/java/util/stream/package-summary.html#StreamOps">terminal
    * operation</a> will be executed in the given {@link ForkJoinPool}.
    *
-   * @param array Array to create the parallel stream from. Must not be null.
-   * @param workerPool Thread pool for parallel execution of a terminal operation. Must not be null.
+   * @param array Array to create the parallel stream from. Must not be {@code null}.
+   * @param workerPool Thread pool for parallel execution of a terminal operation. Must not be {@code null}.
    * @return A parallel {@code int} stream that executes a terminal operation in the given {@link ForkJoinPool}.
    * @see Arrays#stream(int[])
    */
@@ -114,8 +114,8 @@ public class ParallelIntStreamSupport extends AbstractParallelStreamSupport<Inte
    * <a href="https://docs.oracle.com/javase/8/docs/api/java/util/stream/package-summary.html#StreamOps">terminal
    * operation</a> will be executed in the given {@link ForkJoinPool}.
    *
-   * @param spliterator A {@code Spliterator.OfInt} describing the stream elements. Must not be null.
-   * @param workerPool Thread pool for parallel execution of a terminal operation. Must not be null.
+   * @param spliterator A {@code Spliterator.OfInt} describing the stream elements. Must not be {@code null}.
+   * @param workerPool Thread pool for parallel execution of a terminal operation. Must not be {@code null}.
    * @return A parallel {@code int} stream that executes a terminal operation in the given {@link ForkJoinPool}.
    * @see StreamSupport#intStream(Spliterator.OfInt, boolean)
    */
@@ -132,11 +132,11 @@ public class ParallelIntStreamSupport extends AbstractParallelStreamSupport<Inte
    * <a href="https://docs.oracle.com/javase/8/docs/api/java/util/stream/package-summary.html#StreamOps">terminal
    * operation</a> will be executed in the given {@link ForkJoinPool}.
    *
-   * @param supplier A {@code Supplier} of a {@code Spliterator.OfInt}. Must not be null.
+   * @param supplier A {@code Supplier} of a {@code Spliterator.OfInt}. Must not be {@code null}.
    * @param characteristics Spliterator characteristics of the supplied {@code Spliterator}. The characteristics must
    * be equal to {@code supplier.get().characteristics()}, otherwise undefined behavior may occur when terminal
    * operation commences.
-   * @param workerPool Thread pool for parallel execution of a terminal operation. Must not be null.
+   * @param workerPool Thread pool for parallel execution of a terminal operation. Must not be {@code null}.
    * @return A parallel {@code int} stream that executes a terminal operation in the given {@link ForkJoinPool}.
    * @see StreamSupport#intStream(Supplier, int, boolean)
    */
@@ -152,8 +152,8 @@ public class ParallelIntStreamSupport extends AbstractParallelStreamSupport<Inte
    * <a href="https://docs.oracle.com/javase/8/docs/api/java/util/stream/package-summary.html#StreamOps">terminal
    * operation</a> will be executed in the given {@link ForkJoinPool}.
    *
-   * @param builder The builder to create the stream from. Must not be null.
-   * @param workerPool Thread pool for parallel execution of a terminal operation. Must not be null.
+   * @param builder The builder to create the stream from. Must not be {@code null}.
+   * @param workerPool Thread pool for parallel execution of a terminal operation. Must not be {@code null}.
    * @return A parallel {@code int} stream that executes a terminal operation in the given {@link ForkJoinPool}.
    * @see IntStream#builder()
    */
@@ -171,8 +171,8 @@ public class ParallelIntStreamSupport extends AbstractParallelStreamSupport<Inte
    * operation</a> will be executed in the given {@link ForkJoinPool}.
    *
    * @param seed The initial element.
-   * @param operator A function to be applied to to the previous element to produce a new element. Must not be null.
-   * @param workerPool Thread pool for parallel execution of a terminal operation. Must not be null.
+   * @param operator A function to be applied to to the previous element to produce a new element. Must not be {@code null}.
+   * @param workerPool Thread pool for parallel execution of a terminal operation. Must not be {@code null}.
    * @return A parallel {@code int} stream that executes a terminal operation in the given {@link ForkJoinPool}.
    * @see IntStream#iterate(int, IntUnaryOperator)
    */
@@ -189,8 +189,8 @@ public class ParallelIntStreamSupport extends AbstractParallelStreamSupport<Inte
    * <a href="https://docs.oracle.com/javase/8/docs/api/java/util/stream/package-summary.html#StreamOps">terminal
    * operation</a> will be executed in the given {@link ForkJoinPool}.
    *
-   * @param supplier The {@code IntSupplier} of generated elements. Must not be null.
-   * @param workerPool Thread pool for parallel execution of a terminal operation. Must not be null.
+   * @param supplier The {@code IntSupplier} of generated elements. Must not be {@code null}.
+   * @param workerPool Thread pool for parallel execution of a terminal operation. Must not be {@code null}.
    * @return A parallel {@code int} stream that executes a terminal operation in the given {@link ForkJoinPool}.
    * @see IntStream#generate(IntSupplier)
    */
@@ -209,7 +209,7 @@ public class ParallelIntStreamSupport extends AbstractParallelStreamSupport<Inte
    *
    * @param startInclusive the (inclusive) initial value
    * @param endExclusive the exclusive upper bound
-   * @param workerPool Thread pool for parallel execution of a terminal operation. Must not be null.
+   * @param workerPool Thread pool for parallel execution of a terminal operation. Must not be {@code null}.
    * @return A parallel {@code int} stream that executes a terminal operation in the given {@link ForkJoinPool} for the
    * range of {@code int} elements.
    * @see IntStream#range(int, int)
@@ -227,7 +227,7 @@ public class ParallelIntStreamSupport extends AbstractParallelStreamSupport<Inte
    *
    * @param startInclusive the (inclusive) initial value
    * @param endInclusive the inclusive upper bound
-   * @param workerPool Thread pool for parallel execution of a terminal operation. Must not be null.
+   * @param workerPool Thread pool for parallel execution of a terminal operation. Must not be {@code null}.
    * @return A parallel {@code int} stream that executes a terminal operation in the given {@link ForkJoinPool} for the
    * range of {@code int} elements.
    * @see IntStream#rangeClosed(int, int)
@@ -243,9 +243,9 @@ public class ParallelIntStreamSupport extends AbstractParallelStreamSupport<Inte
    * <a href="https://docs.oracle.com/javase/8/docs/api/java/util/stream/package-summary.html#StreamOps">terminal
    * operation</a> will be executed in the given {@link ForkJoinPool}.
    *
-   * @param a The first stream. Must not be null.
-   * @param b The second stream. Must not be null.
-   * @param workerPool Thread pool for parallel execution of a terminal operation. Must not be null.
+   * @param a The first stream. Must not be {@code null}.
+   * @param b The second stream. Must not be {@code null}.
+   * @param workerPool Thread pool for parallel execution of a terminal operation. Must not be {@code null}.
    * @return A parallel stream that executes a terminal operation in the given {@link ForkJoinPool}.
    * @see IntStream#concat(IntStream, IntStream)
    */

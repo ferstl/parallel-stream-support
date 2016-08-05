@@ -68,7 +68,7 @@ A: Yes. Just call `sequential()` on the stream and it will be processed within t
 
 -----
 
-Q: Why is there no public constructor which takes a regular Java 8 stream and a ForkJoinPool
+Q: Why is there no public constructor which takes a regular Java 8 stream and a ForkJoinPool?
 
-A: It is a strong principle of this library to hide every detail of its implementation. So the only place you have to deal with a concrete class of this library is when a new parallel stream is created. Afterwards you will only see the standard interfaces Stream, IntStream, LongStream and DoubleStream. Furthermore, each stream variant offers similar factory methods as in [StreamSupport](https://docs.oracle.com/javase/8/docs/api/java/util/stream/StreamSupport.html), which allows you to create a parallel stream from any other stream by just calling [Stream.spliterator()](https://docs.oracle.com/javase/8/docs/api/java/util/stream/BaseStream.html#spliterator--).
+A: It is a strong principle of this library to hide the details of its implementation. So the only place you have to deal with a concrete class of this library is when a new parallel stream is created. Afterwards you will only see the standard interfaces Stream, IntStream, LongStream and DoubleStream. Furthermore, each stream variant offers similar factory methods as in [StreamSupport](https://docs.oracle.com/javase/8/docs/api/java/util/stream/StreamSupport.html), which allows you to create a parallel stream from any other stream by just calling [Stream.spliterator()](https://docs.oracle.com/javase/8/docs/api/java/util/stream/BaseStream.html#spliterator--).
 Should you still think an essential factory method is missing, please report an [issue](https://github.com/ferstl/parallel-stream-support/issues) on this project.

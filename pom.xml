@@ -178,7 +178,7 @@
           <configuration>
             <mavenExecutorId>forked-path</mavenExecutorId>
             <useReleaseProfile>false</useReleaseProfile>
-            <arguments>-Pdeploy-to-sonatype-oss;generate-javadoc</arguments>
+            <arguments>-Pdeploy-to-sonatype-oss,generate-javadoc</arguments>
           </configuration>
         </plugin>
 

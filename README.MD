@@ -72,3 +72,15 @@ Q: Why is there no public constructor which takes a regular Java 8 stream and a 
 
 A: It is a strong principle of this library to hide the details of its implementation. So the only place you have to deal with a concrete class of this library is when a new parallel stream is created. Afterwards you will only see the standard interfaces Stream, IntStream, LongStream and DoubleStream. Furthermore, each stream variant offers similar factory methods as in [StreamSupport](https://docs.oracle.com/javase/8/docs/api/java/util/stream/StreamSupport.html), which allows you to create a parallel stream from any other stream by just calling [Stream.spliterator()](https://docs.oracle.com/javase/8/docs/api/java/util/stream/BaseStream.html#spliterator--).
 Should you still think an essential factory method is missing, please report an [issue](https://github.com/ferstl/parallel-stream-support/issues) on this project.
+
+# How to Build
+
+    # Normal build with Javadoc and tests
+    mvn clean install -Pgenerate-javadoc
+    
+    # Release
+    mvn release:preapare release:perform
+
+    # Coverage and publish to Coveralls
+    # (reopToken not required on Travis)
+    mvn clean jacoco:prepare-agent test jacoco:report coveralls:report -DrepoToken=<the-secret-token>

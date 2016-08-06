@@ -1,7 +1,7 @@
 # Parallel Stream Support
 *- Parallel streams in Java with a custom ForkJoinPool*
 
-[![Build Status](https://travis-ci.org/ferstl/parallel-stream-support.svg?branch=master)](https://travis-ci.org/ferstl/parallel-stream-support)
+[![Build Status](https://travis-ci.org/ferstl/parallel-stream-support.svg?branch=master)](https://travis-ci.org/ferstl/parallel-stream-support) [![Coverage Status](https://coveralls.io/repos/github/ferstl/parallel-stream-support/badge.svg?branch=master)](https://coveralls.io/github/ferstl/parallel-stream-support?branch=master)
 
 Parallel streams in Java 8 are by default processed in the [common pool](https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/ForkJoinPool.html#commonPool--). This is fine for many cases but sometimes it is not useful since there is no control over what else is running in the common pool. For example, an external library might use the common pool for IO-intensive tasks and therefore prevent the performance critical parallel streams of your application from executing. The stream API in Java 8 does not offer a mechanism to process parallel streams in a user-defined thread pool.
 

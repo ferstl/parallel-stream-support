@@ -10,13 +10,13 @@ This library closes the gap and offers parallel streams in dedicated [ForkJoinPo
 # How to Use
 ## Dependencies
 
-The *Parallel Stream Support* library will be available on [Maven Central](http://central.maven.org/maven2/com/github/ferstl/parallel-stream-support/). So no further repository configuration is required.
+The *Parallel Stream Support* library is available on [Maven Central](http://central.maven.org/maven2/com/github/ferstl/parallel-stream-support/). So no further repository configuration is required.
 
     <dependencies>
       <dependency>
         <groupId>com.github.ferstl</groupId>
         <artifactId>parallel-stream-support</artifactId>
-        <version>not-yet-released</version>
+        <version>1.0.0</version>
       </dependency>
     </dependencies>
 

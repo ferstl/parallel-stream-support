@@ -53,10 +53,6 @@
       <id>${distribution.snapshot.id}</id>
       <url>${distribution.snapshot.url}</url>
     </snapshotRepository>
-    <site>
-      <id>gh-pages</id>
-      <url>${project.scm.connection}</url>
-    </site>
   </distributionManagement>
 
   <properties>
@@ -188,12 +184,6 @@
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-resources-plugin</artifactId>
           <version>${maven-resources-plugin.version}</version>
-        </plugin>
-
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-scm-publish-plugin</artifactId>
-          <version>${maven-scm-publish-plugin.version}</version>
         </plugin>
 
         <plugin>

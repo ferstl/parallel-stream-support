@@ -21,14 +21,14 @@ The *Parallel Stream Support* library is available on [Maven Central](http://cen
     </dependencies>
 
 ## Creating Parallel Streams
-To create a parallel stream you need to instantiate a ForkJoinPool and call one of the static factory methods of ParallelStreamSupport, ParallelIntStreamSupport, ParallelLongStreamSupport or ParallelDoubleStreamSupport. The factory methods are based on:
+To create a parallel stream you need to instantiate a [ForkJoinPool](https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/ForkJoinPool.html) and call one of the static factory methods of [ParallelStreamSupport](http://static.javadoc.io/com.github.ferstl/parallel-stream-support/1.0.0/com/github/ferstl/streams/ParallelStreamSupport.html), [ParallelIntStreamSupport](http://static.javadoc.io/com.github.ferstl/parallel-stream-support/1.0.0/com/github/ferstl/streams/ParallelIntStreamSupport.html), [ParallelLongStreamSupport](http://static.javadoc.io/com.github.ferstl/parallel-stream-support/1.0.0/com/github/ferstl/streams/ParallelLongStreamSupport.html) or [ParallelDoubleStreamSupport](http://static.javadoc.io/com.github.ferstl/parallel-stream-support/1.0.0/com/github/ferstl/streams/ParallelDoubleStreamSupport.html). The factory methods are based on:
 
 - The static factory methods of the [Stream](https://docs.oracle.com/javase/8/docs/api/java/util/stream/Stream.html) interface or its primitive variants
 - The static factory methods of [StreamSupport](https://docs.oracle.com/javase/8/docs/api/java/util/stream/StreamSupport.html)
 - [Collection.parallelStream()](https://docs.oracle.com/javase/8/docs/api/java/util/Collection.html#parallelStream--)
 - [Arrays.stream()](https://docs.oracle.com/javase/8/docs/api/java/util/Arrays.html#stream-T:A-)
 
-Take a look at the Javadoc for a complete overview of the factory methods.
+Take a look at the [Javadoc](https://javadoc.io/doc/com.github.ferstl/parallel-stream-support/) for a complete overview of the factory methods.
 
 **Example 1: Calculate the average weight of Elements**
 

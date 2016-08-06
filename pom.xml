@@ -8,6 +8,9 @@
 
   <name>Parallel Stream Support</name>
   <url>https://github.com/ferstl/parallel-stream-support</url>
+  <description>
+    Parallel streams in Java with a custom ForkJoinPool.
+  </description>
 
   <licenses>
     <license>

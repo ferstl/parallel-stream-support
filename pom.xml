@@ -13,8 +13,8 @@
 
   <licenses>
     <license>
-      <name>Apache 2</name>
-      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <name>MIT</name>
+      <url>http://opensource.org/licenses/MIT</url>
       <distribution>repo</distribution>
     </license>
   </licenses>
@@ -113,7 +113,7 @@
           <artifactId>license-maven-plugin</artifactId>
           <version>${license-maven-plugin.version}</version>
           <configuration>
-            <header>${basedir}/src/etc/header.txt</header>
+            <header>${basedir}/LICENSE</header>
             <strictCheck>true</strictCheck>
             <mapping>
               <java>SLASHSTAR_STYLE</java>

@@ -23,14 +23,18 @@ package com.github.ferstl.streams;
 
 import java.util.Iterator;
 import java.util.Spliterator;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.BaseStream;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -126,5 +130,60 @@ public abstract class AbstractParallelStreamSupportTest<T, S extends BaseStream<
     this.parallelStreamSupportMock.close();
 
     verify(this.delegateMock).close();
+  }
+
+  @Test
+  public void executeWithRunnable() {
+    AtomicBoolean b = new AtomicBoolean(false);
+
+    this.parallelStreamSupportMock.execute(() -> b.set(true));
+
+    assertTrue(b.get());
+  }
+
+  @Test(expected = RuntimeException.class)
+  public void executeWithRunnableThrowingException() {
+    Runnable r = () -> {
+      throw new RuntimeException("boom");
+    };
+
+    this.parallelStreamSupportMock.execute(r);
+  }
+
+  @Test
+  public void executeWithCallable() {
+    AtomicBoolean b = new AtomicBoolean(false);
+    Callable<Void> c = () -> {
+      b.set(true);
+      return null;
+    };
+
+    this.parallelStreamSupportMock.execute(c);
+
+    assertTrue(b.get());
+  }
+
+  @Test(expected = AssertionError.class)
+  public void executeWithCallableThrowingError() {
+    Callable<Void> c = () -> {
+      throw new AssertionError("boom");
+    };
+
+    this.parallelStreamSupportMock.execute(c);
+  }
+
+  @Test
+  public void executeWithCallableThrowingCheckedException() {
+    Exception e = new Exception("boom");
+    try {
+      Callable<Void> c = () -> {
+        throw e;
+      };
+
+      this.parallelStreamSupportMock.execute(c);
+      fail("Expect runtime exception.");
+    } catch (RuntimeException rte) {
+      assertEquals(e, rte.getCause());
+    }
   }
 }

@@ -3,7 +3,7 @@
 
   <groupId>com.github.ferstl</groupId>
   <artifactId>parallel-stream-support</artifactId>
-  <version>1.0.1</version>
+  <version>2.0.0-SNAPSHOT</version>
 
   <name>Parallel Stream Support</name>
   <url>https://github.com/ferstl/parallel-stream-support</url>
@@ -43,7 +43,7 @@
     <connection>scm:git:https://github.com/ferstl/parallel-stream-support.git</connection>
     <developerConnection>scm:git:git@github.com:ferstl/parallel-stream-support.git</developerConnection>
     <url>${project.url}</url>
-    <tag>parallel-stream-support-1.0.1</tag>
+    <tag>HEAD</tag>
   </scm>
 
   <distributionManagement>

@@ -57,6 +57,7 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyDouble;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -75,7 +76,6 @@ public class ParallelDoubleStreamSupportTest extends AbstractParallelStreamSuppo
 
   private DoubleStream delegate;
   private ParallelDoubleStreamSupport parallelDoubleStreamSupport;
-  private DoubleBinaryOperator accumulator;
 
   @Override
   protected ParallelDoubleStreamSupport createParallelStreamSupportMock(ForkJoinPool workerPool) {
@@ -88,7 +88,6 @@ public class ParallelDoubleStreamSupportTest extends AbstractParallelStreamSuppo
     // Precondition for all tests
     assertFalse(currentThread() instanceof ForkJoinWorkerThread, "This test must not run in a ForkJoinPool");
 
-    this.accumulator = (a, b) -> b;
     this.mappedDelegateMock = mock(Stream.class);
     this.mappedIntDelegateMock = mock(IntStream.class);
     this.mappedLongDelegateMock = mock(LongStream.class);
@@ -107,9 +106,7 @@ public class ParallelDoubleStreamSupportTest extends AbstractParallelStreamSuppo
     when(this.delegateMock.spliterator()).thenReturn(this.spliteratorMock);
     when(this.delegateMock.isParallel()).thenReturn(false);
     when(this.delegateMock.toArray()).thenReturn(this.toArrayResult);
-    // Workaround for https://github.com/mockito/mockito/issues/1757 : Use explicit types.
-    // when(this.delegateMock.reduce(anyInt(), any())).thenReturn(42.0);
-    when(this.delegateMock.reduce(0, this.accumulator)).thenReturn(42.0);
+    when(this.delegateMock.reduce(anyDouble(), any())).thenReturn(42.0);
     when(this.delegateMock.reduce(any())).thenReturn(OptionalDouble.of(42.0));
     when(this.delegateMock.collect(any(), any(), any())).thenReturn("collect");
     when(this.delegateMock.sum()).thenReturn(42.0);
@@ -441,9 +438,10 @@ public class ParallelDoubleStreamSupportTest extends AbstractParallelStreamSuppo
 
   @Test
   void reduceWithIdentityAndAccumulator() {
-    double result = this.parallelStreamSupportMock.reduce(0, this.accumulator);
+    DoubleBinaryOperator accumulator = (a, b) -> b;
+    double result = this.parallelStreamSupportMock.reduce(0, accumulator);
 
-    verify(this.delegateMock).reduce(0, this.accumulator);
+    verify(this.delegateMock).reduce(0, accumulator);
     assertEquals(42.0, result, 0.000001);
   }
 

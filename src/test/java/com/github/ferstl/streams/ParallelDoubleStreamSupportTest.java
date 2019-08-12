@@ -56,8 +56,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyObject;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -76,6 +75,7 @@ public class ParallelDoubleStreamSupportTest extends AbstractParallelStreamSuppo
 
   private DoubleStream delegate;
   private ParallelDoubleStreamSupport parallelDoubleStreamSupport;
+  private DoubleBinaryOperator accumulator;
 
   @Override
   protected ParallelDoubleStreamSupport createParallelStreamSupportMock(ForkJoinPool workerPool) {
@@ -88,6 +88,7 @@ public class ParallelDoubleStreamSupportTest extends AbstractParallelStreamSuppo
     // Precondition for all tests
     assertFalse(currentThread() instanceof ForkJoinWorkerThread, "This test must not run in a ForkJoinPool");
 
+    this.accumulator = (a, b) -> b;
     this.mappedDelegateMock = mock(Stream.class);
     this.mappedIntDelegateMock = mock(IntStream.class);
     this.mappedLongDelegateMock = mock(LongStream.class);
@@ -97,27 +98,29 @@ public class ParallelDoubleStreamSupportTest extends AbstractParallelStreamSuppo
     this.toArrayResult = new double[0];
     this.summaryStatistics = new DoubleSummaryStatistics();
 
-    when(this.delegateMock.map(anyObject())).thenReturn(this.mappedDoubleDelegateMock);
-    when(this.delegateMock.mapToObj(anyObject())).thenReturn((Stream) this.mappedDelegateMock);
-    when(this.delegateMock.mapToInt(anyObject())).thenReturn(this.mappedIntDelegateMock);
-    when(this.delegateMock.mapToLong(anyObject())).thenReturn(this.mappedLongDelegateMock);
-    when(this.delegateMock.flatMap(anyObject())).thenReturn(this.mappedDoubleDelegateMock);
+    when(this.delegateMock.map(any())).thenReturn(this.mappedDoubleDelegateMock);
+    when(this.delegateMock.mapToObj(any())).thenReturn((Stream) this.mappedDelegateMock);
+    when(this.delegateMock.mapToInt(any())).thenReturn(this.mappedIntDelegateMock);
+    when(this.delegateMock.mapToLong(any())).thenReturn(this.mappedLongDelegateMock);
+    when(this.delegateMock.flatMap(any())).thenReturn(this.mappedDoubleDelegateMock);
     when(this.delegateMock.iterator()).thenReturn(this.iteratorMock);
     when(this.delegateMock.spliterator()).thenReturn(this.spliteratorMock);
     when(this.delegateMock.isParallel()).thenReturn(false);
     when(this.delegateMock.toArray()).thenReturn(this.toArrayResult);
-    when(this.delegateMock.reduce(anyInt(), anyObject())).thenReturn(42.0);
-    when(this.delegateMock.reduce(anyObject())).thenReturn(OptionalDouble.of(42.0));
-    when(this.delegateMock.collect(anyObject(), anyObject(), anyObject())).thenReturn("collect");
+    // Workaround for https://github.com/mockito/mockito/issues/1757 : Use explicit types.
+    // when(this.delegateMock.reduce(anyInt(), any())).thenReturn(42.0);
+    when(this.delegateMock.reduce(0, this.accumulator)).thenReturn(42.0);
+    when(this.delegateMock.reduce(any())).thenReturn(OptionalDouble.of(42.0));
+    when(this.delegateMock.collect(any(), any(), any())).thenReturn("collect");
     when(this.delegateMock.sum()).thenReturn(42.0);
     when(this.delegateMock.min()).thenReturn(OptionalDouble.of(42.0));
     when(this.delegateMock.max()).thenReturn(OptionalDouble.of(42.0));
     when(this.delegateMock.count()).thenReturn(42L);
     when(this.delegateMock.average()).thenReturn(OptionalDouble.of(42.0));
     when(this.delegateMock.summaryStatistics()).thenReturn(this.summaryStatistics);
-    when(this.delegateMock.anyMatch(anyObject())).thenReturn(true);
-    when(this.delegateMock.allMatch(anyObject())).thenReturn(true);
-    when(this.delegateMock.noneMatch(anyObject())).thenReturn(true);
+    when(this.delegateMock.anyMatch(any())).thenReturn(true);
+    when(this.delegateMock.allMatch(any())).thenReturn(true);
+    when(this.delegateMock.noneMatch(any())).thenReturn(true);
     when(this.delegateMock.findFirst()).thenReturn(OptionalDouble.of(42.0));
     when(this.delegateMock.findAny()).thenReturn(OptionalDouble.of(42.0));
     when(this.delegateMock.boxed()).thenReturn((Stream) this.mappedDelegateMock);
@@ -438,10 +441,9 @@ public class ParallelDoubleStreamSupportTest extends AbstractParallelStreamSuppo
 
   @Test
   void reduceWithIdentityAndAccumulator() {
-    DoubleBinaryOperator accumulator = (a, b) -> b;
-    double result = this.parallelStreamSupportMock.reduce(0, accumulator);
+    double result = this.parallelStreamSupportMock.reduce(0, this.accumulator);
 
-    verify(this.delegateMock).reduce(0, accumulator);
+    verify(this.delegateMock).reduce(0, this.accumulator);
     assertEquals(42.0, result, 0.000001);
   }
 

@@ -28,13 +28,14 @@ import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.BaseStream;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -48,22 +49,22 @@ public abstract class AbstractParallelStreamSupportTest<T, S extends BaseStream<
 
   protected abstract R createParallelStreamSupportMock(ForkJoinPool workerPool);
 
-  @Before
-  public void before() {
+  @BeforeEach
+  void before() {
     this.workerPool = new ForkJoinPool(1);
     this.parallelStreamSupportMock = createParallelStreamSupportMock(this.workerPool);
     this.delegateMock = this.parallelStreamSupportMock.delegate;
   }
 
-  @After
-  public void after() throws InterruptedException {
+  @AfterEach
+  void after() throws InterruptedException {
     this.workerPool.shutdown();
     this.workerPool.awaitTermination(1, TimeUnit.SECONDS);
   }
 
   @Test
   @SuppressWarnings({"unchecked", "rawtypes"})
-  public void iterator() {
+  void iterator() {
     Iterator<?> iteratorMock = mock(Iterator.class);
     when(this.delegateMock.iterator()).thenReturn((Iterator) iteratorMock);
     Iterator<?> iterator = this.parallelStreamSupportMock.iterator();
@@ -74,7 +75,7 @@ public abstract class AbstractParallelStreamSupportTest<T, S extends BaseStream<
 
   @Test
   @SuppressWarnings({"unchecked", "rawtypes"})
-  public void spliterator() {
+  void spliterator() {
     Spliterator<?> spliteratorMock = mock(Spliterator.class);
     when(this.delegateMock.spliterator()).thenReturn((Spliterator) spliteratorMock);
     Spliterator<?> spliterator = this.parallelStreamSupportMock.spliterator();
@@ -84,7 +85,7 @@ public abstract class AbstractParallelStreamSupportTest<T, S extends BaseStream<
   }
 
   @Test
-  public void isParallel() {
+  void isParallel() {
     when(this.delegateMock.isParallel()).thenReturn(true);
     boolean parallel = this.parallelStreamSupportMock.isParallel();
 
@@ -93,7 +94,7 @@ public abstract class AbstractParallelStreamSupportTest<T, S extends BaseStream<
   }
 
   @Test
-  public void sequential() {
+  void sequential() {
     BaseStream<?, ?> stream = this.parallelStreamSupportMock.sequential();
 
     verify(this.delegateMock).sequential();
@@ -101,7 +102,7 @@ public abstract class AbstractParallelStreamSupportTest<T, S extends BaseStream<
   }
 
   @Test
-  public void parallel() {
+  void parallel() {
     BaseStream<?, ?> stream = this.parallelStreamSupportMock.parallel();
 
     verify(this.delegateMock).parallel();
@@ -109,7 +110,7 @@ public abstract class AbstractParallelStreamSupportTest<T, S extends BaseStream<
   }
 
   @Test
-  public void unordered() {
+  void unordered() {
     BaseStream<?, ?> stream = this.parallelStreamSupportMock.unordered();
 
     verify(this.delegateMock).unordered();
@@ -117,8 +118,9 @@ public abstract class AbstractParallelStreamSupportTest<T, S extends BaseStream<
   }
 
   @Test
-  public void onClose() {
-    Runnable r = () -> {};
+  void onClose() {
+    Runnable r = () -> {
+    };
     BaseStream<?, ?> stream = this.parallelStreamSupportMock.onClose(r);
 
     verify(this.delegateMock).onClose(r);
@@ -126,14 +128,14 @@ public abstract class AbstractParallelStreamSupportTest<T, S extends BaseStream<
   }
 
   @Test
-  public void close() {
+  void close() {
     this.parallelStreamSupportMock.close();
 
     verify(this.delegateMock).close();
   }
 
   @Test
-  public void executeWithRunnable() {
+  void executeWithRunnable() {
     AtomicBoolean b = new AtomicBoolean(false);
 
     this.parallelStreamSupportMock.execute(() -> b.set(true));
@@ -141,17 +143,17 @@ public abstract class AbstractParallelStreamSupportTest<T, S extends BaseStream<
     assertTrue(b.get());
   }
 
-  @Test(expected = RuntimeException.class)
-  public void executeWithRunnableThrowingException() {
+  @Test
+  void executeWithRunnableThrowingException() {
     Runnable r = () -> {
       throw new RuntimeException("boom");
     };
 
-    this.parallelStreamSupportMock.execute(r);
+    assertThrows(RuntimeException.class, () -> this.parallelStreamSupportMock.execute(r));
   }
 
   @Test
-  public void executeWithCallable() {
+  void executeWithCallable() {
     AtomicBoolean b = new AtomicBoolean(false);
     Callable<Void> c = () -> {
       b.set(true);
@@ -163,17 +165,17 @@ public abstract class AbstractParallelStreamSupportTest<T, S extends BaseStream<
     assertTrue(b.get());
   }
 
-  @Test(expected = AssertionError.class)
-  public void executeWithCallableThrowingError() {
+  @Test
+  void executeWithCallableThrowingError() {
     Callable<Void> c = () -> {
       throw new AssertionError("boom");
     };
 
-    this.parallelStreamSupportMock.execute(c);
+    assertThrows(AssertionError.class, () -> this.parallelStreamSupportMock.execute(c));
   }
 
   @Test
-  public void executeWithCallableThrowingCheckedException() {
+  void executeWithCallableThrowingCheckedException() {
     Exception e = new Exception("boom");
     try {
       Callable<Void> c = () -> {

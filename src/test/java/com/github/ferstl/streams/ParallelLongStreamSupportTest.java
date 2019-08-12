@@ -46,16 +46,17 @@ import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import java.util.stream.LongStream.Builder;
 import java.util.stream.Stream;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import static java.lang.Thread.currentThread;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.instanceOf;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.mock;
@@ -82,11 +83,11 @@ public class ParallelLongStreamSupportTest extends AbstractParallelStreamSupport
     return new ParallelLongStreamSupport(mock(LongStream.class), workerPool);
   }
 
-  @Before
+  @BeforeEach
   @SuppressWarnings({"unchecked", "rawtypes"})
-  public void init() {
+  void init() {
     // Precondition for all tests
-    assertFalse("This test must not run in a ForkJoinPool", currentThread() instanceof ForkJoinWorkerThread);
+    assertFalse(currentThread() instanceof ForkJoinWorkerThread, "This test must not run in a ForkJoinPool");
 
     this.mappedDelegateMock = mock(Stream.class);
     this.mappedIntDelegateMock = mock(IntStream.class);
@@ -128,7 +129,7 @@ public class ParallelLongStreamSupportTest extends AbstractParallelStreamSupport
   }
 
   @Test
-  public void parallelStreamWithArray() {
+  void parallelStreamWithArray() {
     LongStream stream = ParallelLongStreamSupport.parallelStream(new long[]{42}, this.workerPool);
 
     assertThat(stream, instanceOf(ParallelLongStreamSupport.class));
@@ -136,13 +137,13 @@ public class ParallelLongStreamSupportTest extends AbstractParallelStreamSupport
     assertEquals(OptionalLong.of(42), stream.findAny());
   }
 
-  @Test(expected = NullPointerException.class)
-  public void parallelStreamWithNullArray() {
-    ParallelLongStreamSupport.parallelStream((long[]) null, this.workerPool);
+  @Test
+  void parallelStreamWithNullArray() {
+    assertThrows(NullPointerException.class, () -> ParallelLongStreamSupport.parallelStream((long[]) null, this.workerPool));
   }
 
   @Test
-  public void parallelStreamSupportWithSpliterator() {
+  void parallelStreamSupportWithSpliterator() {
     Spliterator.OfLong spliterator = LongStream.of(42).spliterator();
     LongStream stream = ParallelLongStreamSupport.parallelStream(spliterator, this.workerPool);
 
@@ -151,13 +152,13 @@ public class ParallelLongStreamSupportTest extends AbstractParallelStreamSupport
     assertEquals(OptionalLong.of(42), stream.findAny());
   }
 
-  @Test(expected = NullPointerException.class)
-  public void parallelStreamSupportWithNullSpliterator() {
-    ParallelLongStreamSupport.parallelStream((Spliterator.OfLong) null, this.workerPool);
+  @Test
+  void parallelStreamSupportWithNullSpliterator() {
+    assertThrows(NullPointerException.class, () -> ParallelLongStreamSupport.parallelStream((Spliterator.OfLong) null, this.workerPool));
   }
 
   @Test
-  public void parallelStreamSupportWithSpliteratorSupplier() {
+  void parallelStreamSupportWithSpliteratorSupplier() {
     Supplier<Spliterator.OfLong> supplier = () -> LongStream.of(42).spliterator();
     LongStream stream = ParallelLongStreamSupport.parallelStream(supplier, 0, this.workerPool);
 
@@ -166,13 +167,13 @@ public class ParallelLongStreamSupportTest extends AbstractParallelStreamSupport
     assertEquals(OptionalLong.of(42), stream.findAny());
   }
 
-  @Test(expected = NullPointerException.class)
-  public void parallelStreamSupportWithNullSpliteratorSupplier() {
-    ParallelLongStreamSupport.parallelStream(null, 0, this.workerPool);
+  @Test
+  void parallelStreamSupportWithNullSpliteratorSupplier() {
+    assertThrows(NullPointerException.class, () -> ParallelLongStreamSupport.parallelStream(null, 0, this.workerPool));
   }
 
   @Test
-  public void parallelStreamWithBuilder() {
+  void parallelStreamWithBuilder() {
     Builder builder = LongStream.builder();
     builder.accept(42);
     LongStream stream = ParallelLongStreamSupport.parallelStream(builder, this.workerPool);
@@ -182,13 +183,13 @@ public class ParallelLongStreamSupportTest extends AbstractParallelStreamSupport
     assertEquals(OptionalLong.of(42), stream.findAny());
   }
 
-  @Test(expected = NullPointerException.class)
-  public void parallelStreamWithNullBuilder() {
-    ParallelLongStreamSupport.parallelStream((Builder) null, this.workerPool);
+  @Test
+  void parallelStreamWithNullBuilder() {
+    assertThrows(NullPointerException.class, () -> ParallelLongStreamSupport.parallelStream((Builder) null, this.workerPool));
   }
 
   @Test
-  public void iterate() {
+  void iterate() {
     LongUnaryOperator operator = a -> a;
     LongStream stream = ParallelLongStreamSupport.iterate(42, operator, this.workerPool);
 
@@ -197,13 +198,13 @@ public class ParallelLongStreamSupportTest extends AbstractParallelStreamSupport
     assertEquals(OptionalLong.of(42), stream.findAny());
   }
 
-  @Test(expected = NullPointerException.class)
-  public void iterateWithNullOperator() {
-    ParallelLongStreamSupport.iterate(42, null, this.workerPool);
+  @Test
+  void iterateWithNullOperator() {
+    assertThrows(NullPointerException.class, () -> ParallelLongStreamSupport.iterate(42, null, this.workerPool));
   }
 
   @Test
-  public void generate() {
+  void generate() {
     LongSupplier supplier = () -> 42;
     LongStream stream = ParallelLongStreamSupport.generate(supplier, this.workerPool);
 
@@ -212,13 +213,13 @@ public class ParallelLongStreamSupportTest extends AbstractParallelStreamSupport
     assertEquals(OptionalLong.of(42), stream.findAny());
   }
 
-  @Test(expected = NullPointerException.class)
-  public void generateWithNullSupplier() {
-    ParallelLongStreamSupport.generate(null, this.workerPool);
+  @Test
+  void generateWithNullSupplier() {
+    assertThrows(NullPointerException.class, () -> ParallelLongStreamSupport.generate(null, this.workerPool));
   }
 
   @Test
-  public void range() {
+  void range() {
     LongStream stream = ParallelLongStreamSupport.range(0, 5, this.workerPool);
 
     assertThat(stream, instanceOf(ParallelLongStreamSupport.class));
@@ -227,7 +228,7 @@ public class ParallelLongStreamSupportTest extends AbstractParallelStreamSupport
   }
 
   @Test
-  public void rangeClosed() {
+  void rangeClosed() {
     LongStream stream = ParallelLongStreamSupport.rangeClosed(0, 5, this.workerPool);
 
     assertThat(stream, instanceOf(ParallelLongStreamSupport.class));
@@ -236,7 +237,7 @@ public class ParallelLongStreamSupportTest extends AbstractParallelStreamSupport
   }
 
   @Test
-  public void concat() {
+  void concat() {
     LongStream a = LongStream.of(42);
     LongStream b = LongStream.of(43);
     LongStream stream = ParallelLongStreamSupport.concat(a, b, this.workerPool);
@@ -246,18 +247,18 @@ public class ParallelLongStreamSupportTest extends AbstractParallelStreamSupport
     assertArrayEquals(stream.toArray(), new long[]{42, 43});
   }
 
-  @Test(expected = NullPointerException.class)
-  public void concatWithNullStreamA() {
-    ParallelLongStreamSupport.concat(null, LongStream.of(42), this.workerPool);
-  }
-
-  @Test(expected = NullPointerException.class)
-  public void concatWithNullStreamB() {
-    ParallelLongStreamSupport.concat(LongStream.of(42), null, this.workerPool);
+  @Test
+  void concatWithNullStreamA() {
+    assertThrows(NullPointerException.class, () -> ParallelLongStreamSupport.concat(null, LongStream.of(42), this.workerPool));
   }
 
   @Test
-  public void filter() {
+  void concatWithNullStreamB() {
+    assertThrows(NullPointerException.class, () -> ParallelLongStreamSupport.concat(LongStream.of(42), null, this.workerPool));
+  }
+
+  @Test
+  void filter() {
     LongPredicate p = i -> true;
     LongStream stream = this.parallelStreamSupportMock.filter(p);
 
@@ -266,7 +267,7 @@ public class ParallelLongStreamSupportTest extends AbstractParallelStreamSupport
   }
 
   @Test
-  public void map() {
+  void map() {
     LongUnaryOperator f = i -> 42;
     LongStream stream = this.parallelStreamSupportMock.map(f);
 
@@ -277,7 +278,7 @@ public class ParallelLongStreamSupportTest extends AbstractParallelStreamSupport
   }
 
   @Test
-  public void mapToObj() {
+  void mapToObj() {
     LongFunction<String> f = i -> "x";
     Stream<String> stream = this.parallelStreamSupportMock.mapToObj(f);
 
@@ -288,7 +289,7 @@ public class ParallelLongStreamSupportTest extends AbstractParallelStreamSupport
   }
 
   @Test
-  public void mapToInt() {
+  void mapToInt() {
     LongToIntFunction f = i -> 1;
     IntStream stream = this.parallelStreamSupportMock.mapToInt(f);
 
@@ -299,7 +300,7 @@ public class ParallelLongStreamSupportTest extends AbstractParallelStreamSupport
   }
 
   @Test
-  public void mapToDouble() {
+  void mapToDouble() {
     LongToDoubleFunction f = i -> 1.0;
     DoubleStream stream = this.parallelStreamSupportMock.mapToDouble(f);
 
@@ -310,7 +311,7 @@ public class ParallelLongStreamSupportTest extends AbstractParallelStreamSupport
   }
 
   @Test
-  public void flatMap() {
+  void flatMap() {
     LongFunction<LongStream> f = i -> LongStream.of(1);
     LongStream stream = this.parallelStreamSupportMock.flatMap(f);
 
@@ -320,7 +321,7 @@ public class ParallelLongStreamSupportTest extends AbstractParallelStreamSupport
   }
 
   @Test
-  public void distinct() {
+  void distinct() {
     LongStream stream = this.parallelStreamSupportMock.distinct();
 
     verify(this.delegateMock).distinct();
@@ -328,7 +329,7 @@ public class ParallelLongStreamSupportTest extends AbstractParallelStreamSupport
   }
 
   @Test
-  public void sorted() {
+  void sorted() {
     LongStream stream = this.parallelStreamSupportMock.sorted();
 
     verify(this.delegateMock).sorted();
@@ -336,8 +337,9 @@ public class ParallelLongStreamSupportTest extends AbstractParallelStreamSupport
   }
 
   @Test
-  public void peek() {
-    LongConsumer c = i -> {};
+  void peek() {
+    LongConsumer c = i -> {
+    };
     LongStream stream = this.parallelStreamSupportMock.peek(c);
 
     verify(this.delegateMock).peek(c);
@@ -345,7 +347,7 @@ public class ParallelLongStreamSupportTest extends AbstractParallelStreamSupport
   }
 
   @Test
-  public void limit() {
+  void limit() {
     LongStream stream = this.parallelStreamSupportMock.limit(5);
 
     verify(this.delegateMock).limit(5);
@@ -353,7 +355,7 @@ public class ParallelLongStreamSupportTest extends AbstractParallelStreamSupport
   }
 
   @Test
-  public void skip() {
+  void skip() {
     LongStream stream = this.parallelStreamSupportMock.skip(5);
 
     verify(this.delegateMock).skip(5);
@@ -361,15 +363,16 @@ public class ParallelLongStreamSupportTest extends AbstractParallelStreamSupport
   }
 
   @Test
-  public void forEach() {
-    LongConsumer c = i -> {};
+  void forEach() {
+    LongConsumer c = i -> {
+    };
     this.parallelStreamSupportMock.forEach(c);
 
     verify(this.delegateMock).forEach(c);
   }
 
   @Test
-  public void forEachSequential() {
+  void forEachSequential() {
     this.parallelLongStreamSupport.sequential();
     Thread thisThread = currentThread();
     AtomicReference<Thread> threadRef = new AtomicReference<>();
@@ -380,7 +383,7 @@ public class ParallelLongStreamSupportTest extends AbstractParallelStreamSupport
   }
 
   @Test
-  public void forEachParallel() {
+  void forEachParallel() {
     this.parallelLongStreamSupport.parallel();
     AtomicReference<Thread> threadRef = new AtomicReference<>();
 
@@ -390,15 +393,16 @@ public class ParallelLongStreamSupportTest extends AbstractParallelStreamSupport
   }
 
   @Test
-  public void forEachOrdered() {
-    LongConsumer c = i -> {};
+  void forEachOrdered() {
+    LongConsumer c = i -> {
+    };
     this.parallelStreamSupportMock.forEachOrdered(c);
 
     verify(this.delegateMock).forEachOrdered(c);
   }
 
   @Test
-  public void forEachOrderedSequential() {
+  void forEachOrderedSequential() {
     this.parallelLongStreamSupport.sequential();
     Thread thisThread = currentThread();
     AtomicReference<Thread> threadRef = new AtomicReference<>();
@@ -409,7 +413,7 @@ public class ParallelLongStreamSupportTest extends AbstractParallelStreamSupport
   }
 
   @Test
-  public void forEachOrderedParallel() {
+  void forEachOrderedParallel() {
     this.parallelLongStreamSupport.parallel();
     AtomicReference<Thread> threadRef = new AtomicReference<>();
 
@@ -419,7 +423,7 @@ public class ParallelLongStreamSupportTest extends AbstractParallelStreamSupport
   }
 
   @Test
-  public void toArray() {
+  void toArray() {
     long[] array = this.parallelStreamSupportMock.toArray();
 
     verify(this.delegateMock).toArray();
@@ -427,7 +431,7 @@ public class ParallelLongStreamSupportTest extends AbstractParallelStreamSupport
   }
 
   @Test
-  public void toArraySequential() {
+  void toArraySequential() {
     this.parallelLongStreamSupport.sequential();
     Thread thisThread = currentThread();
     AtomicReference<Thread> threadRef = new AtomicReference<>();
@@ -440,7 +444,7 @@ public class ParallelLongStreamSupportTest extends AbstractParallelStreamSupport
   }
 
   @Test
-  public void toArrayParallel() {
+  void toArrayParallel() {
     this.parallelLongStreamSupport.parallel();
     AtomicReference<Thread> threadRef = new AtomicReference<>();
 
@@ -452,7 +456,7 @@ public class ParallelLongStreamSupportTest extends AbstractParallelStreamSupport
   }
 
   @Test
-  public void reduceWithIdentityAndAccumulator() {
+  void reduceWithIdentityAndAccumulator() {
     LongBinaryOperator accumulator = (a, b) -> b;
     long result = this.parallelStreamSupportMock.reduce(0, accumulator);
 
@@ -461,7 +465,7 @@ public class ParallelLongStreamSupportTest extends AbstractParallelStreamSupport
   }
 
   @Test
-  public void reduceWithIdentityAndAccumulatorSequential() {
+  void reduceWithIdentityAndAccumulatorSequential() {
     this.parallelLongStreamSupport.sequential();
     LongBinaryOperator accumulator = (a, b) -> b;
     Thread thisThread = currentThread();
@@ -475,7 +479,7 @@ public class ParallelLongStreamSupportTest extends AbstractParallelStreamSupport
   }
 
   @Test
-  public void reduceWithIdentityAndAccumulatorParallel() {
+  void reduceWithIdentityAndAccumulatorParallel() {
     this.parallelLongStreamSupport.parallel();
     LongBinaryOperator accumulator = (a, b) -> b;
     AtomicReference<Thread> threadRef = new AtomicReference<>();
@@ -488,7 +492,7 @@ public class ParallelLongStreamSupportTest extends AbstractParallelStreamSupport
   }
 
   @Test
-  public void reduceWithAccumulator() {
+  void reduceWithAccumulator() {
     LongBinaryOperator accumulator = (a, b) -> b;
     OptionalLong result = this.parallelStreamSupportMock.reduce(accumulator);
 
@@ -497,7 +501,7 @@ public class ParallelLongStreamSupportTest extends AbstractParallelStreamSupport
   }
 
   @Test
-  public void reduceWithAccumulatorSequential() {
+  void reduceWithAccumulatorSequential() {
     this.parallelLongStreamSupport.sequential();
     LongBinaryOperator accumulator = (a, b) -> b;
     Thread thisThread = currentThread();
@@ -511,7 +515,7 @@ public class ParallelLongStreamSupportTest extends AbstractParallelStreamSupport
   }
 
   @Test
-  public void reduceWithAccumulatorParallel() {
+  void reduceWithAccumulatorParallel() {
     this.parallelLongStreamSupport.parallel();
     LongBinaryOperator accumulator = (a, b) -> b;
     AtomicReference<Thread> threadRef = new AtomicReference<>();
@@ -524,10 +528,12 @@ public class ParallelLongStreamSupportTest extends AbstractParallelStreamSupport
   }
 
   @Test
-  public void collectWithSupplierAndAccumulatorAndCombiner() {
+  void collectWithSupplierAndAccumulatorAndCombiner() {
     Supplier<String> supplier = () -> "x";
-    ObjLongConsumer<String> accumulator = (a, b) -> {};
-    BiConsumer<String, String> combiner = (a, b) -> {};
+    ObjLongConsumer<String> accumulator = (a, b) -> {
+    };
+    BiConsumer<String, String> combiner = (a, b) -> {
+    };
 
     String result = this.parallelStreamSupportMock.collect(supplier, accumulator, combiner);
 
@@ -536,7 +542,7 @@ public class ParallelLongStreamSupportTest extends AbstractParallelStreamSupport
   }
 
   @Test
-  public void collectWithSupplierAndAccumulatorAndCombinerSequential() {
+  void collectWithSupplierAndAccumulatorAndCombinerSequential() {
     this.parallelLongStreamSupport.sequential();
     Thread thisThread = currentThread();
     AtomicReference<Thread> threadRef = new AtomicReference<>();
@@ -549,7 +555,7 @@ public class ParallelLongStreamSupportTest extends AbstractParallelStreamSupport
   }
 
   @Test
-  public void collectWithSupplierAndAccumulatorAndCombinerParallel() {
+  void collectWithSupplierAndAccumulatorAndCombinerParallel() {
     this.parallelLongStreamSupport.parallel();
     AtomicReference<Thread> threadRef = new AtomicReference<>();
 
@@ -561,7 +567,7 @@ public class ParallelLongStreamSupportTest extends AbstractParallelStreamSupport
   }
 
   @Test
-  public void sum() {
+  void sum() {
     long result = this.parallelStreamSupportMock.sum();
 
     verify(this.delegateMock).sum();
@@ -569,7 +575,7 @@ public class ParallelLongStreamSupportTest extends AbstractParallelStreamSupport
   }
 
   @Test
-  public void sumSequential() {
+  void sumSequential() {
     this.parallelLongStreamSupport.sequential();
     Thread thisThread = currentThread();
     AtomicReference<Thread> threadRef = new AtomicReference<>();
@@ -582,7 +588,7 @@ public class ParallelLongStreamSupportTest extends AbstractParallelStreamSupport
   }
 
   @Test
-  public void sumParallel() {
+  void sumParallel() {
     this.parallelLongStreamSupport.parallel();
     AtomicReference<Thread> threadRef = new AtomicReference<>();
 
@@ -594,7 +600,7 @@ public class ParallelLongStreamSupportTest extends AbstractParallelStreamSupport
   }
 
   @Test
-  public void min() {
+  void min() {
     OptionalLong result = this.parallelStreamSupportMock.min();
 
     verify(this.delegateMock).min();
@@ -602,7 +608,7 @@ public class ParallelLongStreamSupportTest extends AbstractParallelStreamSupport
   }
 
   @Test
-  public void minSequential() {
+  void minSequential() {
     this.parallelLongStreamSupport.sequential();
     Thread thisThread = currentThread();
     AtomicReference<Thread> threadRef = new AtomicReference<>();
@@ -615,7 +621,7 @@ public class ParallelLongStreamSupportTest extends AbstractParallelStreamSupport
   }
 
   @Test
-  public void minParallel() {
+  void minParallel() {
     this.parallelLongStreamSupport.parallel();
     AtomicReference<Thread> threadRef = new AtomicReference<>();
 
@@ -627,7 +633,7 @@ public class ParallelLongStreamSupportTest extends AbstractParallelStreamSupport
   }
 
   @Test
-  public void max() {
+  void max() {
     OptionalLong result = this.parallelStreamSupportMock.max();
 
     verify(this.delegateMock).max();
@@ -635,7 +641,7 @@ public class ParallelLongStreamSupportTest extends AbstractParallelStreamSupport
   }
 
   @Test
-  public void maxSequential() {
+  void maxSequential() {
     this.parallelLongStreamSupport.sequential();
     Thread thisThread = currentThread();
     AtomicReference<Thread> threadRef = new AtomicReference<>();
@@ -648,7 +654,7 @@ public class ParallelLongStreamSupportTest extends AbstractParallelStreamSupport
   }
 
   @Test
-  public void maxParallel() {
+  void maxParallel() {
     this.parallelLongStreamSupport.parallel();
     AtomicReference<Thread> threadRef = new AtomicReference<>();
 
@@ -660,7 +666,7 @@ public class ParallelLongStreamSupportTest extends AbstractParallelStreamSupport
   }
 
   @Test
-  public void count() {
+  void count() {
     long count = this.parallelStreamSupportMock.count();
 
     verify(this.delegateMock).count();
@@ -668,7 +674,7 @@ public class ParallelLongStreamSupportTest extends AbstractParallelStreamSupport
   }
 
   @Test
-  public void countSequential() {
+  void countSequential() {
     this.parallelLongStreamSupport.sequential();
     Thread thisThread = currentThread();
     AtomicReference<Thread> threadRef = new AtomicReference<>();
@@ -684,7 +690,7 @@ public class ParallelLongStreamSupportTest extends AbstractParallelStreamSupport
   }
 
   @Test
-  public void countParallel() {
+  void countParallel() {
     this.parallelLongStreamSupport.parallel();
     AtomicReference<Thread> threadRef = new AtomicReference<>();
 
@@ -699,7 +705,7 @@ public class ParallelLongStreamSupportTest extends AbstractParallelStreamSupport
   }
 
   @Test
-  public void average() {
+  void average() {
     OptionalDouble result = this.parallelStreamSupportMock.average();
 
     verify(this.delegateMock).average();
@@ -707,7 +713,7 @@ public class ParallelLongStreamSupportTest extends AbstractParallelStreamSupport
   }
 
   @Test
-  public void averageSequential() {
+  void averageSequential() {
     this.parallelLongStreamSupport.sequential();
     Thread thisThread = currentThread();
     AtomicReference<Thread> threadRef = new AtomicReference<>();
@@ -720,7 +726,7 @@ public class ParallelLongStreamSupportTest extends AbstractParallelStreamSupport
   }
 
   @Test
-  public void averageParallel() {
+  void averageParallel() {
     this.parallelLongStreamSupport.parallel();
     AtomicReference<Thread> threadRef = new AtomicReference<>();
 
@@ -732,7 +738,7 @@ public class ParallelLongStreamSupportTest extends AbstractParallelStreamSupport
   }
 
   @Test
-  public void summaryStatistics() {
+  void summaryStatistics() {
     LongSummaryStatistics result = this.parallelStreamSupportMock.summaryStatistics();
 
     verify(this.delegateMock).summaryStatistics();
@@ -740,7 +746,7 @@ public class ParallelLongStreamSupportTest extends AbstractParallelStreamSupport
   }
 
   @Test
-  public void summaryStatisticsSequential() {
+  void summaryStatisticsSequential() {
     this.parallelLongStreamSupport.sequential();
     Thread thisThread = currentThread();
     AtomicReference<Thread> threadRef = new AtomicReference<>();
@@ -753,7 +759,7 @@ public class ParallelLongStreamSupportTest extends AbstractParallelStreamSupport
   }
 
   @Test
-  public void summaryStatisticsParallel() {
+  void summaryStatisticsParallel() {
     this.parallelLongStreamSupport.parallel();
     AtomicReference<Thread> threadRef = new AtomicReference<>();
 
@@ -765,7 +771,7 @@ public class ParallelLongStreamSupportTest extends AbstractParallelStreamSupport
   }
 
   @Test
-  public void anyMatch() {
+  void anyMatch() {
     LongPredicate p = i -> true;
 
     boolean result = this.parallelStreamSupportMock.anyMatch(p);
@@ -775,7 +781,7 @@ public class ParallelLongStreamSupportTest extends AbstractParallelStreamSupport
   }
 
   @Test
-  public void anyMatchSequential() {
+  void anyMatchSequential() {
     this.parallelLongStreamSupport.sequential();
     Thread thisThread = currentThread();
     AtomicReference<Thread> threadRef = new AtomicReference<>();
@@ -788,7 +794,7 @@ public class ParallelLongStreamSupportTest extends AbstractParallelStreamSupport
   }
 
   @Test
-  public void anyMatchParallel() {
+  void anyMatchParallel() {
     this.parallelLongStreamSupport.parallel();
     AtomicReference<Thread> threadRef = new AtomicReference<>();
 
@@ -800,7 +806,7 @@ public class ParallelLongStreamSupportTest extends AbstractParallelStreamSupport
   }
 
   @Test
-  public void allMatch() {
+  void allMatch() {
     LongPredicate p = i -> true;
 
     boolean result = this.parallelStreamSupportMock.allMatch(p);
@@ -810,7 +816,7 @@ public class ParallelLongStreamSupportTest extends AbstractParallelStreamSupport
   }
 
   @Test
-  public void allMatchSequential() {
+  void allMatchSequential() {
     this.parallelLongStreamSupport.sequential();
     Thread thisThread = currentThread();
     AtomicReference<Thread> threadRef = new AtomicReference<>();
@@ -823,7 +829,7 @@ public class ParallelLongStreamSupportTest extends AbstractParallelStreamSupport
   }
 
   @Test
-  public void allMatchParallel() {
+  void allMatchParallel() {
     this.parallelLongStreamSupport.parallel();
     AtomicReference<Thread> threadRef = new AtomicReference<>();
 
@@ -835,7 +841,7 @@ public class ParallelLongStreamSupportTest extends AbstractParallelStreamSupport
   }
 
   @Test
-  public void noneMatch() {
+  void noneMatch() {
     LongPredicate p = i -> true;
 
     boolean result = this.parallelStreamSupportMock.noneMatch(p);
@@ -845,7 +851,7 @@ public class ParallelLongStreamSupportTest extends AbstractParallelStreamSupport
   }
 
   @Test
-  public void noneMatchSequential() {
+  void noneMatchSequential() {
     this.parallelLongStreamSupport.sequential();
     Thread thisThread = currentThread();
     AtomicReference<Thread> threadRef = new AtomicReference<>();
@@ -858,7 +864,7 @@ public class ParallelLongStreamSupportTest extends AbstractParallelStreamSupport
   }
 
   @Test
-  public void noneMatchParallel() {
+  void noneMatchParallel() {
     this.parallelLongStreamSupport.parallel();
     AtomicReference<Thread> threadRef = new AtomicReference<>();
 
@@ -870,7 +876,7 @@ public class ParallelLongStreamSupportTest extends AbstractParallelStreamSupport
   }
 
   @Test
-  public void findFirst() {
+  void findFirst() {
     OptionalLong result = this.parallelStreamSupportMock.findFirst();
 
     verify(this.delegateMock).findFirst();
@@ -878,7 +884,7 @@ public class ParallelLongStreamSupportTest extends AbstractParallelStreamSupport
   }
 
   @Test
-  public void findFirstSequential() {
+  void findFirstSequential() {
     this.parallelLongStreamSupport.sequential();
     Thread thisThread = currentThread();
     AtomicReference<Thread> threadRef = new AtomicReference<>();
@@ -891,7 +897,7 @@ public class ParallelLongStreamSupportTest extends AbstractParallelStreamSupport
   }
 
   @Test
-  public void findFirstParallel() {
+  void findFirstParallel() {
     this.parallelLongStreamSupport.parallel();
     AtomicReference<Thread> threadRef = new AtomicReference<>();
 
@@ -903,7 +909,7 @@ public class ParallelLongStreamSupportTest extends AbstractParallelStreamSupport
   }
 
   @Test
-  public void findAny() {
+  void findAny() {
     OptionalLong result = this.parallelStreamSupportMock.findAny();
 
     verify(this.delegateMock).findAny();
@@ -911,7 +917,7 @@ public class ParallelLongStreamSupportTest extends AbstractParallelStreamSupport
   }
 
   @Test
-  public void findAnytSequential() {
+  void findAnytSequential() {
     this.parallelLongStreamSupport.sequential();
     Thread thisThread = currentThread();
     AtomicReference<Thread> threadRef = new AtomicReference<>();
@@ -924,7 +930,7 @@ public class ParallelLongStreamSupportTest extends AbstractParallelStreamSupport
   }
 
   @Test
-  public void findAnyParallel() {
+  void findAnyParallel() {
     this.parallelLongStreamSupport.parallel();
     AtomicReference<Thread> threadRef = new AtomicReference<>();
 
@@ -936,7 +942,7 @@ public class ParallelLongStreamSupportTest extends AbstractParallelStreamSupport
   }
 
   @Test
-  public void asDoubleStream() {
+  void asDoubleStream() {
     DoubleStream stream = this.parallelStreamSupportMock.asDoubleStream();
 
     verify(this.delegateMock).asDoubleStream();
@@ -946,7 +952,7 @@ public class ParallelLongStreamSupportTest extends AbstractParallelStreamSupport
   }
 
   @Test
-  public void boxed() {
+  void boxed() {
     Stream<Long> stream = this.parallelStreamSupportMock.boxed();
 
     verify(this.delegateMock).boxed();
@@ -957,7 +963,7 @@ public class ParallelLongStreamSupportTest extends AbstractParallelStreamSupport
 
   @Override
   @Test
-  public void iterator() {
+  void iterator() {
     PrimitiveIterator.OfLong iterator = this.parallelStreamSupportMock.iterator();
 
     verify(this.delegateMock).iterator();
@@ -966,7 +972,7 @@ public class ParallelLongStreamSupportTest extends AbstractParallelStreamSupport
 
   @Override
   @Test
-  public void spliterator() {
+  void spliterator() {
     Spliterator.OfLong spliterator = this.parallelStreamSupportMock.spliterator();
 
     verify(this.delegateMock).spliterator();

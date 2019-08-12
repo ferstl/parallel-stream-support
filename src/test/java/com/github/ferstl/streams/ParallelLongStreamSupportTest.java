@@ -674,8 +674,11 @@ public class ParallelLongStreamSupportTest extends AbstractParallelStreamSupport
     AtomicReference<Thread> threadRef = new AtomicReference<>();
 
     this.parallelLongStreamSupport
-        .peek(i -> threadRef.set(currentThread()))
-        .count();
+        // Don't use peek() in combination with count(). See Javadoc.
+        .filter(i -> {
+          threadRef.set(currentThread());
+          return true;
+        }).count();
 
     assertEquals(thisThread, threadRef.get());
   }
@@ -686,8 +689,11 @@ public class ParallelLongStreamSupportTest extends AbstractParallelStreamSupport
     AtomicReference<Thread> threadRef = new AtomicReference<>();
 
     this.parallelLongStreamSupport
-        .peek(i -> threadRef.set(currentThread()))
-        .count();
+        // Don't use peek() in combination with count(). See Javadoc.
+        .filter(i -> {
+          threadRef.set(currentThread());
+          return true;
+        }).count();
 
     assertThat(threadRef.get(), instanceOf(ForkJoinWorkerThread.class));
   }

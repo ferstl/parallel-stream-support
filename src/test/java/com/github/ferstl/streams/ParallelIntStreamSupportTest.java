@@ -58,12 +58,12 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Matchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-
+@SuppressWarnings("ResultOfMethodCallIgnored")
 public class ParallelIntStreamSupportTest extends AbstractParallelStreamSupportTest<Integer, IntStream, ParallelIntStreamSupport> {
 
   private Stream<?> mappedDelegateMock;
@@ -75,7 +75,6 @@ public class ParallelIntStreamSupportTest extends AbstractParallelStreamSupportT
   private int[] toArrayResult;
   private IntSummaryStatistics summaryStatistics;
 
-  private IntStream delegate;
   private ParallelIntStreamSupport parallelIntStreamSupport;
 
 
@@ -126,8 +125,8 @@ public class ParallelIntStreamSupportTest extends AbstractParallelStreamSupportT
     when(this.delegateMock.asDoubleStream()).thenReturn(this.mappedDoubleDelegateMock);
     when(this.delegateMock.boxed()).thenReturn((Stream) this.mappedDelegateMock);
 
-    this.delegate = IntStream.of(1).parallel();
-    this.parallelIntStreamSupport = new ParallelIntStreamSupport(this.delegate, this.workerPool);
+    IntStream delegate = IntStream.of(1).parallel();
+    this.parallelIntStreamSupport = new ParallelIntStreamSupport(delegate, this.workerPool);
   }
 
   @Test
@@ -275,8 +274,8 @@ public class ParallelIntStreamSupportTest extends AbstractParallelStreamSupportT
 
     verify(this.delegateMock).map(f);
     assertThat(stream, instanceOf(ParallelIntStreamSupport.class));
-    assertSame(ParallelIntStreamSupport.class.cast(stream).delegate, this.mappedIntDelegateMock);
-    assertSame(ParallelIntStreamSupport.class.cast(stream).workerPool, this.workerPool);
+    assertSame(((ParallelIntStreamSupport) stream).delegate, this.mappedIntDelegateMock);
+    assertSame(((ParallelIntStreamSupport) stream).workerPool, this.workerPool);
   }
 
   @Test
@@ -286,8 +285,8 @@ public class ParallelIntStreamSupportTest extends AbstractParallelStreamSupportT
 
     verify(this.delegateMock).mapToObj(f);
     assertThat(stream, instanceOf(ParallelStreamSupport.class));
-    assertSame(ParallelStreamSupport.class.cast(stream).delegate, this.mappedDelegateMock);
-    assertSame(ParallelStreamSupport.class.cast(stream).workerPool, this.workerPool);
+    assertSame(((ParallelStreamSupport) stream).delegate, this.mappedDelegateMock);
+    assertSame(((ParallelStreamSupport) stream).workerPool, this.workerPool);
   }
 
   @Test
@@ -297,8 +296,8 @@ public class ParallelIntStreamSupportTest extends AbstractParallelStreamSupportT
 
     verify(this.delegateMock).mapToLong(f);
     assertThat(stream, instanceOf(ParallelLongStreamSupport.class));
-    assertSame(ParallelLongStreamSupport.class.cast(stream).delegate, this.mappedLongDelegateMock);
-    assertSame(ParallelLongStreamSupport.class.cast(stream).workerPool, this.workerPool);
+    assertSame(((ParallelLongStreamSupport) stream).delegate, this.mappedLongDelegateMock);
+    assertSame(((ParallelLongStreamSupport) stream).workerPool, this.workerPool);
   }
 
   @Test
@@ -308,8 +307,8 @@ public class ParallelIntStreamSupportTest extends AbstractParallelStreamSupportT
 
     verify(this.delegateMock).mapToDouble(f);
     assertThat(stream, instanceOf(ParallelDoubleStreamSupport.class));
-    assertSame(ParallelDoubleStreamSupport.class.cast(stream).delegate, this.mappedDoubleDelegateMock);
-    assertSame(ParallelDoubleStreamSupport.class.cast(stream).workerPool, this.workerPool);
+    assertSame(((ParallelDoubleStreamSupport) stream).delegate, this.mappedDoubleDelegateMock);
+    assertSame(((ParallelDoubleStreamSupport) stream).workerPool, this.workerPool);
   }
 
   @Test
@@ -319,7 +318,7 @@ public class ParallelIntStreamSupportTest extends AbstractParallelStreamSupportT
 
     verify(this.delegateMock).flatMap(f);
     assertThat(stream, instanceOf(ParallelIntStreamSupport.class));
-    assertSame(ParallelIntStreamSupport.class.cast(stream).delegate, this.mappedIntDelegateMock);
+    assertSame(((ParallelIntStreamSupport) stream).delegate, this.mappedIntDelegateMock);
   }
 
   @Test
@@ -949,8 +948,8 @@ public class ParallelIntStreamSupportTest extends AbstractParallelStreamSupportT
 
     verify(this.delegateMock).asLongStream();
     assertThat(stream, instanceOf(ParallelLongStreamSupport.class));
-    assertSame(this.mappedLongDelegateMock, ParallelLongStreamSupport.class.cast(stream).delegate);
-    assertSame(this.workerPool, ParallelLongStreamSupport.class.cast(stream).workerPool);
+    assertSame(this.mappedLongDelegateMock, ((ParallelLongStreamSupport) stream).delegate);
+    assertSame(this.workerPool, ((ParallelLongStreamSupport) stream).workerPool);
   }
 
   @Test
@@ -959,8 +958,8 @@ public class ParallelIntStreamSupportTest extends AbstractParallelStreamSupportT
 
     verify(this.delegateMock).asDoubleStream();
     assertThat(stream, instanceOf(ParallelDoubleStreamSupport.class));
-    assertSame(this.mappedDoubleDelegateMock, ParallelDoubleStreamSupport.class.cast(stream).delegate);
-    assertSame(this.workerPool, ParallelDoubleStreamSupport.class.cast(stream).workerPool);
+    assertSame(this.mappedDoubleDelegateMock, ((ParallelDoubleStreamSupport) stream).delegate);
+    assertSame(this.workerPool, ((ParallelDoubleStreamSupport) stream).workerPool);
   }
 
   @Test
@@ -969,8 +968,8 @@ public class ParallelIntStreamSupportTest extends AbstractParallelStreamSupportT
 
     verify(this.delegateMock).boxed();
     assertThat(stream, instanceOf(ParallelStreamSupport.class));
-    assertSame(this.mappedDelegateMock, ParallelStreamSupport.class.cast(stream).delegate);
-    assertSame(this.workerPool, ParallelStreamSupport.class.cast(stream).workerPool);
+    assertSame(this.mappedDelegateMock, ((ParallelStreamSupport) stream).delegate);
+    assertSame(this.workerPool, ((ParallelStreamSupport) stream).workerPool);
   }
 
   @Override

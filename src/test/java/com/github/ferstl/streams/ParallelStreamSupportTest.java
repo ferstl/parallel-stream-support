@@ -63,12 +63,12 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-
+@SuppressWarnings("ResultOfMethodCallIgnored")
 public class ParallelStreamSupportTest extends AbstractParallelStreamSupportTest<String, Stream<String>, ParallelStreamSupport<String>> {
 
   private Stream<?> mappedDelegateMock;
@@ -77,7 +77,6 @@ public class ParallelStreamSupportTest extends AbstractParallelStreamSupportTest
   private DoubleStream mappedDoubleDelegateMock;
   private String[] toArrayResult;
 
-  private Stream<String> delegate;
   private ParallelStreamSupport<String> parallelStreamSupport;
 
   @Override
@@ -123,8 +122,8 @@ public class ParallelStreamSupportTest extends AbstractParallelStreamSupportTest
     when(this.delegateMock.findFirst()).thenReturn(Optional.of("findFirst"));
     when(this.delegateMock.findAny()).thenReturn(Optional.of("findAny"));
 
-    this.delegate = singletonList("x").parallelStream();
-    this.parallelStreamSupport = new ParallelStreamSupport<>(this.delegate, this.workerPool);
+    Stream<String> delegate = singletonList("x").parallelStream();
+    this.parallelStreamSupport = new ParallelStreamSupport<>(delegate, this.workerPool);
   }
 
   @Test
@@ -203,8 +202,7 @@ public class ParallelStreamSupportTest extends AbstractParallelStreamSupportTest
 
   @Test
   void parallelStreamWithNullBuilder() {
-    Builder<String> builder = null;
-    assertThrows(NullPointerException.class, () -> ParallelStreamSupport.parallelStream(builder, this.workerPool));
+    assertThrows(NullPointerException.class, () -> ParallelStreamSupport.parallelStream((Builder<String>) null, this.workerPool));
   }
 
   @Test
@@ -274,8 +272,8 @@ public class ParallelStreamSupportTest extends AbstractParallelStreamSupportTest
 
     verify(this.delegateMock).map(f);
     assertThat(stream, instanceOf(ParallelStreamSupport.class));
-    assertSame(ParallelStreamSupport.class.cast(stream).delegate, this.mappedDelegateMock);
-    assertSame(ParallelStreamSupport.class.cast(stream).workerPool, this.workerPool);
+    assertSame(((ParallelStreamSupport) stream).delegate, this.mappedDelegateMock);
+    assertSame(((ParallelStreamSupport) stream).workerPool, this.workerPool);
   }
 
   @Test
@@ -285,8 +283,8 @@ public class ParallelStreamSupportTest extends AbstractParallelStreamSupportTest
 
     verify(this.delegateMock).mapToInt(f);
     assertThat(stream, instanceOf(ParallelIntStreamSupport.class));
-    assertSame(ParallelIntStreamSupport.class.cast(stream).delegate, this.mappedIntDelegateMock);
-    assertSame(ParallelIntStreamSupport.class.cast(stream).workerPool, this.workerPool);
+    assertSame(((ParallelIntStreamSupport) stream).delegate, this.mappedIntDelegateMock);
+    assertSame(((ParallelIntStreamSupport) stream).workerPool, this.workerPool);
   }
 
   @Test
@@ -296,8 +294,8 @@ public class ParallelStreamSupportTest extends AbstractParallelStreamSupportTest
 
     verify(this.delegateMock).mapToLong(f);
     assertThat(stream, instanceOf(ParallelLongStreamSupport.class));
-    assertSame(ParallelLongStreamSupport.class.cast(stream).delegate, this.mappedLongDelegateMock);
-    assertSame(ParallelLongStreamSupport.class.cast(stream).workerPool, this.workerPool);
+    assertSame(((ParallelLongStreamSupport) stream).delegate, this.mappedLongDelegateMock);
+    assertSame(((ParallelLongStreamSupport) stream).workerPool, this.workerPool);
   }
 
   @Test
@@ -307,8 +305,8 @@ public class ParallelStreamSupportTest extends AbstractParallelStreamSupportTest
 
     verify(this.delegateMock).mapToDouble(f);
     assertThat(stream, instanceOf(ParallelDoubleStreamSupport.class));
-    assertSame(ParallelDoubleStreamSupport.class.cast(stream).delegate, this.mappedDoubleDelegateMock);
-    assertSame(ParallelDoubleStreamSupport.class.cast(stream).workerPool, this.workerPool);
+    assertSame(((ParallelDoubleStreamSupport) stream).delegate, this.mappedDoubleDelegateMock);
+    assertSame(((ParallelDoubleStreamSupport) stream).workerPool, this.workerPool);
   }
 
   @Test
@@ -318,7 +316,7 @@ public class ParallelStreamSupportTest extends AbstractParallelStreamSupportTest
 
     verify(this.delegateMock).flatMap(f);
     assertThat(stream, instanceOf(ParallelStreamSupport.class));
-    assertSame(ParallelStreamSupport.class.cast(stream).delegate, this.mappedDelegateMock);
+    assertSame(((ParallelStreamSupport) stream).delegate, this.mappedDelegateMock);
   }
 
 
@@ -329,7 +327,7 @@ public class ParallelStreamSupportTest extends AbstractParallelStreamSupportTest
 
     verify(this.delegateMock).flatMapToInt(f);
     assertThat(stream, instanceOf(ParallelIntStreamSupport.class));
-    assertSame(ParallelIntStreamSupport.class.cast(stream).delegate, this.mappedIntDelegateMock);
+    assertSame(((ParallelIntStreamSupport) stream).delegate, this.mappedIntDelegateMock);
   }
 
   @Test
@@ -339,7 +337,7 @@ public class ParallelStreamSupportTest extends AbstractParallelStreamSupportTest
 
     verify(this.delegateMock).flatMapToLong(f);
     assertThat(stream, instanceOf(ParallelLongStreamSupport.class));
-    assertSame(ParallelLongStreamSupport.class.cast(stream).delegate, this.mappedLongDelegateMock);
+    assertSame(((ParallelLongStreamSupport) stream).delegate, this.mappedLongDelegateMock);
   }
 
   @Test
@@ -349,7 +347,7 @@ public class ParallelStreamSupportTest extends AbstractParallelStreamSupportTest
 
     verify(this.delegateMock).flatMapToDouble(f);
     assertThat(stream, instanceOf(ParallelDoubleStreamSupport.class));
-    assertSame(ParallelDoubleStreamSupport.class.cast(stream).delegate, this.mappedDoubleDelegateMock);
+    assertSame(((ParallelDoubleStreamSupport) stream).delegate, this.mappedDoubleDelegateMock);
   }
 
   @Test
@@ -498,7 +496,7 @@ public class ParallelStreamSupportTest extends AbstractParallelStreamSupportTest
 
   @Test
   void toArrayWithGenerator() {
-    IntFunction<String[]> generator = i -> new String[i];
+    IntFunction<String[]> generator = String[]::new;
     Object[] array = this.parallelStreamSupportMock.toArray(generator);
 
     verify(this.delegateMock).toArray(generator);
@@ -509,7 +507,7 @@ public class ParallelStreamSupportTest extends AbstractParallelStreamSupportTest
   @Test
   void toArrayWithGeneratorSequential() {
     this.parallelStreamSupport.sequential();
-    IntFunction<String[]> generator = i -> new String[i];
+    IntFunction<String[]> generator = String[]::new;
     Thread thisThread = currentThread();
     AtomicReference<Thread> threadRef = new AtomicReference<>();
 
@@ -523,7 +521,7 @@ public class ParallelStreamSupportTest extends AbstractParallelStreamSupportTest
   @Test
   void toArrayWithGeneratorParallel() {
     this.parallelStreamSupport.parallel();
-    IntFunction<String[]> generator = i -> new String[i];
+    IntFunction<String[]> generator = String[]::new;
     AtomicReference<Thread> threadRef = new AtomicReference<>();
 
     this.parallelStreamSupport

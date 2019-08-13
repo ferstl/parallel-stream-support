@@ -12,6 +12,14 @@ This library works around this gap and offers parallel streams in dedicated [For
 > In the [java.util.stream.AbstractTask](http://hg.openjdk.java.net/jdk8/jdk8/jdk/file/jdk8-b132/src/share/classes/java/util/stream/AbstractTask.java) class, the LEAF_TARGET field determines the amount of splitting that is done, which in turn determines the amount of parallelism that can be achieved. The value of this field is based on `ForkJoinPool.getCommonPoolParallelism()` which of course uses the parallelism of the common pool, not whatever pool happens to be running the tasks.
 
 # How to Use
+## Version Compatibility
+Each major version of this library belongs to one or more major versions of the JDK:
+
+| Library Version | JDK Version(s) | Comment |
+| --- | --- | --- |
+| 1.x.x | JDK 8 | Covers all methods of `Stream` and its primitive variants.  |
+| 2.x.x | JDKs 9, 10, 11, 12 | Adds support for `takeWhile()` and `dropWhile()` | 
+
 ## Dependencies
 
 The *Parallel Stream Support* library is available on [Maven Central](http://central.maven.org/maven2/com/github/ferstl/parallel-stream-support/). So no further repository configuration is required.

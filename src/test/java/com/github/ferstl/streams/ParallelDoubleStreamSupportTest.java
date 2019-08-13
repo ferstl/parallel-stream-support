@@ -344,6 +344,24 @@ public class ParallelDoubleStreamSupportTest extends AbstractParallelStreamSuppo
   }
 
   @Test
+  void takeWhile() {
+    DoublePredicate predicate = x -> true;
+    DoubleStream stream = this.parallelStreamSupportMock.takeWhile(predicate);
+
+    verify(this.delegateMock).takeWhile(predicate);
+    assertSame(this.parallelStreamSupportMock, stream);
+  }
+
+  @Test
+  void dropWhile() {
+    DoublePredicate predicate = x -> true;
+    DoubleStream stream = this.parallelStreamSupportMock.dropWhile(predicate);
+
+    verify(this.delegateMock).dropWhile(predicate);
+    assertSame(this.parallelStreamSupportMock, stream);
+  }
+
+  @Test
   void forEach() {
     DoubleConsumer c = d -> {
     };

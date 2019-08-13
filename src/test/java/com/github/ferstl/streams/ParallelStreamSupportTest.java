@@ -402,6 +402,24 @@ public class ParallelStreamSupportTest extends AbstractParallelStreamSupportTest
   }
 
   @Test
+  void takeWhile() {
+    Predicate<String> predicate = x -> true;
+    Stream<String> stream = this.parallelStreamSupportMock.takeWhile(predicate);
+
+    verify(this.delegateMock).takeWhile(predicate);
+    assertSame(this.parallelStreamSupportMock, stream);
+  }
+
+  @Test
+  void dropWhile() {
+    Predicate<String> predicate = x -> true;
+    Stream<String> stream = this.parallelStreamSupportMock.dropWhile(predicate);
+
+    verify(this.delegateMock).dropWhile(predicate);
+    assertSame(this.parallelStreamSupportMock, stream);
+  }
+
+  @Test
   void forEach() {
     Consumer<String> c = s -> {
     };

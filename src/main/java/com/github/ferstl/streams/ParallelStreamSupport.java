@@ -55,9 +55,7 @@ import static java.util.stream.StreamSupport.stream;
  * <p>
  * The following example illustrates an aggregate operation using {@link ParallelStreamSupport} with a custom
  * {@link ForkJoinPool}:
- *
  * <pre>
- *
  * ForkJoinPool pool = new ForkJoinPool();
  * int sum = ParallelStreamSupport.parallelStream(widgets, pool)
  *     .filter(w -&gt; w.getColor() == RED)
@@ -79,8 +77,8 @@ import static java.util.stream.StreamSupport.stream;
  * <li>{@link StreamSupport#stream(Supplier, int, boolean)}</li>
  * </ul>
  *
- * @apiNote
- * <p>
+ * @param <T> The type of the stream elements.
+ * @apiNote <p>
  * Internally, this stream wraps a stream which is initially created in one of the static factory methods. Whenever a
  * non-terminal operation is called the underlying stream will be replaced with the result of calling the same method
  * on that stream. The return value of these operations is always this stream or, in case of operations that return a
@@ -91,13 +89,11 @@ import static java.util.stream.StreamSupport.stream;
  * Although each factory method returns a parallel stream, calling {@link #sequential()} is still possible and leads to
  * sequential execution of a terminal operation within the calling thread.
  * </p>
- * @implNote
- * <p>
+ * @implNote <p>
  * See the class documentation for {@link Stream} and the package documentation for
  * <a href="https://docs.oracle.com/javase/8/docs/api/java/util/stream/package-summary.html">java.util.stream</a> for
  * additional specification.
  * </p>
- * @param <T> The type of the stream elements.
  */
 public class ParallelStreamSupport<T> extends AbstractParallelStreamSupport<T, Stream<T>> implements Stream<T> {
 
@@ -346,6 +342,18 @@ public class ParallelStreamSupport<T> extends AbstractParallelStreamSupport<T, S
     return this;
   }
 
+  @Override
+  public Stream<T> takeWhile(Predicate<? super T> predicate) {
+    this.delegate = this.delegate.takeWhile(predicate);
+    return this;
+  }
+
+  @Override
+  public Stream<T> dropWhile(Predicate<? super T> predicate) {
+    this.delegate = this.delegate.dropWhile(predicate);
+    return this;
+  }
+
   // Terminal operations
 
   @Override
@@ -432,5 +440,4 @@ public class ParallelStreamSupport<T> extends AbstractParallelStreamSupport<T, S
   public Optional<T> findAny() {
     return execute(() -> this.delegate.findAny());
   }
-
 }

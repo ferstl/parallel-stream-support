@@ -364,6 +364,24 @@ public class ParallelIntStreamSupportTest extends AbstractParallelStreamSupportT
   }
 
   @Test
+  void takeWhile() {
+    IntPredicate predicate = x -> true;
+    IntStream stream = this.parallelStreamSupportMock.takeWhile(predicate);
+
+    verify(this.delegateMock).takeWhile(predicate);
+    assertSame(this.parallelStreamSupportMock, stream);
+  }
+
+  @Test
+  void dropWhile() {
+    IntPredicate predicate = x -> true;
+    IntStream stream = this.parallelStreamSupportMock.dropWhile(predicate);
+
+    verify(this.delegateMock).dropWhile(predicate);
+    assertSame(this.parallelStreamSupportMock, stream);
+  }
+
+  @Test
   void forEach() {
     IntConsumer c = i -> {
     };

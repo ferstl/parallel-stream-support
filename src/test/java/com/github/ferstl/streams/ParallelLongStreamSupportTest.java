@@ -362,6 +362,24 @@ public class ParallelLongStreamSupportTest extends AbstractParallelStreamSupport
   }
 
   @Test
+  void takeWhile() {
+    LongPredicate predicate = x -> true;
+    LongStream stream = this.parallelStreamSupportMock.takeWhile(predicate);
+
+    verify(this.delegateMock).takeWhile(predicate);
+    assertSame(this.parallelStreamSupportMock, stream);
+  }
+
+  @Test
+  void dropWhile() {
+    LongPredicate predicate = x -> true;
+    LongStream stream = this.parallelStreamSupportMock.dropWhile(predicate);
+
+    verify(this.delegateMock).dropWhile(predicate);
+    assertSame(this.parallelStreamSupportMock, stream);
+  }
+
+  @Test
   void forEach() {
     LongConsumer c = i -> {
     };

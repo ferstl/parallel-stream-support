@@ -1,14 +1,14 @@
 sudo: false
 language: java
 jdk:
-- oraclejdk8
+  - openjdk11
 
 script:
-- mvn clean install -Pgenerate-javadoc
+  - mvn clean install -Pgenerate-javadoc
 
 after_success:
-- mvn jacoco:prepare-agent test jacoco:report coveralls:report
+  - mvn jacoco:prepare-agent test jacoco:report coveralls:report
 
 cache:
   directories:
-  - $HOME/.m2
+    - $HOME/.m2

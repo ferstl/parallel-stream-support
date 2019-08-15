@@ -67,7 +67,7 @@ Take a look at the [Javadoc](https://javadoc.io/doc/com.github.ferstl/parallel-s
           .orElseThrow(IllegalStateException::new);
     }
 
-#FAQ
+# FAQ
 Q: How does it work?
 
 A: The mechanism is pretty simple. A terminal operation on a parallel stream will recognize if it is executed within a ForkJoinPool. If it is not, the execution will be handed over to the common pool. If the operation was already started in a ForkJoinPool it will use that pool to complete the operation. This library utilizes this behavior and makes sure that terminal operations are started as task in the user-defined ForkJoinPool.

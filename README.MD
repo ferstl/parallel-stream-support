@@ -18,7 +18,7 @@ Each major version of this library belongs to one or more major versions of the 
 | Library Version | JDK Version(s) | Comment |
 | --- | --- | --- |
 | 1.x.x | JDK 8 | Covers all methods of `Stream` and its primitive variants.  |
-| 2.x.x | JDKs 9, 10, 11, 12, 13, 14 | Adds support for `takeWhile()` and `dropWhile()` | 
+| 2.x.x | JDKs 9-14 | Adds support for `takeWhile()` and `dropWhile()` | 
 
 ## Dependencies
 

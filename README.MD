@@ -3,13 +3,13 @@
 
 [![Build Status](https://github.com/ferstl/parallel-stream-support/actions/workflows/maven.yml/badge.svg)](https://github.com/ferstl/parallel-stream-support/actions/workflows/maven.yml) [![Coverage Status](https://coveralls.io/repos/github/ferstl/parallel-stream-support/badge.svg?branch=master)](https://coveralls.io/github/ferstl/parallel-stream-support?branch=master) [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.ferstl/parallel-stream-support/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.ferstl/parallel-stream-support) [![Javadocs](http://javadoc.io/badge/com.github.ferstl/parallel-stream-support.svg?color=blue)](http://javadoc.io/doc/com.github.ferstl/parallel-stream-support) [![license](https://img.shields.io/github/license/mashape/apistatus.svg?maxAge=2592000)](https://opensource.org/licenses/MIT)
 
-Parallel streams are by default processed in the [common pool](https://docs.oracle.com/en/java/javase/14/docs/api/java.base/java/util/concurrent/ForkJoinPool.html#commonPool()--). This is fine for many cases but sometimes it is not useful since there is no control over what else is running in the common pool. For example, an external library might use the common pool for IO-intensive tasks and therefore prevent the performance critical parallel streams of your application from executing. The stream API does not offer a mechanism to process parallel streams in a user-defined thread pool.
+Parallel streams are by default processed in the [common pool](https://docs.oracle.com/en/java/javase/15/docs/api/java.base/java/util/concurrent/ForkJoinPool.html#commonPool()--). This is fine for many cases but sometimes it is not useful since there is no control over what else is running in the common pool. For example, an external library might use the common pool for IO-intensive tasks and therefore prevent the performance critical parallel streams of your application from executing. The stream API does not offer a mechanism to process parallel streams in a user-defined thread pool.
 
-This library works around this gap and offers parallel streams in dedicated [ForkJoinPools](https://docs.oracle.com/en/java/javase/14/docs/api/java.base/java/util/concurrent/ForkJoinPool.html). Like the standard stream API this library offers streams for Java objects and for `int`, `long` and `double` primitive types.
+This library works around this gap and offers parallel streams in dedicated [ForkJoinPools](https://docs.oracle.com/en/java/javase/15/docs/api/java.base/java/util/concurrent/ForkJoinPool.html). Like the standard stream API this library offers streams for Java objects and for `int`, `long` and `double` primitive types.
 
 :warning: Having parallel streams outside of the common pool is not an officially supported feature and might stop working or behave differently in later Java releases! Furthermore the splitting policy of Parallel Streams depends strongly on the configured parallelism of the common pool. See this [StackOverflow Answer](http://stackoverflow.com/a/29272776/1497059) from Stuart Marks for further details:
 
-> In the [java.util.stream.AbstractTask](http://hg.openjdk.java.net/jdk/jdk14/file/jdk-14-ga/src/java.base/share/classes/java/util/stream/AbstractTask.java) class, the LEAF_TARGET field determines the amount of splitting that is done, which in turn determines the amount of parallelism that can be achieved. The value of this field is based on `ForkJoinPool.getCommonPoolParallelism()` which of course uses the parallelism of the common pool, not whatever pool happens to be running the tasks.
+> In the [java.util.stream.AbstractTask](http://hg.openjdk.java.net/jdk/jdk15/file/jdk-15-ga/src/java.base/share/classes/java/util/stream/AbstractTask.java) class, the LEAF_TARGET field determines the amount of splitting that is done, which in turn determines the amount of parallelism that can be achieved. The value of this field is based on `ForkJoinPool.getCommonPoolParallelism()` which of course uses the parallelism of the common pool, not whatever pool happens to be running the tasks.
 
 # How to Use
 ## Version Compatibility
@@ -18,7 +18,7 @@ Each major version of this library belongs to one or more major versions of the 
 | Library Version | JDK Version(s) | Comment |
 | --- | --- | --- |
 | 1.x.x | JDK 8 | Covers all methods of `Stream` and its primitive variants.  |
-| 2.x.x | JDKs 9-14 | Adds support for `takeWhile()` and `dropWhile()` | 
+| 2.x.x | JDKs 9-15 | Adds support for `takeWhile()` and `dropWhile()` | 
 
 ## Dependencies
 
@@ -33,12 +33,13 @@ The *Parallel Stream Support* library is available on [Maven Central](http://cen
     </dependencies>
 
 ## Creating Parallel Streams
-To create a parallel stream you need to instantiate a [ForkJoinPool](https://docs.oracle.com/en/java/javase/14/docs/api/java.base/java/util/concurrent/ForkJoinPool.html) and call one of the static factory methods of [ParallelStreamSupport](http://static.javadoc.io/com.github.ferstl/parallel-stream-support/2.0.0/com/github/ferstl/streams/ParallelStreamSupport.html), [ParallelIntStreamSupport](http://static.javadoc.io/com.github.ferstl/parallel-stream-support/2.0.0/com/github/ferstl/streams/ParallelIntStreamSupport.html), [ParallelLongStreamSupport](http://static.javadoc.io/com.github.ferstl/parallel-stream-support/2.0.0/com/github/ferstl/streams/ParallelLongStreamSupport.html) or [ParallelDoubleStreamSupport](http://static.javadoc.io/com.github.ferstl/parallel-stream-support/2.0.0/com/github/ferstl/streams/ParallelDoubleStreamSupport.html). The factory methods are based on:
+To create a parallel stream you need to instantiate a [ForkJoinPool](https://docs.oracle.com/en/java/javase/
+/docs/api/java.base/java/util/concurrent/ForkJoinPool.html) and call one of the static factory methods of [ParallelStreamSupport](http://static.javadoc.io/com.github.ferstl/parallel-stream-support/2.0.0/com/github/ferstl/streams/ParallelStreamSupport.html), [ParallelIntStreamSupport](http://static.javadoc.io/com.github.ferstl/parallel-stream-support/2.0.0/com/github/ferstl/streams/ParallelIntStreamSupport.html), [ParallelLongStreamSupport](http://static.javadoc.io/com.github.ferstl/parallel-stream-support/2.0.0/com/github/ferstl/streams/ParallelLongStreamSupport.html) or [ParallelDoubleStreamSupport](http://static.javadoc.io/com.github.ferstl/parallel-stream-support/2.0.0/com/github/ferstl/streams/ParallelDoubleStreamSupport.html). The factory methods are based on:
 
-- The static factory methods of the [Stream](https://docs.oracle.com/en/java/javase/14/docs/api/java.base/java/util/stream/Stream.html) interface or its primitive variants
-- The static factory methods of [StreamSupport](https://docs.oracle.com/en/java/javase/14/docs/api/java.base/java/util/stream/StreamSupport.html)
-- [Collection.parallelStream()](https://docs.oracle.com/en/java/javase/14/docs/api/java.base/java/util/Collection.html#parallelStream--)
-- [Arrays.stream()](hhttps://docs.oracle.com/en/java/javase/14/docs/api/java.base/java/util/Arrays.html#stream-T:A-)
+- The static factory methods of the [Stream](https://docs.oracle.com/en/java/javase/15/docs/api/java.base/java/util/stream/Stream.html) interface or its primitive variants
+- The static factory methods of [StreamSupport](https://docs.oracle.com/en/java/javase/15/docs/api/java.base/java/util/stream/StreamSupport.html)
+- [Collection.parallelStream()](https://docs.oracle.com/en/java/javase/15/docs/api/java.base/java/util/Collection.html#parallelStream--)
+- [Arrays.stream()](hhttps://docs.oracle.com/en/java/javase/15/docs/api/java.base/java/util/Arrays.html#stream-T:A-)
 
 Take a look at the [Javadoc](https://javadoc.io/doc/com.github.ferstl/parallel-stream-support/) for a complete overview of the factory methods.
 
@@ -82,7 +83,7 @@ A: Yes. Just call `sequential()` on the stream and it will be processed within t
 
 Q: Why is there no public constructor which takes a regular Java stream and a ForkJoinPool?
 
-A: It is a strong principle of this library to hide the details of its implementation. So the only place you have to deal with a concrete class of this library is when a new parallel stream is created. Afterwards you will only see the standard interfaces Stream, IntStream, LongStream and DoubleStream. Furthermore, each stream variant offers similar factory methods as in [StreamSupport](https://docs.oracle.com/en/java/javase/14/docs/api/java.base/java/util/stream/StreamSupport.html), which allows you to create a parallel stream from any other stream by just calling [Stream.spliterator()](https://docs.oracle.com/en/java/javase/14/docs/api/java.base/java/util/stream/BaseStream.html#spliterator--).
+A: It is a strong principle of this library to hide the details of its implementation. So the only place you have to deal with a concrete class of this library is when a new parallel stream is created. Afterwards you will only see the standard interfaces Stream, IntStream, LongStream and DoubleStream. Furthermore, each stream variant offers similar factory methods as in [StreamSupport](https://docs.oracle.com/en/java/javase/15/docs/api/java.base/java/util/stream/StreamSupport.html), which allows you to create a parallel stream from any other stream by just calling [Stream.spliterator()](https://docs.oracle.com/en/java/javase/15/docs/api/java.base/java/util/stream/BaseStream.html#spliterator--).
 Should you still think an essential factory method is missing, please report an [issue](https://github.com/ferstl/parallel-stream-support/issues) on this project.
 
 # How to Build
